@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "qubits": 2,
+  "classicalBits": 2,
+  "operations": [
+    { "id": "a", "gate": "h", "targets": [0], "timeStep": 0 },
+    { "id": "b", "gate": "cx", "controls": [0], "targets": [1], "timeStep": 1 },
+    { "id": "c", "gate": "measure", "targets": [0], "timeStep": 2 },
+    { "id": "d", "gate": "measure", "targets": [1], "timeStep": 2 }
+  ],
+  "metadata": { "name": "Bell state (H + CX)" }
+}
