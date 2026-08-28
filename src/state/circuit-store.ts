@@ -22,11 +22,13 @@ function revalidate(circuit: QuantumCircuit): ValidationError[] {
 
 interface CircuitState {
   circuit: QuantumCircuit;
+  name: string;
   errors: ValidationError[];
   past: QuantumCircuit[];
   future: QuantumCircuit[];
 
   setCircuit: (circuit: QuantumCircuit, opts?: { history?: boolean }) => void;
+  setName: (name: string) => void;
   addQubit: () => void;
   removeQubit: (index: number) => void;
   addOperation: (op: Omit<QuantumOperation, "id">) => string;
@@ -57,6 +59,7 @@ function withHistory(
 
 export const useCircuitStore = create<CircuitState>((set, get) => ({
   circuit: createEmptyCircuit(2, 2),
+  name: "Untitled circuit",
   errors: [],
   past: [],
   future: [],
@@ -68,6 +71,8 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
     }
     withHistory(set, get, () => circuit);
   },
+
+  setName: (name) => set({ name: name.trim() || "Untitled circuit" }),
 
   addQubit: () =>
     withHistory(set, get, (circuit) => ({ ...circuit, qubits: circuit.qubits + 1 })),

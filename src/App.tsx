@@ -12,7 +12,10 @@ import { CodeEditorPanel } from "./components/code-editor/CodeEditorPanel";
 import { GateInspector } from "./components/panels/GateInspector";
 import { ProbabilitiesPanel } from "./components/simulation/ProbabilitiesPanel";
 import { QSpherePanel } from "./components/simulation/QSpherePanel";
+import { BlochSpheresPanel } from "./components/simulation/BlochSpheresPanel";
 import { BackendSimulationController } from "./components/simulation/BackendSimulationController";
+import { TutorController } from "./components/tutor/TutorController";
+import { TutorPanel } from "./components/tutor/TutorPanel";
 import "./App.css";
 
 interface NewGateDragData {
@@ -104,6 +107,7 @@ function App() {
   return (
     <div className="app-shell">
       <BackendSimulationController />
+      <TutorController />
       <Toolbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="app-body">
@@ -116,11 +120,13 @@ function App() {
             <CircuitCanvas />
             <div className="app-bottom-row">
               <ProbabilitiesPanel />
+              <BlochSpheresPanel />
               <QSpherePanel />
             </div>
           </div>
           <div className="app-right-col">
             <CodeEditorPanel />
+            <TutorPanel />
           </div>
         </div>
       </DndContext>

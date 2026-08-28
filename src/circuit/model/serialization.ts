@@ -17,6 +17,7 @@ export interface CircuitFileV1 {
 export interface DeserializeResult {
   circuit: QuantumCircuit | null;
   errors: string[];
+  metadata?: CircuitFileMetadata;
 }
 
 export function serializeCircuit(circuit: QuantumCircuit, metadata?: CircuitFileMetadata): string {
@@ -110,8 +111,21 @@ export function deserializeCircuit(text: string): DeserializeResult {
     return { circuit: null, errors };
   }
 
+  const rawMetadata = o.metadata;
+  const metadata: CircuitFileMetadata | undefined =
+    typeof rawMetadata === "object" && rawMetadata !== null
+      ? {
+          name: typeof (rawMetadata as Record<string, unknown>).name === "string" ? (rawMetadata as Record<string, unknown>).name as string : undefined,
+          createdAt:
+            typeof (rawMetadata as Record<string, unknown>).createdAt === "string"
+              ? ((rawMetadata as Record<string, unknown>).createdAt as string)
+              : undefined,
+        }
+      : undefined;
+
   return {
     circuit: { version: 1, qubits: o.qubits, classicalBits: o.classicalBits, operations },
     errors: [],
+    metadata,
   };
 }

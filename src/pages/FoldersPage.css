@@ -1,0 +1,174 @@
+.folders-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Masonry: CSS multi-column packs cards top-to-bottom per column, giving the
+   Google-Keep-style staggered note grid without a JS layout library. */
+.folders-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) 60px;
+  column-count: 4;
+  column-gap: 16px;
+}
+@media (max-width: 1100px) {
+  .folders-grid {
+    column-count: 3;
+  }
+}
+@media (max-width: 800px) {
+  .folders-grid {
+    column-count: 2;
+  }
+}
+@media (max-width: 560px) {
+  .folders-grid {
+    column-count: 1;
+  }
+}
+
+.folder-card {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  break-inside: avoid;
+  margin: 0 0 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.folder-card:hover {
+  transform: translateY(-2px);
+}
+
+.folder-card-open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 16px;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.folder-card-open:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.folder-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+  margin-bottom: 10px;
+}
+.folder-card-badge-example {
+  color: #d7c37a;
+  background: rgba(255, 207, 107, 0.14);
+}
+
+.folder-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.folder-card-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+.folder-card-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.folder-card-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.folder-card-delete:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(240, 137, 92, 0.12);
+}
+
+/* Accent variants, cycled per card — echoes Google Keep's colored notes,
+   kept subtle enough to sit inside the app's dark theme. */
+.folder-card-c1 {
+  border-left-color: #6ea8fe;
+}
+.folder-card-c1 .folder-card-badge {
+  color: #9cc2ff;
+  background: rgba(110, 168, 254, 0.14);
+}
+.folder-card-c2 {
+  border-left-color: #b98bff;
+}
+.folder-card-c2 .folder-card-badge {
+  color: #cdaeff;
+  background: rgba(185, 139, 255, 0.14);
+}
+.folder-card-c3 {
+  border-left-color: #5fd9c5;
+}
+.folder-card-c3 .folder-card-badge {
+  color: #8fe8d8;
+  background: rgba(95, 217, 197, 0.14);
+}
+.folder-card-c4 {
+  border-left-color: #ffcf6b;
+}
+.folder-card-c4 .folder-card-badge {
+  color: #ffdd94;
+  background: rgba(255, 207, 107, 0.14);
+}
+.folder-card-c5 {
+  border-left-color: #ff8fa3;
+}
+.folder-card-c5 .folder-card-badge {
+  color: #ffb3c1;
+  background: rgba(255, 143, 163, 0.14);
+}
+.folder-card-c6 {
+  border-left-color: #7bd88f;
+}
+.folder-card-c6 .folder-card-badge {
+  color: #a3e8b0;
+  background: rgba(123, 216, 143, 0.14);
+}
+
+.folders-empty-hint {
+  color: var(--text-faint);
+  font-size: 13px;
+}

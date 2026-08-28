@@ -1,19 +1,38 @@
 from __future__ import annotations
 
 import math
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .circuit_builder import CircuitBuildError
+from .llm_provider import OllamaTutorProvider, TutorLLMProvider
 from .models import BlochAngle, ComplexModel, SimulateRequest, SimulateResponse
 from .simulator import SimulationError, compute_bloch_angles, run_counts, run_statevector
+from .tutor import build_tutor_response
+from .tutor_models import TutorAnalyzeRequest, TutorAnalyzeResponse
 from .validation import validate_circuit
 
-app = FastAPI(title="Quantum Circuit Editor — Simulation Backend", version="1.0.0")
+# Created once at import time; overridden in tests via
+# app.dependency_overrides[get_tutor_provider] so tests never need a live LLM.
+_default_tutor_provider: TutorLLMProvider = OllamaTutorProvider()
+
+
+def get_tutor_provider() -> TutorLLMProvider:
+    return _default_tutor_provider
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    _default_tutor_provider.warm_up()
+    yield
+
+
+app = FastAPI(title="Quantum Circuit Editor — Simulation Backend", version="1.0.0", lifespan=lifespan)
 
 
 def _json_safe(obj):
@@ -87,3 +106,35 @@ def simulate(request: SimulateRequest) -> SimulateResponse:
         bloch_angles=[BlochAngle(**b) for b in bloch],
         shots=request.shots,
     )
+
+
+@app.post("/api/tutor/analyze", response_model=TutorAnalyzeResponse)
+def tutor_analyze(
+    request: TutorAnalyzeRequest, provider: TutorLLMProvider = Depends(get_tutor_provider)
+) -> TutorAnalyzeResponse:
+    circuit = request.circuit
+
+    validation_errors = validate_circuit(circuit)
+    if validation_errors:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Circuit validation failed",
+                "errors": [{"message": e.message, "operationId": e.operation_id} for e in validation_errors],
+            },
+        )
+
+    try:
+        sv = run_statevector(circuit)
+        bloch = compute_bloch_angles(sv, circuit.qubits)
+    except CircuitBuildError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": exc.message, "operationId": exc.operation_id},
+        ) from exc
+    except SimulationError as exc:
+        raise HTTPException(status_code=500, detail={"message": exc.message}) from exc
+    except Exception as exc:  # noqa: BLE001 - never let an unexpected error crash the process
+        raise HTTPException(status_code=500, detail={"message": "Internal simulation error"}) from exc
+
+    return build_tutor_response(circuit, sv, bloch, provider)
