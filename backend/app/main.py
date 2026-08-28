@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -53,14 +54,16 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     safe_errors = _json_safe(jsonable_encoder(exc.errors()))
     return JSONResponse(status_code=422, content={"detail": safe_errors})
 
-# Local Vite dev server origins only — this is a local development backend,
-# not a public-facing deployment.
+# Defaults to the local Vite dev server; in production, set ALLOWED_ORIGINS
+# to a comma-separated list (e.g. the deployed Vercel frontend's URL).
+_default_origins = "http://localhost:5173,http://127.0.0.1:5173"
+allowed_origins = [
+    origin.strip() for origin in os.environ.get("ALLOWED_ORIGINS", _default_origins).split(",") if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],

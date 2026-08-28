@@ -48,8 +48,32 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 The frontend (Vite dev server on `http://localhost:5173`) is the only
-origin allowed by CORS by default — see `app/main.py` if you need to add
-another local origin.
+origin allowed by CORS by default. In production, set `ALLOWED_ORIGINS`
+(comma-separated) to your deployed frontend's URL — see `app/main.py`.
+
+## Deploy (Render)
+
+A `render.yaml` blueprint lives at the repo root. On [render.com](https://render.com):
+"New +" → "Blueprint" → point it at this repo → Render reads `render.yaml`
+and provisions a free web service rooted at `backend/` automatically
+(`pip install -r requirements.txt` then
+`uvicorn app.main:app --host 0.0.0.0 --port $PORT`).
+
+You'll be prompted for these environment variables (all optional, but set
+`ALLOWED_ORIGINS` or the deployed frontend can't reach the API):
+
+| Var | Purpose | Example |
+|---|---|---|
+| `ALLOWED_ORIGINS` | Comma-separated CORS allowlist | `https://your-app.vercel.app` |
+| `OLLAMA_BASE_URL` | Public URL of a self-hosted Ollama instance for the AI Tutor's LLM | `https://your-ollama-host.example.com` |
+| `OLLAMA_MODEL` | Model name if not `llama3` | `llama3` |
+
+If `OLLAMA_BASE_URL` is unset or unreachable, `/api/tutor/analyze` still
+works — it just falls back to the deterministic rule-based explanation
+(`source: "deterministic"` in the response) instead of an LLM-phrased one.
+
+Once deployed, copy the service's `https://...onrender.com` URL — the
+frontend needs it as `VITE_BACKEND_URL` (see the root `README.md`).
 
 ## Test
 

@@ -1,32 +1,54 @@
-# React + TypeScript + Vite
+# Quantum Circuit Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A visual quantum circuit editor: drag-and-drop gates, live Qiskit code sync,
+real simulation (in-browser or via a Qiskit Aer backend), Bloch sphere /
+Q-sphere visualizations, worked examples (Deutsch–Jozsa, Grover's Search), a
+"Folders" library of saved circuits, a Learner hub of core quantum computing
+concepts, and a circuit-grounded AI tutor.
 
-Currently, two official plugins are available:
+- `src/` — React + TypeScript + Vite frontend
+- `backend/` — FastAPI + Qiskit Aer simulation backend, plus the AI tutor
+  endpoint (see `backend/README.md`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run locally
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Opens on `http://localhost:5173`. The circuit editor's local (in-browser)
+simulator works with no backend running. To use the "Qiskit Aer" engine
+toggle and the AI Tutor, also start the backend — see `backend/README.md`.
+
+## Deploy
+
+**Frontend → Vercel.** Import this repo in Vercel; it auto-detects Vite
+(build command `npm run build`, output `dist/`). No `vercel.json` needed.
+Set one environment variable in the Vercel project settings:
+
+| Var | Value |
+|---|---|
+| `VITE_BACKEND_URL` | Your deployed backend's URL, e.g. `https://your-backend.onrender.com` |
+
+If unset, the frontend falls back to `http://localhost:8000` — fine for
+local dev, not for production.
+
+**Backend → Render** (or any host that runs a persistent Python process —
+Qiskit Aer is too large/slow-cold-starting for typical serverless
+functions). A `render.yaml` blueprint at the repo root automates this —
+see `backend/README.md` for the full deploy guide and required env vars
+(`ALLOWED_ORIGINS` must include your Vercel URL; `OLLAMA_BASE_URL` is
+optional — the AI Tutor gracefully falls back to rule-based explanations
+if no LLM is configured).
+
+Deploy order: backend first (to get its URL) → set `VITE_BACKEND_URL` on
+Vercel → set `ALLOWED_ORIGINS` on Render to the Vercel URL once you have it
+(redeploy the backend after).
+
+## Tests
+
+```bash
+npm run test          # frontend (vitest)
+cd backend && pytest  # backend
+```
