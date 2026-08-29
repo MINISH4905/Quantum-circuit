@@ -5,10 +5,7 @@ import { analyzeCircuitWithTutor } from "../../api/tutor-api";
 import { SimulationApiError } from "../../api/simulation-api";
 
 const DEBOUNCE_MS = 300;
-// Generous: a local LLM (e.g. Ollama) that's been idle can take 30-60s to
-// reload into memory. The backend also warms it at startup to avoid this
-// in practice, but the timeout still needs to tolerate a cold worst case.
-const REQUEST_TIMEOUT_MS = 60000;
+const REQUEST_TIMEOUT_MS = 30000;
 
 /**
  * Invisible controller: debounces circuit changes (same 300ms window the

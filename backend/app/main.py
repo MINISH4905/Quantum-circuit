@@ -18,7 +18,7 @@ import numpy as np
 from .circuit_builder import CircuitBuildError
 from .cirq_builder import CirqBuildError
 from .pennylane_builder import PennyLaneBuildError
-from .llm_provider import OllamaTutorProvider, TutorLLMProvider
+from .llm_provider import GroqTutorProvider, TutorLLMProvider
 from .models import (
     BackendResult,
     BlochAngle,
@@ -39,7 +39,7 @@ from .validation import validate_circuit
 
 # Created once at import time; overridden in tests via
 # app.dependency_overrides[get_tutor_provider] so tests never need a live LLM.
-_default_tutor_provider: TutorLLMProvider = OllamaTutorProvider()
+_default_tutor_provider: TutorLLMProvider = GroqTutorProvider()
 
 
 def get_tutor_provider() -> TutorLLMProvider:
