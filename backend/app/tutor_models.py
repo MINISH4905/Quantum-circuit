@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -18,11 +18,25 @@ class TutorWarning(BaseModel):
     message: str
 
 
+class TutorStep(BaseModel):
+    step: int
+    gate: str
+    qubits: str
+    action: str
+    stateAfter: str
+
+
+class TutorGateDefinition(BaseModel):
+    gate: str
+    definition: str
+    matrix: Optional[str] = None
+
+
 class TutorAnalyzeResponse(BaseModel):
     explanation: str
+    steps: list[TutorStep]
+    gateDefinitions: list[TutorGateDefinition]
+    algorithm: str
     warning: TutorWarning
     optimization: str
-    # Additive beyond the base contract: lets the frontend show a subtle
-    # "AI unavailable, showing rule-based analysis" note without treating it
-    # as an error state.
     source: Literal["llm", "deterministic"]

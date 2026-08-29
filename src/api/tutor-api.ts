@@ -1,20 +1,32 @@
 import type { QuantumCircuit } from "../circuit/model/types";
 import { SimulationApiError } from "./simulation-api";
 
-// Client for POST /api/tutor/analyze (backend/app/main.py). Owns the HTTP
-// contract only, same pattern as simulation-api.ts — no circuit state here.
-
 export interface TutorWarning {
   detected: boolean;
   message: string;
 }
 
+export interface TutorStep {
+  step: number;
+  gate: string;
+  qubits: string;
+  action: string;
+  stateAfter: string;
+}
+
+export interface TutorGateDefinition {
+  gate: string;
+  definition: string;
+  matrix?: string;
+}
+
 export interface TutorAnalysis {
   explanation: string;
+  steps: TutorStep[];
+  gateDefinitions: TutorGateDefinition[];
+  algorithm: string;
   warning: TutorWarning;
   optimization: string;
-  /** "llm" when the configured provider answered; "deterministic" when it
-   * was unavailable/failed and the backend fell back to rule-based checks. */
   source: "llm" | "deterministic";
 }
 
@@ -33,12 +45,11 @@ async function extractErrorMessage(res: Response): Promise<string> {
     if (detail?.errors?.length) return detail.errors.map((e) => e.message).join("; ");
     if (detail?.message) return detail.message;
   } catch {
-    // response body wasn't JSON; fall through to the generic message below
+    // response body wasn't JSON
   }
   return `Backend returned HTTP ${res.status}`;
 }
 
-/** POST the Circuit IR to the tutor endpoint and return the typed analysis. */
 export async function analyzeCircuitWithTutor(circuit: QuantumCircuit, signal?: AbortSignal): Promise<TutorAnalysis> {
   let res: Response;
   try {

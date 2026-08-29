@@ -20,31 +20,114 @@ TUTOR_JSON_SCHEMA = {
     "type": "object",
     "properties": {
         "explanation": {"type": "string"},
+        "steps": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "step": {"type": "integer"},
+                    "gate": {"type": "string"},
+                    "qubits": {"type": "string"},
+                    "action": {"type": "string"},
+                    "stateAfter": {"type": "string"},
+                },
+                "required": ["step", "gate", "qubits", "action", "stateAfter"],
+            },
+        },
+        "gateDefinitions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "gate": {"type": "string"},
+                    "definition": {"type": "string"},
+                    "matrix": {"type": "string"},
+                },
+                "required": ["gate", "definition"],
+            },
+        },
+        "algorithm": {"type": "string"},
         "warningDetected": {"type": "boolean"},
         "warningMessage": {"type": "string"},
         "optimization": {"type": "string"},
     },
-    "required": ["explanation", "warningDetected", "warningMessage", "optimization"],
+    "required": [
+        "explanation",
+        "steps",
+        "gateDefinitions",
+        "algorithm",
+        "warningDetected",
+        "warningMessage",
+        "optimization",
+    ],
     "additionalProperties": False,
 }
 
-TUTOR_SYSTEM_PROMPT = (
-    "You are a quantum computing tutor embedded in a circuit editor. You are shown the EXACT "
-    "current circuit, its EXACT simulated results, and a list of issues an automated checker "
-    "already found (which may be empty). Ground every statement strictly in this data — never "
-    "invent gates, qubits, or behavior that isn't given. Write for a beginner. Respond ONLY with "
-    "the requested JSON fields: "
-    "`explanation` is 2-4 plain-English sentences describing what this specific circuit does, "
-    "referencing the actual gates/qubits/probabilities given. "
-    "`warningDetected`/`warningMessage`: if the automated checker found issues, set "
-    "warningDetected=true and rewrite them as one clear, encouraging, pedagogical sentence or two "
-    "(don't just repeat them verbatim); if the checker found nothing and you don't see another "
-    "clear, concrete conceptual mistake yourself, set warningDetected=false and warningMessage to "
-    "an empty string — never invent a warning just to fill the field. "
-    "`optimization` is exactly ONE concrete, useful suggestion to improve this specific circuit "
-    "(fewer gates, clearer structure, a missing measurement, etc.); if the circuit is empty or "
-    "already minimal, say so plainly instead of inventing a change."
-)
+TUTOR_SYSTEM_PROMPT = """\
+You are a quantum computing tutor embedded in a visual circuit editor for beginners and \
+intermediate learners. You receive the EXACT circuit (gates, qubits, time steps), its EXACT \
+simulated results (statevector probabilities and Bloch sphere data), and any issues found by an \
+automated rule-based checker. Ground EVERY claim strictly in this data — never invent gates, \
+qubits, probabilities, or behavior not present.
+
+Respond ONLY with a JSON object containing these fields:
+
+1. "explanation" (string, 3-5 sentences):
+   - Start by naming what the circuit does in plain English (e.g. "This circuit creates a Bell \
+state — a maximally entangled pair of qubits.").
+   - Reference the exact gates and qubits from the input.
+   - Explain the key quantum phenomena at work (superposition, entanglement, interference, phase \
+kickback, etc.) with a one-sentence definition the FIRST time each concept appears.
+   - Tie the explanation to the simulation results: mention the actual probabilities or Bloch \
+sphere states given.
+
+2. "steps" (array of objects — one per gate/operation in time order):
+   Each step has:
+   - "step": integer (1-based)
+   - "gate": the gate name (e.g. "H", "CNOT", "RX(π/4)")
+   - "qubits": which qubits it acts on (e.g. "q0", "q0 → q1")
+   - "action": one sentence explaining what this gate does to the quantum state right now \
+(e.g. "Puts q0 into an equal superposition of |0⟩ and |1⟩")
+   - "stateAfter": the quantum state after this step in Dirac notation \
+(e.g. "(|00⟩ + |10⟩)/√2" or "|11⟩"). Use exact amplitudes from the simulation when possible.
+
+3. "gateDefinitions" (array of objects — one per UNIQUE gate type used in this circuit):
+   Each definition has:
+   - "gate": gate name (e.g. "Hadamard (H)")
+   - "definition": 1-2 sentence precise definition (e.g. "The Hadamard gate creates an equal \
+superposition by mapping |0⟩ to (|0⟩+|1⟩)/√2 and |1⟩ to (|0⟩-|1⟩)/√2.")
+   - "matrix" (optional): the matrix representation as a string (e.g. "[[1/√2, 1/√2], [1/√2, -1/√2]]")
+
+4. "algorithm" (string):
+   - If the circuit matches a known quantum algorithm or pattern, name it and give a one-sentence \
+description. Known patterns: Bell state preparation, GHZ state, quantum teleportation, Deutsch \
+algorithm, Bernstein-Vazirani, QFT, Grover diffusion, phase estimation, swap test, superdense \
+coding, quantum error correction, variational circuit.
+   - If it doesn't match any known pattern, say "Custom circuit — no standard algorithm detected."
+
+5. "warningDetected" (boolean) and "warningMessage" (string):
+   - If the automated checker found issues: set warningDetected=true, rewrite each issue as a \
+clear, encouraging sentence explaining WHY it's a problem and HOW to fix it.
+   - If the checker found nothing and you don't see a clear conceptual mistake in the data: set \
+warningDetected=false and warningMessage="".
+   - NEVER invent warnings. Only flag issues you can prove from the given circuit and results.
+
+6. "optimization" (string):
+   - Give exactly ONE concrete, actionable suggestion specific to THIS circuit.
+   - Examples: "Remove the redundant H-H pair on q0", "Add measurements to see classical output", \
+"Replace the three CNOT gates with a single Toffoli", "This 3-qubit circuit could be reduced to \
+2 qubits."
+   - If the circuit is empty, say "Add gates to build a circuit."
+   - If the circuit is already minimal, say so clearly.
+
+PRECISION RULES:
+- Use Dirac notation (|0⟩, |1⟩, |+⟩, |−⟩) for states.
+- Write rotation angles as fractions of π when applicable (π/2, π/4, not 1.5708).
+- For entangled states, explicitly note which qubits are entangled and what that means \
+for measurement correlation.
+- When describing probabilities, use percentages matching the simulation data (e.g. "50.0%").
+- If a qubit's Bloch vector has r < 1, explain it's in a mixed state due to entanglement.
+"""
 
 
 class LLMNotConfiguredError(RuntimeError):
@@ -57,10 +140,30 @@ class LLMProviderError(RuntimeError):
 
 
 class TutorLLMOutput:
-    __slots__ = ("explanation", "warning_detected", "warning_message", "optimization")
+    __slots__ = (
+        "explanation",
+        "steps",
+        "gate_definitions",
+        "algorithm",
+        "warning_detected",
+        "warning_message",
+        "optimization",
+    )
 
-    def __init__(self, explanation: str, warning_detected: bool, warning_message: str, optimization: str):
+    def __init__(
+        self,
+        explanation: str,
+        warning_detected: bool,
+        warning_message: str,
+        optimization: str,
+        steps: list[dict] | None = None,
+        gate_definitions: list[dict] | None = None,
+        algorithm: str = "",
+    ):
         self.explanation = explanation
+        self.steps = steps or []
+        self.gate_definitions = gate_definitions or []
+        self.algorithm = algorithm
         self.warning_detected = warning_detected
         self.warning_message = warning_message
         self.optimization = optimization
@@ -73,18 +176,16 @@ class TutorLLMProvider(Protocol):
         self, *, circuit_summary: str, simulation_summary: str, detected_issues: list[str]
     ) -> TutorLLMOutput: ...
 
-    def warm_up(self) -> None:
-        """Best-effort, non-blocking hint to get the model ready before the
-        first real request. No-op for providers with no cold-start cost."""
-        ...
+    def warm_up(self) -> None: ...
 
 
 def _build_user_prompt(circuit_summary: str, simulation_summary: str, detected_issues: list[str]) -> str:
     issues_block = "\n".join(f"- {issue}" for issue in detected_issues) if detected_issues else "(none found)"
     return (
-        f"Circuit:\n{circuit_summary}\n\n"
-        f"Simulated results:\n{simulation_summary}\n\n"
-        f"Automated checker findings:\n{issues_block}"
+        f"=== CIRCUIT ===\n{circuit_summary}\n\n"
+        f"=== SIMULATION RESULTS ===\n{simulation_summary}\n\n"
+        f"=== AUTOMATED CHECKER FINDINGS ===\n{issues_block}\n\n"
+        "Analyze this circuit. Respond with the JSON object described in your instructions."
     )
 
 
@@ -127,8 +228,8 @@ class GroqTutorProvider:
                     "content": _build_user_prompt(circuit_summary, simulation_summary, detected_issues),
                 },
             ],
-            "temperature": 0.2,
-            "max_tokens": 1024,
+            "temperature": 0.15,
+            "max_tokens": 2048,
             "response_format": {"type": "json_object"},
         }
 
@@ -163,6 +264,9 @@ class GroqTutorProvider:
             data = json.loads(text)
             return TutorLLMOutput(
                 explanation=data["explanation"],
+                steps=data.get("steps", []),
+                gate_definitions=data.get("gateDefinitions", []),
+                algorithm=data.get("algorithm", ""),
                 warning_detected=bool(data["warningDetected"]),
                 warning_message=data.get("warningMessage", ""),
                 optimization=data.get("optimization", ""),

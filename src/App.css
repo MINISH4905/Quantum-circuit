@@ -1009,10 +1009,13 @@
   border-radius: var(--radius-sm);
   padding: 2px 6px;
 }
+.tutor-badge.is-deterministic {
+  color: var(--text-faint);
+}
 .tutor-sections {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   transition: opacity 150ms ease;
 }
 .tutor-sections.is-refreshing {
@@ -1046,6 +1049,146 @@
   border: 1px solid rgba(217, 89, 38, 0.25);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
+}
+
+/* Algorithm banner */
+.tutor-algorithm-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(110, 168, 254, 0.1);
+  border: 1px solid rgba(110, 168, 254, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.tutor-algorithm-icon {
+  font-size: 16px;
+}
+
+/* Tutor tabs */
+.tutor-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tutor-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tutor-tab:hover {
+  color: var(--text);
+}
+.tutor-tab.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Step cards */
+.tutor-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tutor-step-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.tutor-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tutor-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.tutor-step-gate {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  font-family: monospace;
+}
+.tutor-step-qubits {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.tutor-step-action {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.tutor-step-state {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.tutor-step-state code {
+  font-family: monospace;
+  color: var(--accent);
+  background: rgba(110, 168, 254, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Gate definition cards */
+.tutor-gate-defs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tutor-gate-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.tutor-gate-name {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.tutor-gate-def {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.tutor-gate-matrix {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 8px;
+  border-radius: 3px;
 }
 
 /* Page walkthrough — lightweight spotlight + tooltip onboarding tour */
