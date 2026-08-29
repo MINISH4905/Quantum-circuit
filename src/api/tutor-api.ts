@@ -12,6 +12,7 @@ export interface TutorStep {
   qubits: string;
   action: string;
   stateAfter: string;
+  opId?: string;
 }
 
 export interface TutorGateDefinition {

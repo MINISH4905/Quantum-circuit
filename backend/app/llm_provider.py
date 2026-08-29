@@ -82,12 +82,19 @@ kickback, etc.) with a one-sentence definition the FIRST time each concept appea
 sphere states given.
 
 2. "steps" (array of objects — one per gate/operation in time order):
+   These steps are LAB INSTRUCTIONS — a learner should be able to rebuild this entire circuit \
+from scratch by following them sequentially. Each step tells the learner what to place and why.
    Each step has:
    - "step": integer (1-based)
    - "gate": the gate name (e.g. "H", "CNOT", "RX(π/4)")
    - "qubits": which qubits it acts on (e.g. "q0", "q0 → q1")
-   - "action": one sentence explaining what this gate does to the quantum state right now \
-(e.g. "Puts q0 into an equal superposition of |0⟩ and |1⟩")
+   - "action": a lab-style instruction with two parts: (1) a placement directive telling the \
+learner which gate to drag onto which qubit, and (2) one sentence explaining WHY this step \
+matters and what it achieves in the context of the circuit. Use positional language: \
+"Start by placing…" for step 1, "Next, place…" for middle steps, "Finally, add…" for \
+measurement steps. \
+(e.g. "Start by placing an H gate on q0. This puts q0 into superposition, preparing it for \
+entanglement in the next step.")
    - "stateAfter": the quantum state after this step in Dirac notation \
 (e.g. "(|00⟩ + |10⟩)/√2" or "|11⟩"). Use exact amplitudes from the simulation when possible.
 

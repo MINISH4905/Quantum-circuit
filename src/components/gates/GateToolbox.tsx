@@ -29,6 +29,7 @@ function ToolboxGate({ gate, onAddGate }: ToolboxGateProps) {
       {...listeners}
       {...attributes}
       type="button"
+      data-gate-id={gate.id}
       className={`toolbox-gate${isDragging ? " is-dragging" : ""}`}
       onClick={() => onAddGate(gate.id)}
       aria-label={`Add ${gate.name} gate`}

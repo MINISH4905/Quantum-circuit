@@ -117,9 +117,88 @@ def _detect_algorithm(circuit: QuantumCircuitModel) -> str:
     return "Custom circuit — no standard algorithm detected."
 
 
+_AN_GATE_IDS = frozenset({"h", "x", "s", "rx", "ry", "rz"})
+
+
+def _step_effect(gate_id: str, targets: list[int], controls: list[int],
+                 index: int, total: int, next_gate: str | None) -> str:
+    t0 = targets[0]
+
+    if gate_id == "h":
+        if next_gate in ("cx", "cz"):
+            return f"This puts q{t0} into superposition, preparing it for entanglement in the next step."
+        if next_gate == "measure":
+            return f"This creates a 50/50 superposition — the following measurement will give a random outcome."
+        return f"This puts q{t0} into an equal superposition of |0⟩ and |1⟩."
+
+    if gate_id == "x":
+        if index < total // 2:
+            return f"This initializes q{t0} to the |1⟩ state."
+        return f"This flips q{t0}, toggling between |0⟩ and |1⟩."
+
+    if gate_id == "y":
+        return f"This rotates q{t0} around the Y-axis, flipping it with a phase change."
+
+    if gate_id == "z":
+        return f"This applies a phase flip on q{t0} — the |1⟩ component gets a sign change."
+
+    if gate_id == "s":
+        return f"This adds a π/2 phase shift to q{t0}."
+
+    if gate_id == "t":
+        return f"This adds a π/4 phase shift to q{t0}."
+
+    if gate_id in ("rx", "ry", "rz"):
+        axis = gate_id[1].upper()
+        return f"This rotates q{t0} around the {axis}-axis by the given angle."
+
+    if gate_id == "cx" and controls:
+        return (
+            f"This flips q{t0} when q{controls[0]} is |1⟩. "
+            f"If q{controls[0]} is in superposition, this entangles the two qubits."
+        )
+
+    if gate_id == "cz" and controls:
+        return f"This applies a phase flip to q{t0} when q{controls[0]} is |1⟩, creating phase-based entanglement."
+
+    if gate_id == "swap" and len(targets) >= 2:
+        return f"This exchanges the quantum states of q{targets[0]} and q{targets[1]}."
+
+    if gate_id == "measure":
+        return f"This collapses q{t0} to either |0⟩ or |1⟩ and records the classical result."
+
+    return f"This applies the {gate_id.upper()} operation to the target qubit(s)."
+
+
+def _build_step_instruction(op, name: str, controls: list[int], targets: list[int],
+                            index: int, total: int, next_gate: str | None) -> str:
+    article = "an" if op.gate in _AN_GATE_IDS else "a"
+
+    if index == 0:
+        prefix = "Start by placing"
+    elif op.gate == "measure":
+        prefix = "Finally, add"
+    else:
+        prefix = "Next, place"
+
+    if controls:
+        where = f"with control on q{controls[0]} and target on q{targets[0]}"
+    elif op.gate == "swap" and len(targets) >= 2:
+        where = f"between q{targets[0]} and q{targets[1]}"
+    elif len(targets) >= 2:
+        where = f"on q{targets[0]} and q{targets[1]}"
+    else:
+        where = f"on q{targets[0]}"
+
+    placement = f"{prefix} {article} {name} gate {where}."
+    effect = _step_effect(op.gate, targets, controls, index, total, next_gate)
+    return f"{placement} {effect}"
+
+
 def _build_deterministic_steps(circuit: QuantumCircuitModel) -> list[TutorStep]:
     ordered = sorted(circuit.operations, key=lambda op: (op.timeStep, op.id))
     steps = []
+    total = len(ordered)
     for i, op in enumerate(ordered):
         gate = GATES.get(op.gate)
         name = gate.qiskit_name.upper() if gate else op.gate.upper()
@@ -143,8 +222,8 @@ def _build_deterministic_steps(circuit: QuantumCircuitModel) -> list[TutorStep]:
         else:
             qubits_str = f"q{targets[0]}"
 
-        gate_info = GATE_DEFINITIONS.get(op.gate, {})
-        action = gate_info.get("definition", f"Applies {name} gate.").split(".")[0] + "."
+        next_gate = ordered[i + 1].gate if i + 1 < total else None
+        action = _build_step_instruction(op, name, controls, targets, i, total, next_gate)
 
         steps.append(TutorStep(
             step=i + 1,
@@ -152,6 +231,7 @@ def _build_deterministic_steps(circuit: QuantumCircuitModel) -> list[TutorStep]:
             qubits=qubits_str,
             action=action,
             stateAfter="(see simulation results)",
+            opId=op.id,
         ))
     return steps
 
@@ -246,6 +326,126 @@ def _fallback_optimization(issues: list[str], circuit: QuantumCircuitModel) -> s
     return "Circuit looks good — no obvious optimizations detected."
 
 
+def _statevector_to_dirac(sv: Statevector, num_qubits: int) -> str:
+    terms = []
+    for i, amp in enumerate(sv.data):
+        mag = abs(amp)
+        if mag < 1e-6:
+            continue
+        bits = format(i, f"0{num_qubits}b")
+        if abs(mag - 1.0) < 1e-6:
+            if abs(amp.real - 1.0) < 1e-6:
+                terms.append(f"|{bits}⟩")
+            elif abs(amp.real + 1.0) < 1e-6:
+                terms.append(f"-|{bits}⟩")
+            elif abs(amp.imag - 1.0) < 1e-6:
+                terms.append(f"i|{bits}⟩")
+            elif abs(amp.imag + 1.0) < 1e-6:
+                terms.append(f"-i|{bits}⟩")
+            else:
+                phase = math.atan2(amp.imag, amp.real)
+                terms.append(f"e^(i{phase:.2f})|{bits}⟩")
+        else:
+            if abs(mag - 1 / math.sqrt(2)) < 1e-4:
+                coeff = ""
+            else:
+                coeff = f"{mag:.3f}·"
+            if amp.real > 1e-6 and abs(amp.imag) < 1e-6:
+                terms.append(f"{coeff}|{bits}⟩")
+            elif amp.real < -1e-6 and abs(amp.imag) < 1e-6:
+                terms.append(f"-{coeff}|{bits}⟩")
+            elif abs(amp.real) < 1e-6 and amp.imag > 1e-6:
+                terms.append(f"i·{coeff}|{bits}⟩")
+            elif abs(amp.real) < 1e-6 and amp.imag < -1e-6:
+                terms.append(f"-i·{coeff}|{bits}⟩")
+            else:
+                terms.append(f"({amp.real:.3f}{amp.imag:+.3f}i)|{bits}⟩")
+
+    if not terms:
+        return "|" + "0" * num_qubits + "⟩"
+
+    result = terms[0]
+    for t in terms[1:]:
+        if t.startswith("-"):
+            result += f" - {t[1:]}"
+        else:
+            result += f" + {t}"
+
+    non_zero = sum(1 for amp in sv.data if abs(amp) > 1e-6)
+    if non_zero > 1 and all(
+        abs(abs(amp) - 1 / math.sqrt(non_zero)) < 1e-4
+        for amp in sv.data if abs(amp) > 1e-6
+    ):
+        result = f"({result})/√{non_zero}"
+    return result
+
+
+def _build_deterministic_explanation(
+    circuit: QuantumCircuitModel,
+    sv: Statevector,
+    bloch: list[dict],
+    algorithm: str,
+) -> str:
+    if not circuit.operations:
+        return (
+            f"This is an empty {circuit.qubits}-qubit circuit with no gates. "
+            "All qubits start in the |0⟩ state. Add gates to explore quantum operations."
+        )
+
+    ordered = sorted(circuit.operations, key=lambda op: (op.timeStep, op.id))
+    non_measure = [op for op in ordered if op.gate != "measure"]
+    gate_names = []
+    for op in non_measure:
+        gate = GATES.get(op.gate)
+        name = gate.qiskit_name.upper() if gate else op.gate.upper()
+        if name not in gate_names:
+            gate_names.append(name)
+    gate_list = ", ".join(gate_names) if gate_names else "no"
+
+    parts = []
+
+    if not algorithm.startswith("Custom"):
+        algo_name = algorithm.split("—")[0].strip() if "—" in algorithm else algorithm.split(".")[0].strip()
+        parts.append(
+            f"This {circuit.qubits}-qubit circuit implements {algo_name} "
+            f"using {gate_list} gate{'s' if len(gate_names) != 1 else ''}."
+        )
+    else:
+        parts.append(
+            f"This {circuit.qubits}-qubit circuit uses {gate_list} "
+            f"gate{'s' if len(gate_names) != 1 else ''} across "
+            f"{len(ordered)} operation{'s' if len(ordered) != 1 else ''}."
+        )
+
+    state_str = _statevector_to_dirac(sv, circuit.qubits)
+    parts.append(f"The final quantum state is {state_str}.")
+
+    probs = sv.probabilities_dict()
+    top = sorted(probs.items(), key=lambda kv: -kv[1])[:4]
+    if top:
+        outcomes = ", ".join(f"|{bits}⟩ at {p * 100:.1f}%" for bits, p in top if p > 1e-6)
+        if outcomes:
+            parts.append(f"The most likely measurement outcomes are: {outcomes}.")
+
+    has_superposition = any(0.01 < abs(amp) ** 2 < 0.99 for amp in sv.data)
+    has_entanglement = any(not b["pure"] for b in bloch)
+
+    phenomena = []
+    if has_superposition:
+        phenomena.append("superposition (qubits exist in multiple states simultaneously)")
+    if has_entanglement:
+        entangled_qubits = [f"q{b['qubit']}" for b in bloch if not b["pure"]]
+        phenomena.append(
+            f"entanglement ({', '.join(entangled_qubits)} "
+            f"{'are' if len(entangled_qubits) > 1 else 'is'} entangled — "
+            "measuring one instantly determines the other)"
+        )
+    if phenomena:
+        parts.append(f"Key quantum phenomena: {'; '.join(phenomena)}.")
+
+    return " ".join(parts)
+
+
 def build_tutor_response(
     circuit: QuantumCircuitModel,
     sv: Statevector,
@@ -273,7 +473,7 @@ def build_tutor_response(
 
     if llm_output is None:
         return TutorAnalyzeResponse(
-            explanation=f"{circuit_summary}\n{simulation_summary}",
+            explanation=_build_deterministic_explanation(circuit, sv, bloch, det_algorithm),
             steps=det_steps,
             gateDefinitions=det_gate_defs,
             algorithm=det_algorithm,

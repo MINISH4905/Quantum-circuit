@@ -1,6 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { QuantumOperation } from "../../circuit/model/types";
 import type { GateDefinition } from "../../circuit/gate-registry/types";
+import { useUiStore } from "../../state/ui-store";
 import { GateGlyph } from "../gates/GateGlyph";
 import { ROW_HEIGHT, COL_WIDTH } from "./layout";
 import { formatParameter } from "../../circuit/model/parameter-expr";
@@ -14,6 +15,7 @@ interface PlacedGateProps {
 }
 
 export function PlacedGate({ op, gate, selected, invalid, onSelect }: PlacedGateProps) {
+  const highlighted = useUiStore((s) => s.highlightedOpId === op.id);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `op-${op.id}`,
     data: { type: "move-gate", operationId: op.id },
@@ -46,8 +48,9 @@ export function PlacedGate({ op, gate, selected, invalid, onSelect }: PlacedGate
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`placed-gate${selected ? " is-selected" : ""}${invalid ? " is-invalid" : ""}`}
+      className={`placed-gate${selected ? " is-selected" : ""}${invalid ? " is-invalid" : ""}${highlighted ? " is-tutor-highlight" : ""}`}
       style={style}
+      data-op-id={op.id}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(op.id);

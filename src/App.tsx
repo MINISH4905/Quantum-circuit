@@ -19,7 +19,11 @@ import { ComparisonController } from "./components/comparison/ComparisonControll
 import { ComparisonDashboard } from "./components/comparison/ComparisonDashboard";
 import { TutorController } from "./components/tutor/TutorController";
 import { TutorPanel } from "./components/tutor/TutorPanel";
+import { TutorSpotlight } from "./components/tutor/TutorSpotlight";
 import { PageWalkthrough } from "./components/walkthrough/PageWalkthrough";
+import { TutorialEngine } from "./components/tutorial/TutorialEngine";
+import { TutorialOverlay } from "./components/tutorial/TutorialOverlay";
+import { useTutorialStore } from "./state/tutorial-store";
 import "./App.css";
 
 interface NewGateDragData {
@@ -89,6 +93,8 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
   const target = e.target as HTMLElement | null;
   if (target?.closest(".monaco-editor")) return;
 
+  if (useTutorialStore.getState().isActive()) return;
+
   const isMod = e.ctrlKey || e.metaKey;
   if (isMod && e.key.toLowerCase() === "z" && !e.shiftKey) {
     e.preventDefault();
@@ -108,6 +114,10 @@ const sensorOptions = { activationConstraint: { distance: 4 } };
 function App() {
   const sensors = useSensors(useSensor(PointerSensor, sensorOptions));
   const simMode = useSimulationStore((s) => s.mode);
+  const leftOpen = useUiStore((s) => s.leftPanelOpen);
+  const rightOpen = useUiStore((s) => s.rightPanelOpen);
+  const toggleLeft = useUiStore((s) => s.toggleLeftPanel);
+  const toggleRight = useUiStore((s) => s.toggleRightPanel);
 
   return (
     <div className="app-shell">
@@ -117,13 +127,32 @@ function App() {
       <Toolbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="app-body">
-          <div className="app-left-col">
-            <GateToolbox onAddGate={handleAddGateClick} />
-            <GateInspector />
+          <div className={`app-left-col${leftOpen ? "" : " is-collapsed"}`}>
+            <button
+              type="button"
+              className="panel-collapse-toggle is-left"
+              onClick={toggleLeft}
+              aria-label={leftOpen ? "Collapse gates panel" : "Expand gates panel"}
+              title={leftOpen ? "Collapse" : "Gates"}
+            >
+              <span className="panel-collapse-chevron">{leftOpen ? "‹" : "›"}</span>
+              {!leftOpen && <span className="panel-collapse-label">Gates</span>}
+            </button>
+            {leftOpen && (
+              <>
+                <GateToolbox onAddGate={handleAddGateClick} />
+                <GateInspector />
+              </>
+            )}
           </div>
           <div className="app-center-col" id="wt-circuit-editor">
             <CanvasToolbar />
-            <CircuitCanvas />
+            <div className="app-center-top">
+              <CircuitCanvas />
+              <div className="app-code-col">
+                <CodeEditorPanel />
+              </div>
+            </div>
             {simMode === "compare" ? (
               <ComparisonDashboard />
             ) : (
@@ -134,13 +163,25 @@ function App() {
               </div>
             )}
           </div>
-          <div className="app-right-col">
-            <CodeEditorPanel />
-            <TutorPanel />
+          <div className={`app-right-col${rightOpen ? "" : " is-collapsed"}`}>
+            <button
+              type="button"
+              className="panel-collapse-toggle is-right"
+              onClick={toggleRight}
+              aria-label={rightOpen ? "Collapse AI Tutor" : "Expand AI Tutor"}
+              title={rightOpen ? "Collapse" : "AI Tutor"}
+            >
+              {!rightOpen && <span className="panel-collapse-label">AI Tutor</span>}
+              <span className="panel-collapse-chevron">{rightOpen ? "›" : "‹"}</span>
+            </button>
+            {rightOpen && <TutorPanel />}
           </div>
         </div>
       </DndContext>
       <PageWalkthrough />
+      <TutorSpotlight />
+      <TutorialEngine />
+      <TutorialOverlay />
     </div>
   );
 }

@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useSavedCircuitsStore } from "../../state/saved-circuits-store";
 import { useWalkthroughStore } from "../../state/walkthrough-store";
 import { createEmptyCircuit } from "../../circuit/model/types";
 import { serializeCircuit, deserializeCircuit } from "../../circuit/model/serialization";
+import { ConfirmModal } from "../shared/ConfirmModal";
+import { LabPicker } from "./LabPicker";
+import { TutorialPicker } from "./TutorialPicker";
+import { useTutorialStore } from "../../state/tutorial-store";
+import type { WorkedExample } from "../../circuit/examples/worked-examples";
+import type { TutorialDef } from "../../circuit/examples/tutorials";
 
 type MenuId = "file" | "edit" | "help";
 
@@ -33,6 +39,8 @@ export function Toolbar() {
   const select = useUiStore((s) => s.select);
   const startWalkthrough = useWalkthroughStore((s) => s.start);
 
+  const startTutorial = useTutorialStore((s) => s.startTutorial);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const menuRef = useRef<HTMLElement | null>(null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -42,6 +50,14 @@ export function Toolbar() {
   const toastTimerRef = useRef<number | undefined>(undefined);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(circuitName);
+  const [showLabPicker, setShowLabPicker] = useState(false);
+  const [showTutorialPicker, setShowTutorialPicker] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<
+    | null
+    | { type: "new" }
+    | { type: "load"; example: WorkedExample }
+    | { type: "tutorial"; tutorial: TutorialDef }
+  >(null);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -121,15 +137,69 @@ export function Toolbar() {
     });
   };
 
-  const handleNewCircuit = () => {
-    if (circuit.operations.length > 0 && !window.confirm("Start a new circuit? Unsaved changes will be lost.")) {
+  const handleNewCircuit = useCallback(() => {
+    if (circuit.operations.length > 0) {
+      setConfirmAction({ type: "new" });
       return;
     }
     setCircuit(createEmptyCircuit(2, 2));
     setCircuitName("Untitled circuit");
     select(null);
     showToast("Started a new circuit");
-  };
+  }, [circuit.operations.length, setCircuit, setCircuitName, select]);
+
+  const handleLabSelect = useCallback(
+    (example: WorkedExample) => {
+      setShowLabPicker(false);
+      if (circuit.operations.length > 0) {
+        setConfirmAction({ type: "load", example });
+        return;
+      }
+      setCircuit(example.build());
+      setCircuitName(example.label);
+      select(null);
+      showToast(`Loaded "${example.label}"`);
+    },
+    [circuit.operations.length, setCircuit, setCircuitName, select]
+  );
+
+  const handleTutorialSelect = useCallback(
+    (tutorial: TutorialDef) => {
+      setShowTutorialPicker(false);
+      if (circuit.operations.length > 0) {
+        setConfirmAction({ type: "tutorial", tutorial });
+        return;
+      }
+      setCircuit(createEmptyCircuit(tutorial.qubits, tutorial.classicalBits));
+      setCircuitName(`${tutorial.title} (Tutorial)`);
+      select(null);
+      startTutorial(tutorial);
+    },
+    [circuit.operations.length, setCircuit, setCircuitName, select, startTutorial]
+  );
+
+  const executeConfirmAction = useCallback(() => {
+    if (!confirmAction) return;
+    if (confirmAction.type === "new") {
+      setCircuit(createEmptyCircuit(2, 2));
+      setCircuitName("Untitled circuit");
+      select(null);
+      showToast("Started a new circuit");
+    } else if (confirmAction.type === "load") {
+      const { example } = confirmAction;
+      setCircuit(example.build());
+      setCircuitName(example.label);
+      select(null);
+      showToast(`Loaded "${example.label}"`);
+    } else if (confirmAction.type === "tutorial") {
+      const { tutorial } = confirmAction;
+      setCircuit(createEmptyCircuit(tutorial.qubits, tutorial.classicalBits));
+      setCircuitName(`${tutorial.title} (Tutorial)`);
+      select(null);
+      startTutorial(tutorial);
+    }
+    setConfirmAction(null);
+  }, [confirmAction, setCircuit, setCircuitName, select, startTutorial]);
 
   const runMenuAction = (action: () => void) => {
     action();
@@ -273,6 +343,15 @@ export function Toolbar() {
         </span>
       )}
       <div className="toolbar-group">
+        <button type="button" onClick={handleNewCircuit} aria-label="New circuit">
+          + New
+        </button>
+        <button type="button" onClick={() => setShowLabPicker(true)} aria-label="Load a preset lab">
+          Load Lab
+        </button>
+        <button type="button" onClick={() => setShowTutorialPicker(true)} aria-label="Start a tutorial">
+          Tutorial
+        </button>
         <button type="button" onClick={handleSave} aria-label="Save circuit as JSON">
           Save file
         </button>
@@ -293,6 +372,33 @@ export function Toolbar() {
           Load failed: {loadError}
         </span>
       )}
+
+      <ConfirmModal
+        open={confirmAction !== null}
+        title="Unsaved changes"
+        message="Your current circuit will be lost. Continue?"
+        confirmLabel="Continue"
+        onConfirm={executeConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
+
+      <ConfirmModal
+        open={showLabPicker}
+        title="Load a Lab"
+        onCancel={() => setShowLabPicker(false)}
+        width={520}
+      >
+        <LabPicker onSelect={handleLabSelect} />
+      </ConfirmModal>
+
+      <ConfirmModal
+        open={showTutorialPicker}
+        title="Start a Tutorial"
+        onCancel={() => setShowTutorialPicker(false)}
+        width={520}
+      >
+        <TutorialPicker onSelect={handleTutorialSelect} />
+      </ConfirmModal>
     </header>
   );
 }

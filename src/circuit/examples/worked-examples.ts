@@ -53,24 +53,129 @@ export function buildGroverCircuit(): QuantumCircuit {
   ]);
 }
 
+/**
+ * Bell State (|Φ+⟩): simplest entanglement circuit.
+ * H on q0 → CX(q0,q1) → measure both.
+ */
+export function buildBellStateCircuit(): QuantumCircuit {
+  const [q0, q1] = [0, 1];
+  return build(2, 2, [
+    op("h", [q0], 0),
+    op("cx", [q1], 1, { controls: [q0] }),
+    op("measure", [q0], 2),
+    op("measure", [q1], 2),
+  ]);
+}
+
+/**
+ * GHZ State: 3-qubit entanglement. H → two CX gates → measure all.
+ */
+export function buildGHZCircuit(): QuantumCircuit {
+  const [q0, q1, q2] = [0, 1, 2];
+  return build(3, 3, [
+    op("h", [q0], 0),
+    op("cx", [q1], 1, { controls: [q0] }),
+    op("cx", [q2], 2, { controls: [q0] }),
+    op("measure", [q0], 3),
+    op("measure", [q1], 3),
+    op("measure", [q2], 3),
+  ]);
+}
+
+/**
+ * Quantum Teleportation: teleport an X-prepared state from q0 to q2
+ * via a Bell pair on q1-q2. Corrections applied unconditionally
+ * (ideal simulation without classical conditioning).
+ */
+export function buildTeleportationCircuit(): QuantumCircuit {
+  const [q0, q1, q2] = [0, 1, 2];
+  return build(3, 2, [
+    op("x", [q0], 0),
+    op("h", [q1], 1),
+    op("cx", [q2], 2, { controls: [q1] }),
+    op("cx", [q1], 3, { controls: [q0] }),
+    op("h", [q0], 4),
+    op("measure", [q0], 5),
+    op("measure", [q1], 5),
+    op("cx", [q2], 6, { controls: [q1] }),
+    op("cz", [q2], 7, { controls: [q0] }),
+  ]);
+}
+
+/**
+ * Superdense Coding: encode classical bits "11" into one qubit of a
+ * Bell pair. Alice applies X+Z, then Bob decodes with CX+H+Measure.
+ */
+export function buildSuperdenseCodingCircuit(): QuantumCircuit {
+  const [q0, q1] = [0, 1];
+  return build(2, 2, [
+    op("h", [q0], 0),
+    op("cx", [q1], 1, { controls: [q0] }),
+    op("x", [q0], 2),
+    op("z", [q0], 3),
+    op("cx", [q1], 4, { controls: [q0] }),
+    op("h", [q0], 5),
+    op("measure", [q0], 6),
+    op("measure", [q1], 6),
+  ]);
+}
+
 export interface WorkedExample {
   id: string;
   label: string;
   description: string;
+  qubits: number;
+  gateCount: number;
   build: () => QuantumCircuit;
 }
 
 export const WORKED_EXAMPLES: WorkedExample[] = [
   {
+    id: "bell-state",
+    label: "Bell State",
+    description: "Entangle 2 qubits into |Φ+⟩",
+    qubits: 2,
+    gateCount: 4,
+    build: buildBellStateCircuit,
+  },
+  {
+    id: "ghz-state",
+    label: "GHZ State",
+    description: "3-qubit entanglement (|000⟩ + |111⟩)/√2",
+    qubits: 3,
+    gateCount: 6,
+    build: buildGHZCircuit,
+  },
+  {
+    id: "superdense",
+    label: "Superdense Coding",
+    description: "Send 2 classical bits using 1 qubit",
+    qubits: 2,
+    gateCount: 8,
+    build: buildSuperdenseCodingCircuit,
+  },
+  {
+    id: "teleportation",
+    label: "Quantum Teleportation",
+    description: "Teleport a qubit state via Bell pair",
+    qubits: 3,
+    gateCount: 9,
+    build: buildTeleportationCircuit,
+  },
+  {
     id: "deutsch-jozsa",
     label: "Deutsch–Jozsa",
     description: "2 input qubits + 1 ancilla, balanced oracle",
+    qubits: 3,
+    gateCount: 10,
     build: buildDeutschJozsaCircuit,
   },
   {
     id: "grover",
     label: "Grover's Search",
     description: "2 qubits, 1 iteration, marks |11⟩",
+    qubits: 2,
+    gateCount: 13,
     build: buildGroverCircuit,
   },
 ];

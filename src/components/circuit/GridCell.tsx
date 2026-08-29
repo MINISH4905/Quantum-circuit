@@ -24,6 +24,8 @@ export function GridCell({ qubit, timeStep, onClick }: GridCellProps) {
         width: COL_WIDTH,
         height: ROW_HEIGHT,
       }}
+      data-qubit={qubit}
+      data-timestep={timeStep}
       onClick={onClick}
       role="gridcell"
       aria-label={`q${qubit}, step ${timeStep}, empty`}

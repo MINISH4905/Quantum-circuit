@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
+import { useUiStore } from "../../state/ui-store";
 import { useTutorStore } from "../../state/tutor-store";
 
 type TutorTab = "explain" | "steps" | "gates";
@@ -7,12 +8,59 @@ type TutorTab = "explain" | "steps" | "gates";
 export function TutorPanel() {
   const hasErrors = useCircuitStore((s) => s.errors.length > 0);
   const hasGates = useCircuitStore((s) => s.circuit.operations.length > 0);
+  const operations = useCircuitStore((s) => s.circuit.operations);
 
   const result = useTutorStore((s) => s.result);
   const error = useTutorStore((s) => s.error);
   const loading = useTutorStore((s) => s.loading);
 
+  const stepData = useUiStore((s) => s.highlightedStepData);
+  const highlightStep = useUiStore((s) => s.highlightStep);
+
   const [activeTab, setActiveTab] = useState<TutorTab>("explain");
+  const activeStepIndex = stepData?.stepIndex ?? null;
+
+  useEffect(() => {
+    highlightStep(null);
+  }, [result, highlightStep]);
+
+  // Scroll the active step card into view when navigating from the spotlight callout
+  useEffect(() => {
+    if (activeStepIndex === null) return;
+    const card = document.querySelector(`.tutor-step-card[data-step-index="${activeStepIndex}"]`);
+    card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [activeStepIndex]);
+
+  const getOpIdForStep = useCallback(
+    (stepIndex: number, step: { opId?: string }) => {
+      if (step.opId) return step.opId;
+      const sorted = [...operations].sort((a, b) =>
+        a.timeStep !== b.timeStep ? a.timeStep - b.timeStep : a.id.localeCompare(b.id)
+      );
+      return sorted[stepIndex]?.id ?? null;
+    },
+    [operations]
+  );
+
+  const handleStepClick = useCallback(
+    (stepIndex: number, step: { opId?: string; gate: string; qubits: string; action: string }) => {
+      if (activeStepIndex === stepIndex) {
+        highlightStep(null);
+        return;
+      }
+      const opId = getOpIdForStep(stepIndex, step);
+      const totalSteps = result?.steps?.length ?? 0;
+      highlightStep(opId, { gate: step.gate, qubits: step.qubits, action: step.action, stepIndex, totalSteps });
+
+      if (opId) {
+        requestAnimationFrame(() => {
+          const el = document.querySelector(`[data-op-id="${opId}"]`);
+          el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+        });
+      }
+    },
+    [activeStepIndex, getOpIdForStep, highlightStep, result]
+  );
 
   return (
     <section className="tutor-panel" id="wt-ai-tutor" aria-label="AI circuit tutor">
@@ -109,13 +157,31 @@ export function TutorPanel() {
             {/* Steps tab */}
             {activeTab === "steps" && (
               <div className="tutor-steps">
+                {activeStepIndex !== null && (
+                  <button
+                    className="tutor-clear-highlight"
+                    onClick={() => highlightStep(null)}
+                  >
+                    Clear highlight
+                  </button>
+                )}
                 {result.steps && result.steps.length > 0 ? (
-                  result.steps.map((s) => (
-                    <div key={s.step} className="tutor-step-card">
+                  result.steps.map((s, i) => (
+                    <div
+                      key={s.step}
+                      data-step-index={i}
+                      className={`tutor-step-card${activeStepIndex === i ? " is-active-step" : ""}`}
+                      onClick={() => handleStepClick(i, s)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleStepClick(i, s); } }}
+                      title="Click to highlight this gate on the circuit"
+                    >
                       <div className="tutor-step-header">
                         <span className="tutor-step-number">{s.step}</span>
                         <span className="tutor-step-gate">{s.gate}</span>
                         <span className="tutor-step-qubits">{s.qubits}</span>
+                        {activeStepIndex === i && <span className="tutor-step-indicator" aria-label="Highlighted on canvas" />}
                       </div>
                       <p className="tutor-step-action">{s.action}</p>
                       <p className="tutor-step-state">

@@ -255,6 +255,10 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
   overflow: hidden;
+  transition: width 0.25s ease;
+}
+.app-left-col.is-collapsed {
+  width: 36px;
 }
 .app-center-col {
   flex: 1;
@@ -264,10 +268,15 @@
   min-width: 0;
   min-height: 0;
 }
-.app-right-col {
-  width: 440px;
-  min-width: 300px;
-  max-width: 75vw;
+.app-center-top {
+  flex: 1;
+  display: flex;
+  gap: var(--gap);
+  min-height: 0;
+}
+.app-code-col {
+  width: 380px;
+  min-width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -276,8 +285,93 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
-  resize: horizontal;
   overflow: hidden;
+}
+.app-right-col {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  transition: width 0.25s ease;
+}
+.app-right-col.is-collapsed {
+  width: 36px;
+}
+
+/* Collapse toggle buttons */
+.panel-collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  padding: 8px 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  transition: background 0.12s, color 0.12s;
+}
+.panel-collapse-toggle:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+.panel-collapse-toggle.is-left {
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+.panel-collapse-toggle.is-right {
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+.is-collapsed .panel-collapse-toggle {
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: none;
+  padding: 10px 0;
+  height: 100%;
+  justify-content: flex-start;
+  padding-top: 12px;
+}
+.is-collapsed .panel-collapse-toggle.is-left {
+  padding-right: 0;
+  justify-content: flex-start;
+}
+.is-collapsed .panel-collapse-toggle.is-right {
+  padding-left: 0;
+  justify-content: flex-start;
+}
+.panel-collapse-chevron {
+  font-size: 16px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.panel-collapse-toggle:hover .panel-collapse-chevron {
+  background: rgba(255, 255, 255, 0.08);
+}
+.panel-collapse-label {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  user-select: none;
 }
 
 /* Canvas toolbar — its own floating pill-card above the canvas */
@@ -985,15 +1079,12 @@
   font-size: 13px;
 }
 
-/* AI Tutor panel — stacked below the code editor, same "flex-shrink:0,
-   capped height, own scroll" pattern as .gate-inspector. */
+/* AI Tutor panel — fills the right column */
 .tutor-panel {
-  flex-shrink: 0;
-  max-height: 42%;
-  min-height: 160px;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border-soft);
   background: var(--panel-alt);
 }
 .tutor-body {
@@ -1107,6 +1198,17 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.tutor-step-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.tutor-step-card.is-active-step {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 2px rgba(110, 168, 254, 0.25);
 }
 .tutor-step-header {
   display: flex;
@@ -1154,6 +1256,181 @@
   background: rgba(110, 168, 254, 0.08);
   padding: 1px 4px;
   border-radius: 3px;
+}
+.tutor-step-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: auto;
+  flex-shrink: 0;
+  animation: tutor-dot-pulse 1.5s ease-in-out infinite;
+}
+.tutor-clear-highlight {
+  all: unset;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+  align-self: flex-start;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tutor-clear-highlight:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+/* Tutor highlight on circuit gate */
+@keyframes tutor-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.5); }
+  50% { box-shadow: 0 0 0 7px rgba(110, 168, 254, 0.15); }
+}
+@keyframes tutor-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.placed-gate.is-tutor-highlight {
+  z-index: 8 !important;
+}
+.placed-gate.is-tutor-highlight .gate-marker {
+  animation: tutor-pulse 1.5s ease-in-out infinite;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Spotlight overlay */
+.tutor-spotlight-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+.tutor-spotlight-svg {
+  position: absolute;
+  inset: 0;
+}
+@keyframes tutor-arrow-dash {
+  to { stroke-dashoffset: -18; }
+}
+.tutor-spotlight-arrow {
+  animation: tutor-arrow-dash 0.6s linear infinite;
+}
+@keyframes tutor-ring-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.tutor-spotlight-ring {
+  animation: tutor-ring-pulse 2s ease-in-out infinite;
+}
+
+/* Floating callout card */
+.tutor-callout {
+  position: fixed;
+  background: var(--panel);
+  border: 1.5px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px 14px 10px;
+  box-shadow:
+    0 0 0 1px rgba(110, 168, 254, 0.15),
+    0 4px 20px rgba(0, 0, 0, 0.45),
+    0 0 30px rgba(110, 168, 254, 0.08);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+.tutor-callout.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.tutor-callout-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.tutor-callout-gate {
+  font-weight: 700;
+  font-size: 14px;
+  font-family: monospace;
+  color: var(--accent);
+  background: rgba(110, 168, 254, 0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+.tutor-callout-qubits {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: monospace;
+}
+.tutor-callout-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+.tutor-callout-action {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.tutor-callout-close {
+  all: unset;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.tutor-callout-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+.tutor-callout-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.tutor-callout-nav-btn {
+  all: unset;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: 5px;
+  transition: background 0.15s, opacity 0.15s;
+  user-select: none;
+}
+.tutor-callout-nav-btn:hover:not(:disabled) {
+  background: rgba(110, 168, 254, 0.14);
+}
+.tutor-callout-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.tutor-callout-nav-counter {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
 }
 
 /* Gate definition cards */
@@ -1524,5 +1801,365 @@
 @media (max-width: 900px) {
   .comparison-columns {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── Confirm Modal ──────────────────────────────────────────── */
+
+.confirm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modal-backdrop-in 0.15s ease;
+}
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.confirm-modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 20px 24px;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  animation: modal-card-in 0.18s ease;
+  outline: none;
+}
+@keyframes modal-card-in {
+  from { opacity: 0; transform: scale(0.97) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.confirm-modal-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.confirm-modal-message {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.confirm-modal-btn {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  height: 32px;
+  padding: 0 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.confirm-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.confirm-modal-btn.is-primary {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: #cfe0ff;
+}
+.confirm-modal-btn.is-primary:hover {
+  background: rgba(110, 168, 254, 0.28);
+}
+
+/* ── Lab Picker ─────────────────────────────────────────────── */
+
+.lab-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+}
+.lab-card:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.lab-card-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.lab-card-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+.lab-card-meta {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.lab-card-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(110, 168, 254, 0.1);
+  border: 1px solid rgba(110, 168, 254, 0.2);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── Tutorial Picker ────────────────────────────────────────── */
+
+.tutorial-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+.tutorial-picker-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+}
+.tutorial-picker-card:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.tutorial-picker-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.tutorial-picker-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+/* ── Tutorial Overlay ───────────────────────────────────────── */
+
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  pointer-events: none;
+}
+.tutorial-overlay.is-error .circuit-grid {
+  pointer-events: none;
+}
+.tutorial-overlay-svg {
+  position: absolute;
+  inset: 0;
+}
+
+.tutorial-highlight-pulse {
+  position: fixed;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 11001;
+}
+.tutorial-highlight-pulse.is-source {
+  border: 2px solid var(--accent);
+  animation: tutorial-glow-pulse 1.6s ease-in-out infinite;
+}
+.tutorial-highlight-pulse.is-target {
+  border: 2px dashed #6bd08a;
+  animation: tutorial-glow-pulse 1.6s ease-in-out infinite 0.4s;
+}
+@keyframes tutorial-glow-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(110, 168, 254, 0.5); }
+  50% { box-shadow: 0 0 16px rgba(110, 168, 254, 0.25); }
+}
+
+.tutorial-instruction {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel);
+  border: 1.5px solid var(--accent);
+  border-radius: 14px;
+  padding: 0 18px 14px;
+  box-shadow:
+    0 0 0 1px rgba(110, 168, 254, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(110, 168, 254, 0.06);
+  pointer-events: auto;
+  z-index: 11002;
+  animation: modal-card-in 0.2s ease;
+}
+.tutorial-progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  margin: 14px 0 10px;
+  overflow: hidden;
+}
+.tutorial-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.tutorial-step-counter {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+.tutorial-instruction-text {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text);
+}
+.tutorial-hint-text {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--danger);
+  animation: tutorial-shake 0.35s ease;
+}
+.tutorial-success-text {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6bd08a;
+  animation: tutorial-success-pop 0.3s ease;
+}
+@keyframes tutorial-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+@keyframes tutorial-success-pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.tutorial-controls {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.tutorial-ctrl-btn {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.tutorial-ctrl-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.tutorial-ctrl-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.tutorial-ctrl-btn.is-primary {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: #cfe0ff;
+}
+.tutorial-ctrl-btn.is-primary:hover {
+  background: rgba(110, 168, 254, 0.28);
+}
+.tutorial-ctrl-btn.is-exit {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+/* Tutorial completion */
+.tutorial-completion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel);
+  border: 1.5px solid #6bd08a;
+  border-radius: 16px;
+  padding: 28px 24px 20px;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(107, 208, 138, 0.15),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(107, 208, 138, 0.06);
+  pointer-events: auto;
+  z-index: 11002;
+  animation: modal-card-in 0.25s ease;
+}
+.tutorial-completion-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #6bd08a;
+}
+.tutorial-completion-message {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+.tutorial-completion-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-highlight-pulse,
+  .tutorial-hint-text,
+  .tutorial-success-text {
+    animation: none;
+  }
+  .tutorial-instruction,
+  .tutorial-completion,
+  .confirm-modal,
+  .confirm-modal-backdrop {
+    animation: none;
   }
 }

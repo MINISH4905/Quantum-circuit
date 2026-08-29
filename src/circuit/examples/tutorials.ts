@@ -1,0 +1,457 @@
+export interface TutorialStepDef {
+  instruction: string;
+  gateId: string;
+  targets: number[];
+  controls?: number[];
+  timeStep: number;
+  hint: string;
+}
+
+export interface TutorialDef {
+  id: string;
+  title: string;
+  description: string;
+  qubits: number;
+  classicalBits: number;
+  steps: TutorialStepDef[];
+  completionMessage: string;
+}
+
+export const TUTORIALS: TutorialDef[] = [
+  {
+    id: "bell-state",
+    title: "Bell State",
+    description: "Build a 2-qubit entangled pair — the simplest quantum circuit that creates entanglement.",
+    qubits: 2,
+    classicalBits: 2,
+    steps: [
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 0",
+        gateId: "h",
+        targets: [0],
+        timeStep: 0,
+        hint: "Find the H gate in the Single Qubit section of the toolbox and drag it to q0.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q1, time step 1",
+        gateId: "cx",
+        targets: [1],
+        controls: [0],
+        timeStep: 1,
+        hint: "The CNOT is in the Multi Qubit section. Drag it to q0 — it auto-assigns control and target.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 2",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 2,
+        hint: "Measurement is in the Measurement section. Drag it to q0.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 2",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 2,
+        hint: "Place another Measure on q1 at the same time step.",
+      },
+    ],
+    completionMessage:
+      "You built a Bell State! Measuring these entangled qubits always gives correlated results — both |00⟩ or both |11⟩ with equal probability.",
+  },
+  {
+    id: "ghz-state",
+    title: "GHZ State",
+    description: "Extend entanglement to 3 qubits — build the Greenberger–Horne–Zeilinger state.",
+    qubits: 3,
+    classicalBits: 3,
+    steps: [
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 0",
+        gateId: "h",
+        targets: [0],
+        timeStep: 0,
+        hint: "Start with H on q0 to create superposition.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q1, time step 1",
+        gateId: "cx",
+        targets: [1],
+        controls: [0],
+        timeStep: 1,
+        hint: "Drag CNOT to q0 at time step 1.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q2, time step 2",
+        gateId: "cx",
+        targets: [2],
+        controls: [0],
+        timeStep: 2,
+        hint: "Drag another CNOT to q0 at time step 2 — it will extend the entanglement to q2.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 3",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 3,
+        hint: "Drag Measure to q0.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 3",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 3,
+        hint: "Drag Measure to q1 at the same time step.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 2, time step 3",
+        gateId: "measure",
+        targets: [2],
+        timeStep: 3,
+        hint: "Drag Measure to q2 at the same time step.",
+      },
+    ],
+    completionMessage:
+      "You built a GHZ state! All three qubits are entangled — measurement always gives |000⟩ or |111⟩, never a mix.",
+  },
+  {
+    id: "superdense",
+    title: "Superdense Coding",
+    description: "Encode two classical bits into one qubit of a Bell pair — send more information than classically possible.",
+    qubits: 2,
+    classicalBits: 2,
+    steps: [
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 0",
+        gateId: "h",
+        targets: [0],
+        timeStep: 0,
+        hint: "H creates a superposition on q0 — the first step in preparing a Bell pair.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q1, time step 1",
+        gateId: "cx",
+        targets: [1],
+        controls: [0],
+        timeStep: 1,
+        hint: "CX entangles q0 and q1 into a Bell pair. Drag CNOT to q0.",
+      },
+      {
+        instruction: "Place an X gate on qubit 0, time step 2",
+        gateId: "x",
+        targets: [0],
+        timeStep: 2,
+        hint: "Alice applies X to encode the first classical bit. Find X in Single Qubit gates.",
+      },
+      {
+        instruction: "Place a Z gate on qubit 0, time step 3",
+        gateId: "z",
+        targets: [0],
+        timeStep: 3,
+        hint: "Alice applies Z to encode the second classical bit. X+Z together encode '11'.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q1, time step 4",
+        gateId: "cx",
+        targets: [1],
+        controls: [0],
+        timeStep: 4,
+        hint: "Bob begins decoding — apply CX to disentangle the qubits.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 5",
+        gateId: "h",
+        targets: [0],
+        timeStep: 5,
+        hint: "Bob applies H to complete the decoding. The classical bits are now readable.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 6",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 6,
+        hint: "Measure q0 to read the first decoded bit.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 6",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 6,
+        hint: "Measure q1 to read the second decoded bit.",
+      },
+    ],
+    completionMessage:
+      "You built Superdense Coding! Alice encoded two classical bits (11) by applying X and Z to her half of a Bell pair. Bob decoded them with CX + H + Measure — reading |11⟩ with certainty.",
+  },
+  {
+    id: "teleportation",
+    title: "Quantum Teleportation",
+    description: "Teleport a qubit state from q0 to q2 using a shared Bell pair and classical communication.",
+    qubits: 3,
+    classicalBits: 2,
+    steps: [
+      {
+        instruction: "Place an X gate on qubit 0, time step 0",
+        gateId: "x",
+        targets: [0],
+        timeStep: 0,
+        hint: "X prepares the state |1⟩ on q0 — this is the state we'll teleport to q2.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 1",
+        gateId: "h",
+        targets: [1],
+        timeStep: 1,
+        hint: "H on q1 begins creating the Bell pair that q1 and q2 will share.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q1 → target q2, time step 2",
+        gateId: "cx",
+        targets: [2],
+        controls: [1],
+        timeStep: 2,
+        hint: "CX completes the Bell pair between q1 and q2. Drag CNOT to q1.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q1, time step 3",
+        gateId: "cx",
+        targets: [1],
+        controls: [0],
+        timeStep: 3,
+        hint: "Alice applies CX from her data qubit (q0) to her half of the Bell pair (q1).",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 4",
+        gateId: "h",
+        targets: [0],
+        timeStep: 4,
+        hint: "H on q0 completes Alice's Bell measurement preparation.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 5",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 5,
+        hint: "Measure q0 — Alice's first classical bit for Bob.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 5",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 5,
+        hint: "Measure q1 — Alice's second classical bit for Bob.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q1 → target q2, time step 6",
+        gateId: "cx",
+        targets: [2],
+        controls: [1],
+        timeStep: 6,
+        hint: "Bob applies a conditional X correction on q2 based on q1's measurement.",
+      },
+      {
+        instruction: "Place a CZ gate with control q0 → target q2, time step 7",
+        gateId: "cz",
+        targets: [2],
+        controls: [0],
+        timeStep: 7,
+        hint: "Bob applies a conditional Z correction on q2 based on q0's measurement. Find CZ in Multi Qubit gates.",
+      },
+    ],
+    completionMessage:
+      "You built Quantum Teleportation! The state |1⟩ was teleported from q0 to q2 using a Bell pair and two classical bits. No physical qubit moved — only information transferred.",
+  },
+  {
+    id: "deutsch-jozsa",
+    title: "Deutsch–Jozsa",
+    description: "Determine if a function is constant or balanced in a single query — exponential speedup over classical.",
+    qubits: 3,
+    classicalBits: 2,
+    steps: [
+      {
+        instruction: "Place an X gate on qubit 2 (ancilla), time step 0",
+        gateId: "x",
+        targets: [2],
+        timeStep: 0,
+        hint: "X flips the ancilla to |1⟩. This sets up the phase kickback trick.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 1",
+        gateId: "h",
+        targets: [0],
+        timeStep: 1,
+        hint: "H creates superposition on input qubit q0.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 1",
+        gateId: "h",
+        targets: [1],
+        timeStep: 1,
+        hint: "H creates superposition on input qubit q1. Both inputs now explore all combinations.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 2 (ancilla), time step 1",
+        gateId: "h",
+        targets: [2],
+        timeStep: 1,
+        hint: "H on the ancilla puts it into |−⟩ = (|0⟩−|1⟩)/√2, enabling phase kickback.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q0 → target q2, time step 2",
+        gateId: "cx",
+        targets: [2],
+        controls: [0],
+        timeStep: 2,
+        hint: "First part of the balanced oracle: f(x₀,x₁) = x₀ ⊕ x₁. CX from q0 to the ancilla.",
+      },
+      {
+        instruction: "Place a CNOT (CX) gate with control q1 → target q2, time step 3",
+        gateId: "cx",
+        targets: [2],
+        controls: [1],
+        timeStep: 3,
+        hint: "Second part of the oracle. Together these two CX gates implement the balanced function.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 4",
+        gateId: "h",
+        targets: [0],
+        timeStep: 4,
+        hint: "H interferes the phases on q0. If the function is balanced, this produces |1⟩.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 4",
+        gateId: "h",
+        targets: [1],
+        timeStep: 4,
+        hint: "H on q1 completes the interference. Non-zero measurement confirms 'balanced'.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 5",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 5,
+        hint: "Measure q0. If the result is not |00⟩, the function is balanced.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 5",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 5,
+        hint: "Measure q1. One query determined what would take multiple classical evaluations!",
+      },
+    ],
+    completionMessage:
+      "You built the Deutsch–Jozsa algorithm! With a single oracle query, it determined the function is balanced — something a classical computer would need multiple evaluations to confirm.",
+  },
+  {
+    id: "grover",
+    title: "Grover's Search",
+    description: "Search an unsorted database quadratically faster — find the marked state |11⟩ in one iteration.",
+    qubits: 2,
+    classicalBits: 2,
+    steps: [
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 0",
+        gateId: "h",
+        targets: [0],
+        timeStep: 0,
+        hint: "H creates equal superposition on q0 — we need to search all states simultaneously.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 0",
+        gateId: "h",
+        targets: [1],
+        timeStep: 0,
+        hint: "H on q1 completes the uniform superposition over all 4 basis states.",
+      },
+      {
+        instruction: "Place a CZ gate with control q0 → target q1, time step 1",
+        gateId: "cz",
+        targets: [1],
+        controls: [0],
+        timeStep: 1,
+        hint: "The oracle: CZ flips the phase of |11⟩ (the marked state). Find CZ in Multi Qubit gates.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 2",
+        gateId: "h",
+        targets: [0],
+        timeStep: 2,
+        hint: "Begin the diffusion operator (inversion about the mean) with H on q0.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 2",
+        gateId: "h",
+        targets: [1],
+        timeStep: 2,
+        hint: "H on q1 — the diffusion operator maps the state to the computational basis.",
+      },
+      {
+        instruction: "Place an X gate on qubit 0, time step 3",
+        gateId: "x",
+        targets: [0],
+        timeStep: 3,
+        hint: "X flips q0 — part of the conditional phase flip around |00⟩.",
+      },
+      {
+        instruction: "Place an X gate on qubit 1, time step 3",
+        gateId: "x",
+        targets: [1],
+        timeStep: 3,
+        hint: "X flips q1 — now |00⟩ maps to |11⟩ so CZ can target it.",
+      },
+      {
+        instruction: "Place a CZ gate with control q0 → target q1, time step 4",
+        gateId: "cz",
+        targets: [1],
+        controls: [0],
+        timeStep: 4,
+        hint: "CZ phase-flips what is now |11⟩ (originally |00⟩), completing the conditional phase.",
+      },
+      {
+        instruction: "Place an X gate on qubit 0, time step 5",
+        gateId: "x",
+        targets: [0],
+        timeStep: 5,
+        hint: "Undo the X on q0 to return to the original basis.",
+      },
+      {
+        instruction: "Place an X gate on qubit 1, time step 5",
+        gateId: "x",
+        targets: [1],
+        timeStep: 5,
+        hint: "Undo the X on q1 — the diffusion operator's core is done.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 0, time step 6",
+        gateId: "h",
+        targets: [0],
+        timeStep: 6,
+        hint: "Final H on q0 completes the diffusion operator.",
+      },
+      {
+        instruction: "Place a Hadamard (H) gate on qubit 1, time step 6",
+        gateId: "h",
+        targets: [1],
+        timeStep: 6,
+        hint: "Final H on q1 — the amplitude of |11⟩ is now amplified to 1.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 0, time step 7",
+        gateId: "measure",
+        targets: [0],
+        timeStep: 7,
+        hint: "Measure q0 — with one Grover iteration on 2 qubits, we get |11⟩ with certainty.",
+      },
+      {
+        instruction: "Place a Measure gate on qubit 1, time step 7",
+        gateId: "measure",
+        targets: [1],
+        timeStep: 7,
+        hint: "Measure q1 to confirm we found the marked state |11⟩.",
+      },
+    ],
+    completionMessage:
+      "You built Grover's Search! One iteration was enough to find |11⟩ with probability 1 in a 4-element search space. Classically, you'd need up to 4 checks — Grover does it in 1.",
+  },
+];

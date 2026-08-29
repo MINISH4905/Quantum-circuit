@@ -24,6 +24,7 @@ class TutorStep(BaseModel):
     qubits: str
     action: str
     stateAfter: str
+    opId: Optional[str] = None
 
 
 class TutorGateDefinition(BaseModel):
