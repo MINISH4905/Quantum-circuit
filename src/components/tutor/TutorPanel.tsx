@@ -10,7 +10,7 @@ export function TutorPanel() {
   const loading = useTutorStore((s) => s.loading);
 
   return (
-    <section className="tutor-panel" aria-label="AI circuit tutor">
+    <section className="tutor-panel" id="wt-ai-tutor" aria-label="AI circuit tutor">
       <div className="probabilities-header">
         <h2 className="panel-title" style={{ margin: 0 }}>
           AI Tutor

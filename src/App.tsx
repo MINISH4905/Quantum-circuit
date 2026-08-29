@@ -16,6 +16,7 @@ import { BlochSpheresPanel } from "./components/simulation/BlochSpheresPanel";
 import { BackendSimulationController } from "./components/simulation/BackendSimulationController";
 import { TutorController } from "./components/tutor/TutorController";
 import { TutorPanel } from "./components/tutor/TutorPanel";
+import { PageWalkthrough } from "./components/walkthrough/PageWalkthrough";
 import "./App.css";
 
 interface NewGateDragData {
@@ -115,10 +116,10 @@ function App() {
             <GateToolbox onAddGate={handleAddGateClick} />
             <GateInspector />
           </div>
-          <div className="app-center-col">
+          <div className="app-center-col" id="wt-circuit-editor">
             <CanvasToolbar />
             <CircuitCanvas />
-            <div className="app-bottom-row">
+            <div className="app-bottom-row" id="wt-visualization">
               <ProbabilitiesPanel />
               <BlochSpheresPanel />
               <QSpherePanel />
@@ -130,6 +131,7 @@ function App() {
           </div>
         </div>
       </DndContext>
+      <PageWalkthrough />
     </div>
   );
 }

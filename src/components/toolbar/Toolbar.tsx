@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useSavedCircuitsStore } from "../../state/saved-circuits-store";
+import { useWalkthroughStore } from "../../state/walkthrough-store";
 import { createEmptyCircuit } from "../../circuit/model/types";
 import { serializeCircuit, deserializeCircuit } from "../../circuit/model/serialization";
 
@@ -30,6 +31,7 @@ export function Toolbar() {
   const saveCircuit = useSavedCircuitsStore((s) => s.saveCircuit);
   const selectedOperationId = useUiStore((s) => s.selectedOperationId);
   const select = useUiStore((s) => s.select);
+  const startWalkthrough = useWalkthroughStore((s) => s.start);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const menuRef = useRef<HTMLElement | null>(null);
@@ -228,11 +230,26 @@ export function Toolbar() {
         </div>
 
         <div className={`app-menu-item${openMenu === "help" ? " is-open" : ""}`}>
-          <button type="button" className="app-menu-btn" onClick={() => toggleMenu("help")} aria-expanded={openMenu === "help"}>
+          <button
+            type="button"
+            id="wt-help-menu-btn"
+            className="app-menu-btn"
+            onClick={() => toggleMenu("help")}
+            aria-expanded={openMenu === "help"}
+          >
             Help
           </button>
           {openMenu === "help" && (
             <div className="app-menu-dropdown app-menu-dropdown-wide" role="menu">
+              <button
+                type="button"
+                className="app-menu-dropdown-item"
+                role="menuitem"
+                onClick={() => runMenuAction(startWalkthrough)}
+              >
+                Take a Tour
+              </button>
+              <div className="app-menu-divider" />
               <p className="app-menu-help-title">Keyboard shortcuts</p>
               {SHORTCUTS.map((s) => (
                 <div className="app-menu-shortcut-row" key={s.label}>

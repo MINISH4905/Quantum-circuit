@@ -18,7 +18,7 @@ export function CanvasToolbar() {
   const maxTimeStep = circuit.operations.reduce((max, op) => Math.max(max, op.timeStep), -1);
 
   return (
-    <div className="canvas-toolbar" role="toolbar" aria-label="Canvas controls">
+    <div className="canvas-toolbar" id="wt-controls" role="toolbar" aria-label="Canvas controls">
       <div className="canvas-toolbar-group">
         <button type="button" className="icon-btn" onClick={undo} disabled={!canUndo} aria-label="Undo (Ctrl+Z)" title="Undo">
           ↶
