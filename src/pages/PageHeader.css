@@ -1,0 +1,53 @@
+/* Shared header/intro block for full-page views (Learner, Folders, ...). */
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px clamp(20px, 5vw, 64px);
+}
+.page-brand {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.page-home-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.page-home-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-border);
+}
+
+.page-intro {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px clamp(20px, 5vw, 64px) 24px;
+}
+.page-eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.page-title {
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 60ch;
+}
