@@ -1,10 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../state/auth-store";
 import "./LandingPage.css";
-
-interface LandingPageProps {
-  onExplore: () => void;
-  onLearn: () => void;
-  onFolders: () => void;
-}
 
 interface Feature {
   icon: string;
@@ -40,13 +36,18 @@ const CTA_LABEL: Record<Feature["target"], string> = {
   folders: "Open Folders →",
 };
 
-export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps) {
-  const handlers: Record<Feature["target"], () => void> = {
-    dashboard: onExplore,
-    learner: onLearn,
-    folders: onFolders,
+export function LandingPage() {
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+
+  const go = (target: Feature["target"]) => {
+    const routes: Record<Feature["target"], string> = {
+      dashboard: "/dashboard",
+      learner: "/learner",
+      folders: "/folders",
+    };
+    navigate(routes[target]);
   };
-  const go = (target: Feature["target"]) => handlers[target]();
 
   return (
     <div className="landing-page">
@@ -54,6 +55,17 @@ export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps)
 
       <header className="landing-nav">
         <span className="landing-brand">Quantum Circuit Lab</span>
+        <div className="landing-nav-actions">
+          {user ? (
+            <button type="button" className="landing-nav-btn" onClick={() => navigate("/dashboard")}>
+              Dashboard
+            </button>
+          ) : (
+            <button type="button" className="landing-nav-btn" onClick={() => navigate("/login")}>
+              Sign in
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="landing-hero">
@@ -65,7 +77,7 @@ export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps)
           <p className="landing-subtitle">
             A visual circuit editor, real Qiskit simulation, and Bloch/Q-sphere visualizations — all in one workspace.
           </p>
-          <button type="button" className="landing-cta" onClick={onExplore}>
+          <button type="button" className="landing-cta" onClick={() => navigate("/dashboard")}>
             Explore the Dashboard
             <span className="landing-cta-arrow" aria-hidden="true">→</span>
           </button>
@@ -109,7 +121,7 @@ export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps)
       </section>
 
       <footer className="landing-footer">
-        <button type="button" className="landing-cta landing-cta-secondary" onClick={onExplore}>
+        <button type="button" className="landing-cta landing-cta-secondary" onClick={() => navigate("/dashboard")}>
           Get started →
         </button>
       </footer>

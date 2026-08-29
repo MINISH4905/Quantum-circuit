@@ -58,6 +58,7 @@ export async function analyzeCircuitWithTutor(circuit: QuantumCircuit, signal?: 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ circuit }),
+      credentials: "include",
       signal,
     });
   } catch (err) {

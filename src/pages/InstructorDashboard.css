@@ -1,0 +1,203 @@
+.instructor-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  padding: clamp(20px, 5vw, 64px);
+}
+
+.instructor-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.instructor-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.instructor-back {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+.instructor-back:hover {
+  color: var(--text);
+}
+
+.instructor-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-panel);
+}
+
+.instructor-group-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.instructor-code-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.instructor-code-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.instructor-code {
+  font-family: monospace;
+  font-size: 24px;
+  letter-spacing: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.instructor-copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.instructor-copy-btn:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+.instructor-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.instructor-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+.instructor-members-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.instructor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.instructor-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.instructor-table td {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.instructor-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.instructor-no-members {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 20px 0;
+  font-size: 13px;
+}
+
+.instructor-empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 40px;
+  font-size: 14px;
+}
+
+.instructor-empty-card {
+  max-width: 480px;
+  margin: 60px auto;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  box-shadow: var(--shadow-panel);
+}
+
+.instructor-empty-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.instructor-empty-card p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.instructor-loading {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 60px 0;
+  font-size: 14px;
+}
+
+.instructor-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .instructor-card {
+    padding: 20px;
+  }
+
+  .instructor-code {
+    font-size: 18px;
+    padding: 10px 14px;
+  }
+
+  .instructor-code-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

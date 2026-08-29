@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import "./PageHeader.css";
 import "./FoldersPage.css";
 import { useCircuitStore } from "../state/circuit-store";
@@ -5,11 +6,6 @@ import { useUiStore } from "../state/ui-store";
 import { useSavedCircuitsStore } from "../state/saved-circuits-store";
 import type { QuantumCircuit } from "../circuit/model/types";
 import { WORKED_EXAMPLES } from "../circuit/examples/worked-examples";
-
-interface FoldersPageProps {
-  onHome: () => void;
-  onOpenEditor: () => void;
-}
 
 const ACCENT_COUNT = 6;
 
@@ -19,7 +15,8 @@ function summarizeCircuit(circuit: QuantumCircuit): string {
   return `${qubits} · ${gates}`;
 }
 
-export function FoldersPage({ onHome, onOpenEditor }: FoldersPageProps) {
+export function FoldersPage() {
+  const navigate = useNavigate();
   const setCircuit = useCircuitStore((s) => s.setCircuit);
   const setCircuitName = useCircuitStore((s) => s.setName);
   const select = useUiStore((s) => s.select);
@@ -30,14 +27,14 @@ export function FoldersPage({ onHome, onOpenEditor }: FoldersPageProps) {
     setCircuit(circuit);
     setCircuitName(name);
     select(null);
-    onOpenEditor();
+    navigate("/dashboard");
   };
 
   return (
     <div className="folders-page">
       <header className="page-nav">
         <span className="page-brand">Quantum Circuit Lab</span>
-        <button type="button" className="page-home-btn" onClick={onHome}>
+        <button type="button" className="page-home-btn" onClick={() => navigate("/")}>
           ← Home
         </button>
       </header>

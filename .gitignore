@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment files (secrets)
+.env
+backend/.env
+
 # Backend (Python)
 backend/.venv
 backend/__pycache__

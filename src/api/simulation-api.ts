@@ -66,6 +66,7 @@ export async function simulateOnBackend(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ circuit, shots, backend }),
+      credentials: "include",
       signal,
     });
   } catch (err) {
@@ -97,6 +98,7 @@ export async function compareBackends(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ circuit, shots }),
+      credentials: "include",
       signal,
     });
   } catch (err) {
@@ -125,7 +127,7 @@ export async function compareBackends(
 
 export async function checkBackendHealth(signal?: AbortSignal): Promise<boolean> {
   try {
-    const res = await fetch(`${BACKEND_URL}/health`, { signal });
+    const res = await fetch(`${BACKEND_URL}/health`, { credentials: "include", signal });
     return res.ok;
   } catch {
     return false;

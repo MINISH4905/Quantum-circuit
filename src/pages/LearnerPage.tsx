@@ -1,23 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./PageHeader.css";
 import "./LearnerPage.css";
 import { LEARNER_CONCEPTS } from "../learner/concepts";
 
-interface LearnerPageProps {
-  onHome: () => void;
-  onOpenEditor: () => void;
-}
-
 const THUMB_VARIANTS = 6;
 
-export function LearnerPage({ onHome, onOpenEditor }: LearnerPageProps) {
+export function LearnerPage() {
+  const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div className="learner-page">
       <header className="page-nav">
         <span className="page-brand">Quantum Circuit Lab</span>
-        <button type="button" className="page-home-btn" onClick={onHome}>
+        <button type="button" className="page-home-btn" onClick={() => navigate("/")}>
           ← Home
         </button>
       </header>
@@ -31,7 +28,7 @@ export function LearnerPage({ onHome, onOpenEditor }: LearnerPageProps) {
       </div>
 
       <section className="learner-grid" aria-label="Learner catalog">
-        <button type="button" className="course-card course-card-tool" onClick={onOpenEditor}>
+        <button type="button" className="course-card course-card-tool" onClick={() => navigate("/dashboard")}>
           <span className="course-thumb course-thumb-tool" aria-hidden="true">
             ✨
           </span>

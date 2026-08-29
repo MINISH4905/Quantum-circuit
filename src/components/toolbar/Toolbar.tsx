@@ -3,12 +3,14 @@ import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useSavedCircuitsStore } from "../../state/saved-circuits-store";
 import { useWalkthroughStore } from "../../state/walkthrough-store";
+import { useAuthStore } from "../../state/auth-store";
 import { createEmptyCircuit } from "../../circuit/model/types";
 import { serializeCircuit, deserializeCircuit } from "../../circuit/model/serialization";
 import { ConfirmModal } from "../shared/ConfirmModal";
 import { LabPicker } from "./LabPicker";
 import { TutorialPicker } from "./TutorialPicker";
 import { useTutorialStore } from "../../state/tutorial-store";
+import { UserMenu } from "../auth/UserMenu";
 import type { WorkedExample } from "../../circuit/examples/worked-examples";
 import type { TutorialDef } from "../../circuit/examples/tutorials";
 
@@ -25,6 +27,7 @@ const SHORTCUTS: Array<{ label: string; keys: string }> = [
 ];
 
 export function Toolbar() {
+  const user = useAuthStore((s) => s.user);
   const circuit = useCircuitStore((s) => s.circuit);
   const setCircuit = useCircuitStore((s) => s.setCircuit);
   const circuitName = useCircuitStore((s) => s.name);
@@ -367,6 +370,7 @@ export function Toolbar() {
           aria-hidden="true"
         />
       </div>
+      {user && <UserMenu user={user} />}
       {loadError && (
         <span className="toolbar-error" role="alert">
           Load failed: {loadError}
