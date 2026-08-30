@@ -33,12 +33,6 @@ const LIST_MEASURE = /^\s*cirq\.measure\s*\(\s*q\s*\[\s*(\d+)\s*\]\s*(?:,\s*key\
 const LIST_TWO_QUBIT = /^\s*cirq\.(\w+)\s*\(\s*q\s*\[\s*(\d+)\s*\]\s*,\s*q\s*\[\s*(\d+)\s*\]\s*\)\s*,?\s*$/;
 const LIST_SINGLE = /^\s*cirq\.(\w+)\s*\(\s*q\s*\[\s*(\d+)\s*\]\s*\)\s*,?\s*$/;
 
-const INT_PATTERN = /^-?\d+$/;
-
-function parseInt10(raw: string): number | null {
-  return INT_PATTERN.test(raw) ? Number(raw) : null;
-}
-
 function parseGateCall(
   gateName: string,
   args: { qubitA: number; qubitB?: number; param?: string },

@@ -26,7 +26,6 @@ export function TutorialOverlay() {
   const errorHint = useTutorialStore((s) => s.errorHint);
   const currentStep = useTutorialStore((s) => s.currentStep);
   const totalSteps = useTutorialStore((s) => s.totalSteps);
-  const advanceStep = useTutorialStore((s) => s.advanceStep);
   const restart = useTutorialStore((s) => s.restart);
   const exit = useTutorialStore((s) => s.exit);
 

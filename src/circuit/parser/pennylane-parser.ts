@@ -28,13 +28,10 @@ const GATE_WIRES_SINGLE = /^\s*qml\.(\w+)\s*\(\s*wires\s*=\s*(\d+)\s*\)\s*$/;
 const GATE_PARAM_WIRES = /^\s*qml\.(\w+)\s*\(\s*([^,]+)\s*,\s*wires\s*=\s*(\d+)\s*\)\s*$/;
 const MEASURE_CALL = /^\s*qml\.measure\s*\(\s*wires\s*=\s*(\d+)\s*\)\s*$/;
 
-const INT_PATTERN = /^-?\d+$/;
-
 export function parsePennylaneCode(source: string): ParseResult {
   const errors: ParseError[] = [];
   let numWires: number | null = null;
   const operations: QuantumOperation[] = [];
-  let seenDef = false;
 
   const lines = source.split(/\r?\n/);
 
@@ -49,7 +46,6 @@ export function parsePennylaneCode(source: string): ParseResult {
     if (PASS_LINE.test(rawLine)) return;
 
     if (DEF_LINE.test(rawLine)) {
-      seenDef = true;
       return;
     }
 
