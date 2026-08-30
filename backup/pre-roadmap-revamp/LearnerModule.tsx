@@ -7,7 +7,7 @@ import "./learning-center/ConceptPage.css";
 import "highlight.js/styles/github-dark-dimmed.css";
 import { useLearningData } from "./learning-center/useLearningData";
 import { useLearningProgress } from "./learning-center/useLearningProgress";
-import { RoadmapRevamp, type RoadmapFilter, type RevampStage } from "./learner-module/RoadmapRevamp";
+import { RoadmapGraph, type NodeFilter } from "./learning-center/RoadmapGraph";
 import { ConceptPage } from "./learning-center/ConceptPage";
 import { getConceptExample } from "./learning-center/conceptExample";
 import type { LearningConcept, LearningModule, LearningStage } from "./learning-center/types";
@@ -53,21 +53,22 @@ function findConceptContext(roadmap: LearningStage[], sourceFile: string | null)
   return null;
 }
 
-/** The interactive role-ordered roadmap + concept page.
- *
- * The roadmap itself is rendered by RoadmapRevamp; ConceptPage is reused as-is
- * (the same component the Learning Center uses). Only the stage ordering
- * differs per role (see roles.ts). View state / hash deep-linking / scroll
- * restore mirrors LearningCenter.tsx's proven pattern, under its own
- * #learner-module/ hash prefix so the two features' deep links never collide.
- *
- * Filter and expansion state stay owned here rather than inside RoadmapRevamp:
- * this component unmounts the roadmap when a concept opens, so local state
- * there would reset every time the learner came back. */
+const FILTER_LABEL: Record<NodeFilter, string> = {
+  all: "All",
+  "in-progress": "In Progress",
+  completed: "Completed",
+};
+
+/** The interactive role-ordered roadmap + concept page. Reuses RoadmapGraph
+ * and ConceptPage as-is (same components the Learning Center uses) — only
+ * the stage ordering passed into RoadmapGraph differs per role (see
+ * roles.ts). View state / hash deep-linking / scroll restore mirrors
+ * LearningCenter.tsx's proven pattern, under its own #learner-module/ hash
+ * prefix so the two features' deep links never collide. */
 export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
   const { roadmap } = useLearningData();
   const progress = useLearningProgress();
-  const { isConceptComplete, markConceptComplete } = progress;
+  const { isConceptComplete, markConceptComplete, getModuleCompletionPercent, getStageCompletionPercent } = progress;
 
   const role = useLearnerRoleStore((s) => s.role);
   const setRole = useLearnerRoleStore((s) => s.setRole);
@@ -86,7 +87,7 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
   const orderedRoadmap = useMemo(() => (role ? getRoadmapForRole(roadmap, role) : []), [roadmap, role]);
 
   const [view, setView] = useState<LearnerModuleViewState>(ROADMAP_VIEW);
-  const [filter, setFilter] = useState<RoadmapFilter>("all");
+  const [filter, setFilter] = useState<NodeFilter>("all");
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set());
   const [justCompletedModule, setJustCompletedModule] = useState<{ stage: LearningStage; learningModule: LearningModule } | null>(
     null
@@ -188,9 +189,19 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
     backToRoadmap();
   }, [backToRoadmap]);
 
-  // Overall totals are no longer computed here — RoadmapRevamp derives them
-  // from the same per-lesson `complete` flags it renders, so the headline
-  // percentage can never drift out of step with the cards below it.
+  const { totalConcepts, completedConcepts } = useMemo(() => {
+    let total = 0;
+    let completed = 0;
+    for (const stage of orderedRoadmap) {
+      for (const learningModule of stage.modules) {
+        total += learningModule.concepts.length;
+        completed += progress.getModuleCompletionCount(learningModule);
+      }
+    }
+    return { totalConcepts: total, completedConcepts: completed };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderedRoadmap, progress.getModuleCompletionCount]);
+  const overallPercent = totalConcepts === 0 ? 0 : Math.round((completedConcepts / totalConcepts) * 100);
 
   // Hands-on challenge totals across the whole role roadmap (5.5 dashboard).
   const { handsOnTotal, handsOnCompleted } = useMemo(() => {
@@ -233,29 +244,7 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
     return null;
   }, [orderedRoadmap, resumeContext, isConceptComplete]);
 
-  /* Adapter: the domain model (stages > modules > concepts, completion looked
-   * up by sourceFile) mapped onto RoadmapRevamp's flat presentational shape.
-   * Lesson `id` is the concept's sourceFile, so onOpenLesson hands straight
-   * back the key openConcept already expects — no second lookup table. */
-  const revampStages: RevampStage[] = useMemo(
-    () =>
-      orderedRoadmap.map((stage) => ({
-        id: stage.id,
-        title: stage.title,
-        modules: stage.modules.map((learningModule) => ({
-          id: learningModule.id,
-          title: learningModule.title,
-          estimatedTime: learningModule.estimatedTime || undefined,
-          lessons: learningModule.concepts.map((concept) => ({
-            id: concept.sourceFile,
-            title: concept.title,
-            complete: isConceptComplete(concept.sourceFile),
-            current: concept.sourceFile === resumeContext?.concept.sourceFile,
-          })),
-        })),
-      })),
-    [orderedRoadmap, isConceptComplete, resumeContext]
-  );
+  const hasStarted = completedConcepts > 0 || lastOpenedSourceFile !== null;
 
   // Hands-on tally for the just-completed module, shown in its summary card.
   const moduleHandsOn = useMemo(() => {
@@ -271,14 +260,8 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
     return { total, completed };
   }, [justCompletedModule, completedTaskIds]);
 
-  // The revamped roadmap paints its own full-bleed background and owns its
-  // page header, so it renders as a direct child of the page rather than
-  // inside .lm-content's 1200px column — otherwise its surface would appear
-  // as an inset navy block floating on the old near-black shell.
-  const showRevampedRoadmap = !!role && !conceptNotFound && view.page === "roadmap";
-
   return (
-    <div className={`learner-module-page${showRevampedRoadmap ? " lm-revamp-shell" : ""}`}>
+    <div className="learner-module-page">
       <header className="page-nav">
         <span className="page-brand">Quantum Circuit Lab</span>
         <button type="button" className="page-home-btn" onClick={onHome}>
@@ -286,67 +269,122 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
         </button>
       </header>
 
-      {!showRevampedRoadmap && (
-        <div className="page-intro">
-          <p className="page-eyebrow">Learner Module</p>
-          <h1 className="page-title">Your Personalized Quantum Path</h1>
-          <p className="page-subtitle">
-            A roadmap tailored to your role, built from the same content as the Learning Center.
-          </p>
-        </div>
-      )}
+      <div className="page-intro">
+        <p className="page-eyebrow">Learner Module</p>
+        <h1 className="page-title">Your Personalized Quantum Path</h1>
+        <p className="page-subtitle">A roadmap tailored to your role, built from the same content as the Learning Center.</p>
+      </div>
 
-      {showRevampedRoadmap && role ? (
-        <RoadmapRevamp
-          roleLabel={ROLE_INFO[role].label}
-          stages={revampStages}
-          streak={streak}
-          handsOnCompleted={handsOnCompleted}
-          handsOnTotal={handsOnTotal}
-          resume={
-            resumeContext
-              ? {
-                  moduleTitle: resumeContext.learningModule.title,
-                  lessonTitle: resumeContext.concept.title,
-                  nextLessonTitle: nextConceptTitle ?? undefined,
-                }
-              : null
-          }
-          filter={filter}
-          onFilterChange={setFilter}
-          expandedModuleIds={expandedModuleIds}
-          onToggleModule={toggleModule}
-          onOpenLesson={openConcept}
-          onContinue={() => resumeContext && openConcept(resumeContext.concept.sourceFile)}
-          onChangePath={clearRole}
-        />
-      ) : (
-        <div className="lm-content">
-          {!role ? (
-            <RoleSelect onSelect={setRole} />
-          ) : conceptNotFound ? (
-            <div className="lm-not-found">
-              <p>This curriculum topic could not be found.</p>
-              <button type="button" className="page-home-btn" onClick={backToRoadmap}>
-                ← Back to Roadmap
-              </button>
+      <div className="lm-content">
+        {!role ? (
+          <RoleSelect onSelect={setRole} />
+        ) : conceptNotFound ? (
+          <div className="lm-not-found">
+            <p>This curriculum topic could not be found.</p>
+            <button type="button" className="page-home-btn" onClick={backToRoadmap}>
+              ← Back to Roadmap
+            </button>
+          </div>
+        ) : view.page === "concept" && conceptContext ? (
+          <ConceptPage
+            stage={conceptContext.stage}
+            learningModule={conceptContext.learningModule}
+            concept={conceptContext.concept}
+            isComplete={isConceptComplete(conceptContext.concept.sourceFile)}
+            onMarkComplete={handleMarkComplete}
+            onOpenEditor={onOpenEditor}
+            onBack={backToRoadmap}
+            onNavigateConcept={navigateToConcept}
+          />
+        ) : (
+          <>
+            <div className="lm-dashboard-summary">
+              <div className="lm-dashboard-summary-head">
+                <div>
+                  <p className="lm-role-summary-eyebrow">Your Learning Journey</p>
+                  <h2 className="lm-roadmap-toolbar-title">{ROLE_INFO[role].label}</h2>
+                </div>
+                <button type="button" className="lm-change-path-btn" onClick={clearRole}>
+                  Change path
+                </button>
+              </div>
+
+              <div className="lc-progress-summary">
+                <div
+                  className="lc-progress-bar"
+                  role="progressbar"
+                  aria-valuenow={overallPercent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div className="lc-progress-fill" style={{ width: `${overallPercent}%` }} />
+                </div>
+                <span className="lc-progress-summary-label">
+                  {completedConcepts} of {totalConcepts} concepts completed — {overallPercent}%
+                </span>
+              </div>
+
+              <div className="lm-dashboard-stats-row">
+                {handsOnTotal > 0 && (
+                  <span className="lm-dashboard-stat">
+                    Hands-on: {handsOnCompleted}/{handsOnTotal} challenges
+                  </span>
+                )}
+                <span className="lm-dashboard-stat">
+                  🔥 {streak} session{streak === 1 ? "" : "s"}
+                </span>
+              </div>
+
+              {resumeContext ? (
+                <div className="lm-dashboard-summary-row">
+                  <div className="lm-dashboard-summary-text">
+                    <p className="lm-dashboard-summary-current">
+                      {hasStarted ? "Current: " : "Start with: "}
+                      <strong>{resumeContext.concept.title}</strong>
+                      <span className="lm-dashboard-summary-meta"> · {resumeContext.learningModule.title}</span>
+                    </p>
+                    {nextConceptTitle && <p className="lm-dashboard-summary-next">Next: {nextConceptTitle}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    className="page-home-btn lm-continue-btn"
+                    onClick={() => openConcept(resumeContext.concept.sourceFile)}
+                  >
+                    {hasStarted ? "Continue Learning →" : "Start Learning →"}
+                  </button>
+                </div>
+              ) : (
+                <p className="lm-dashboard-summary-current">🎉 You've completed every concept on this path.</p>
+              )}
             </div>
-          ) : (
-            conceptContext && (
-              <ConceptPage
-                stage={conceptContext.stage}
-                learningModule={conceptContext.learningModule}
-                concept={conceptContext.concept}
-                isComplete={isConceptComplete(conceptContext.concept.sourceFile)}
-                onMarkComplete={handleMarkComplete}
-                onOpenEditor={onOpenEditor}
-                onBack={backToRoadmap}
-                onNavigateConcept={navigateToConcept}
-              />
-            )
-          )}
-        </div>
-      )}
+
+            <div className="lc-filter-pills" role="group" aria-label="Filter roadmap nodes">
+              {(Object.keys(FILTER_LABEL) as NodeFilter[]).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  className={`roadmap-filter-chip${filter === f ? " is-active" : ""}`}
+                  onClick={() => setFilter(f)}
+                >
+                  {FILTER_LABEL[f]}
+                </button>
+              ))}
+            </div>
+
+            <RoadmapGraph
+              roadmap={orderedRoadmap}
+              isConceptComplete={isConceptComplete}
+              getModuleCompletionPercent={getModuleCompletionPercent}
+              getStageCompletionPercent={getStageCompletionPercent}
+              filter={filter}
+              expandedModuleIds={expandedModuleIds}
+              onToggleModule={toggleModule}
+              onOpenConcept={openConcept}
+              recommendedSourceFile={resumeContext?.concept.sourceFile ?? null}
+            />
+          </>
+        )}
+      </div>
 
       {justCompletedModule && (
         <div className="lm-module-complete-overlay" role="dialog" aria-modal="true" aria-label="Module completed">

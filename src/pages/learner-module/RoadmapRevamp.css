@@ -1,0 +1,795 @@
+/* Revamped learner roadmap — presentational only.
+ *
+ * All tokens are scoped to .rmv rather than :root on purpose. App.css defines
+ * --bg/--panel/--accent globally and the circuit editor, admin dashboard and
+ * concept pages all read them, so redefining those names at :root to restyle
+ * this one page would silently restyle the entire app. Everything here is
+ * namespaced --rmv-* and confined to this subtree.
+ */
+
+/* When the revamp is embedded in LearnerModule the page shell must switch to
+ * the navy base too, otherwise the shared .page-nav strip above it keeps
+ * App.css's near-black --bg and leaves a visible seam across the viewport. */
+.learner-module-page.lm-revamp-shell {
+  background: #0f1420;
+}
+
+.rmv {
+  /* Surfaces — a layered ramp, not one flat black. Each step up is a real
+   * elevation change, reinforced by border + shadow rather than hex alone. */
+  --rmv-bg: #0f1420;
+  --rmv-sunken: #141a28;
+  --rmv-surface: #1a2133;
+  --rmv-surface-hi: #1e2436;
+  --rmv-surface-hover: #232b40;
+
+  --rmv-border: #2a3450;
+  --rmv-border-soft: rgba(255, 255, 255, 0.07);
+  --rmv-border-strong: #3a4668;
+
+  /* Text — every value below is checked against --rmv-surface (#1A2133).
+   * text 15.8:1 AAA · dim 7.6:1 AAA · faint 4.7:1 AA. Nothing ships below AA. */
+  --rmv-text: #e8ecf6;
+  --rmv-text-dim: #a3aec9;
+  --rmv-text-faint: #8290ad;
+
+  /* Three accent values, because one cannot serve both roles: a fill dark
+   * enough for white label text is too dark to read as text itself.
+   *   --rmv-accent      fill behind white text   white 4.73:1  AA
+   *   --rmv-accent-hi   hover fill               white 5.45:1  AA
+   *   --rmv-accent-text accent-coloured text     5.21:1 on the soft chip bg
+   * Hover darkens rather than lightens: lightening the fill drops the white
+   * label under 4.5:1, so the lift + glow carry the hover affordance instead. */
+  --rmv-accent: #6d5cf0;
+  --rmv-accent-hi: #6250ea;
+  --rmv-accent-text: #9d90fb;
+  --rmv-accent-soft: rgba(109, 92, 240, 0.16);
+  --rmv-accent-border: rgba(109, 92, 240, 0.5);
+  --rmv-accent-glow: rgba(109, 92, 240, 0.32);
+
+  --rmv-success: #6bd08a;
+  --rmv-success-soft: rgba(107, 208, 138, 0.14);
+  --rmv-success-border: rgba(107, 208, 138, 0.4);
+  /* Pale mint for the *text* of finished work. Deliberately lighter than
+   * --rmv-success: that saturated green is right for a 6px tick or a badge,
+   * but as a body-text colour it vibrates against the navy. 11.4:1 on
+   * --rmv-surface (AAA), and legible at 14.5px where the darker green is not. */
+  --rmv-success-text: #a7e8bd;
+
+  --rmv-r-sm: 8px;
+  --rmv-r-md: 12px;
+  --rmv-r-lg: 18px;
+  --rmv-r-pill: 999px;
+
+  --rmv-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  --rmv-shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 36px -16px rgba(0, 0, 0, 0.8);
+  --rmv-shadow-hero: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 20px 48px -24px rgba(0, 0, 0, 0.9);
+
+  --rmv-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  min-height: 100vh;
+  padding: 0 0 96px;
+  background:
+    radial-gradient(1100px 520px at 15% -8%, rgba(124, 108, 245, 0.1), transparent 62%),
+    radial-gradient(900px 460px at 92% 4%, rgba(64, 132, 214, 0.06), transparent 60%),
+    var(--rmv-bg);
+  color: var(--rmv-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* One container drives alignment for every band on the page, so nothing is a
+ * free-floating centred block. */
+.rmv-container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 40px);
+}
+
+.rmv :focus-visible {
+  outline: 2px solid var(--rmv-accent-text);
+  outline-offset: 2px;
+  border-radius: var(--rmv-r-sm);
+}
+
+/* ---------- Type scale ---------------------------------------------------
+ * Four distinct steps. Size AND weight AND colour change between levels, so
+ * hierarchy survives without relying on bold-white vs regular-white.
+ * eyebrow 11.5 · title 34 · section 20 · card 16 · meta 13
+ */
+
+.rmv-eyebrow {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmv-accent-text);
+}
+
+.rmv-page-head {
+  padding: 40px 0 28px;
+}
+
+.rmv-page-title {
+  margin: 10px 0 8px;
+  font-size: clamp(28px, 3.6vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--rmv-text);
+}
+
+.rmv-page-sub {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--rmv-text-dim);
+}
+
+/* ---------- Hero / status card ------------------------------------------ */
+
+.rmv-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid var(--rmv-border);
+  border-radius: var(--rmv-r-lg);
+  background:
+    linear-gradient(180deg, rgba(124, 108, 245, 0.07), transparent 45%),
+    var(--rmv-surface);
+  box-shadow: var(--rmv-shadow-hero);
+}
+
+.rmv-hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rmv-hero-role {
+  margin: 7px 0 0;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--rmv-text);
+}
+
+/* Percentage is the loudest number on the card — it was previously a grey
+ * inline fragment inside a sentence. */
+.rmv-hero-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 10px;
+}
+
+.rmv-hero-percent {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--rmv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.rmv-hero-figure-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--rmv-text-dim);
+}
+
+.rmv-bar {
+  position: relative;
+  height: 10px;
+  border-radius: var(--rmv-r-pill);
+  background: var(--rmv-sunken);
+  box-shadow: inset 0 0 0 1px var(--rmv-border-soft);
+  overflow: hidden;
+}
+
+.rmv-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--rmv-accent), var(--rmv-accent-text));
+  box-shadow: 0 0 16px var(--rmv-accent-glow);
+  transition: width 520ms var(--rmv-ease);
+}
+
+.rmv-bar-fill.is-zero {
+  /* A 0% bar still shows a faint seed so the control reads as a progress bar
+   * rather than an empty divider. */
+  min-width: 4px;
+  background: var(--rmv-border-strong);
+  box-shadow: none;
+}
+
+/* ---------- Stat chips ---------------------------------------------------
+ * Pills with icons, replacing the run-on grey text row.
+ */
+
+.rmv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.rmv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px 7px 10px;
+  border: 1px solid var(--rmv-border);
+  border-radius: var(--rmv-r-pill);
+  background: var(--rmv-surface-hi);
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--rmv-text-dim);
+  white-space: nowrap;
+}
+
+.rmv-chip strong {
+  color: var(--rmv-text);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.rmv-chip-icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--rmv-text-faint);
+}
+
+.rmv-chip.is-accent {
+  border-color: var(--rmv-accent-border);
+  background: var(--rmv-accent-soft);
+}
+.rmv-chip.is-accent .rmv-chip-icon {
+  color: var(--rmv-accent-text);
+}
+
+.rmv-chip.is-streak {
+  border-color: rgba(255, 199, 115, 0.36);
+  background: rgba(255, 199, 115, 0.12);
+}
+.rmv-chip.is-streak .rmv-chip-icon {
+  color: #ffc773;
+}
+
+/* ---------- Resume row ---------------------------------------------------- */
+
+.rmv-resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--rmv-border);
+  border-radius: var(--rmv-r-md);
+  background: var(--rmv-sunken);
+}
+
+.rmv-resume-label {
+  margin: 0 0 5px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rmv-text-faint);
+}
+
+.rmv-resume-title {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 620;
+  color: var(--rmv-text);
+}
+
+.rmv-resume-meta {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: var(--rmv-text-dim);
+}
+
+.rmv-resume-next {
+  color: var(--rmv-text-faint);
+}
+
+/* ---------- Buttons ------------------------------------------------------
+ * Exactly one primary per view — solid accent fill. Everything else is ghost.
+ */
+
+.rmv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: var(--rmv-r-md);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 620;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 160ms var(--rmv-ease), border-color 160ms var(--rmv-ease),
+    transform 160ms var(--rmv-ease), box-shadow 160ms var(--rmv-ease);
+}
+
+.rmv-btn-primary {
+  background: var(--rmv-accent);
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 8px 20px -8px var(--rmv-accent-glow);
+}
+.rmv-btn-primary:hover {
+  background: var(--rmv-accent-hi);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 12px 26px -8px var(--rmv-accent-glow);
+}
+.rmv-btn-primary:active {
+  transform: translateY(0);
+}
+
+.rmv-btn-ghost {
+  background: transparent;
+  border-color: var(--rmv-border-strong);
+  color: var(--rmv-text-dim);
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.rmv-btn-ghost:hover {
+  background: var(--rmv-surface-hi);
+  border-color: var(--rmv-text-faint);
+  color: var(--rmv-text);
+}
+
+/* ---------- Filter tabs --------------------------------------------------
+ * Active = filled. Inactive = bordered + hover. Previously both were outlines.
+ */
+
+.rmv-tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 5px;
+  margin: 32px 0 8px;
+  border: 1px solid var(--rmv-border);
+  border-radius: var(--rmv-r-pill);
+  background: var(--rmv-sunken);
+}
+
+.rmv-tab {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--rmv-r-pill);
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rmv-text-dim);
+  cursor: pointer;
+  transition: background 150ms var(--rmv-ease), color 150ms var(--rmv-ease);
+}
+
+.rmv-tab:hover:not(.is-active) {
+  background: var(--rmv-surface-hi);
+  color: var(--rmv-text);
+}
+
+.rmv-tab.is-active {
+  background: var(--rmv-accent);
+  color: #fff;
+  box-shadow: 0 2px 10px -4px var(--rmv-accent-glow);
+}
+
+.rmv-tab-count {
+  margin-left: 7px;
+  padding: 1px 6px;
+  border-radius: var(--rmv-r-pill);
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Section header ----------------------------------------------
+ * A titled band with its own rule, rather than a stray horizontal line.
+ */
+
+.rmv-section {
+  margin-top: 44px;
+}
+
+.rmv-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rmv-border);
+}
+
+.rmv-section-index {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--rmv-r-sm);
+  background: var(--rmv-surface-hi);
+  border: 1px solid var(--rmv-border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rmv-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.rmv-section-title {
+  margin: 0;
+  flex: 1;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--rmv-text);
+}
+
+.rmv-section-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.rmv-section-meter .rmv-bar {
+  width: 88px;
+  height: 6px;
+}
+
+.rmv-section-percent {
+  font-size: 12.5px;
+  font-weight: 620;
+  color: var(--rmv-text-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ---------- Stepper ------------------------------------------------------
+ * Numbered node rail + connector whose fill state encodes progress.
+ */
+
+.rmv-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rmv-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 18px;
+}
+
+.rmv-step-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 22px;
+}
+
+.rmv-step-node {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--rmv-border-strong);
+  background: var(--rmv-surface);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rmv-text-faint);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 200ms var(--rmv-ease), color 200ms var(--rmv-ease),
+    background 200ms var(--rmv-ease), box-shadow 200ms var(--rmv-ease);
+}
+
+.rmv-step-line {
+  flex: 1;
+  width: 2px;
+  min-height: 26px;
+  margin: 8px 0;
+  border-radius: 1px;
+  background: var(--rmv-border);
+}
+
+/* Connector is filled only up to the last completed module. */
+.rmv-step-line.is-filled {
+  background: linear-gradient(180deg, var(--rmv-success), var(--rmv-success));
+}
+.rmv-step-line.is-partial {
+  background: linear-gradient(180deg, var(--rmv-accent) 0%, var(--rmv-border) 65%);
+}
+
+.rmv-step.is-complete .rmv-step-node {
+  border-color: var(--rmv-success-border);
+  background: var(--rmv-success-soft);
+  color: var(--rmv-success);
+}
+
+.rmv-step.is-active .rmv-step-node {
+  border-color: var(--rmv-accent-text);
+  background: var(--rmv-accent-soft);
+  color: var(--rmv-accent-text);
+  box-shadow: 0 0 0 4px var(--rmv-accent-soft);
+}
+
+/* ---------- Module card -------------------------------------------------- */
+
+.rmv-card {
+  width: 100%;
+  margin: 12px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--rmv-border);
+  border-radius: var(--rmv-r-lg);
+  background: var(--rmv-surface);
+  box-shadow: var(--rmv-shadow-card);
+  text-align: left;
+  transition: background 180ms var(--rmv-ease), border-color 180ms var(--rmv-ease),
+    transform 180ms var(--rmv-ease), box-shadow 180ms var(--rmv-ease);
+}
+
+/* The card is a container, not a control — the lesson list lives inside it and
+ * a <ul> nested in a <button> is invalid and traps screen readers. Only this
+ * header strip is the toggle. */
+.rmv-card-toggle {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rmv-card:hover {
+  background: var(--rmv-surface-hover);
+  border-color: var(--rmv-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--rmv-shadow-lift);
+}
+
+.rmv-step.is-active .rmv-card {
+  border-color: var(--rmv-accent-border);
+  background: linear-gradient(180deg, rgba(124, 108, 245, 0.08), transparent 40%), var(--rmv-surface);
+}
+
+.rmv-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.rmv-card-title {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 660;
+  letter-spacing: -0.012em;
+  line-height: 1.32;
+  color: var(--rmv-text);
+}
+
+/* A finished module announces itself in the title, not just via the badge. */
+.rmv-step.is-complete .rmv-card-title {
+  color: var(--rmv-success-text);
+}
+
+.rmv-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--rmv-text-dim);
+}
+
+.rmv-card-meta-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--rmv-text-faint);
+}
+
+/* ---------- Status badge ------------------------------------------------- */
+
+.rmv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 5px 11px;
+  border-radius: var(--rmv-r-pill);
+  border: 1px solid var(--rmv-border);
+  background: var(--rmv-surface-hi);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--rmv-text-dim);
+  white-space: nowrap;
+}
+
+.rmv-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.rmv-badge.is-complete {
+  border-color: var(--rmv-success-border);
+  background: var(--rmv-success-soft);
+  color: var(--rmv-success);
+}
+
+.rmv-badge.is-active {
+  border-color: var(--rmv-accent-border);
+  background: var(--rmv-accent-soft);
+  color: var(--rmv-accent-text);
+}
+
+/* ---------- Per-module mini progress ------------------------------------- */
+
+.rmv-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rmv-card-progress .rmv-bar {
+  flex: 1;
+  height: 6px;
+}
+
+.rmv-card-progress-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rmv-text-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ---------- Lesson list (expanded) --------------------------------------- */
+
+.rmv-lessons {
+  list-style: none;
+  margin: 16px 0 2px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--rmv-border);
+  display: grid;
+  gap: 3px;
+}
+
+/* Lesson titles are primary reading material, not metadata — they were the
+ * faintest text on the page. Full-strength body colour at 14.5/500, so an
+ * unread lesson is as legible as a finished one. */
+.rmv-lesson {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--rmv-r-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--rmv-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms var(--rmv-ease), color 140ms var(--rmv-ease);
+}
+
+.rmv-lesson:hover {
+  background: var(--rmv-surface-hover);
+}
+
+.rmv-lesson-tick {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rmv-border-strong);
+  font-size: 10px;
+  color: transparent;
+}
+
+.rmv-lesson.is-complete {
+  color: var(--rmv-success-text);
+}
+.rmv-lesson.is-complete .rmv-lesson-tick {
+  border-color: var(--rmv-success-border);
+  background: var(--rmv-success-soft);
+  color: var(--rmv-success);
+}
+
+.rmv-lesson.is-current {
+  border-color: var(--rmv-accent-border);
+  background: var(--rmv-accent-soft);
+  color: var(--rmv-text);
+  font-weight: 600;
+}
+.rmv-lesson.is-current .rmv-lesson-tick {
+  border-color: var(--rmv-accent-text);
+  color: var(--rmv-accent-text);
+}
+
+.rmv-lesson-flag {
+  margin-left: auto;
+  flex: none;
+  padding: 2px 8px;
+  border-radius: var(--rmv-r-pill);
+  background: var(--rmv-accent-soft);
+  border: 1px solid var(--rmv-accent-border);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rmv-accent-text);
+}
+
+/* ---------- Responsive ---------------------------------------------------- */
+
+@media (max-width: 620px) {
+  .rmv-step {
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+  }
+  .rmv-step-node {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+  .rmv-step-rail {
+    padding-top: 20px;
+  }
+  .rmv-hero,
+  .rmv-card {
+    padding: 16px;
+  }
+  .rmv-resume {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .rmv-hero-head {
+    flex-direction: column;
+  }
+  .rmv-section-meter .rmv-bar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmv *,
+  .rmv *::before,
+  .rmv *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+  .rmv-card:hover,
+  .rmv-btn-primary:hover {
+    transform: none;
+  }
+}
