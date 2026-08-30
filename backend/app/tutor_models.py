@@ -41,3 +41,18 @@ class TutorAnalyzeResponse(BaseModel):
     warning: TutorWarning
     optimization: str
     source: Literal["llm", "deterministic"]
+
+
+class ChatMessageModel(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class TutorChatRequest(BaseModel):
+    question: str
+    circuit: Optional[QuantumCircuitModel] = None
+    history: list[ChatMessageModel] = []
+
+
+class TutorChatResponse(BaseModel):
+    answer: str
