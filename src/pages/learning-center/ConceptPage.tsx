@@ -1,24 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { handleDragEnd, handleAddGateClick } from "../../circuit/interactions";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
-import { useLearnerTaskStore } from "../../state/learner-task-store";
-import { runSimulation } from "../../simulation/state-vector-simulator";
-import { GateToolbox } from "../../components/gates/GateToolbox";
-import { GateInspector } from "../../components/panels/GateInspector";
-import { CanvasToolbar } from "../../components/circuit/CanvasToolbar";
-import { CircuitCanvas } from "../../components/circuit/CircuitCanvas";
-import { CodeEditorPanel } from "../../components/code-editor/CodeEditorPanel";
-import { ProbabilitiesPanel } from "../../components/simulation/ProbabilitiesPanel";
-import { BlochSpheresPanel } from "../../components/simulation/BlochSpheresPanel";
-import { QSpherePanel } from "../../components/simulation/QSpherePanel";
-import { TutorPanel } from "../../components/tutor/TutorPanel";
-import { DetailSection } from "../../components/shared/DetailSection";
+import { createEmptyCircuit } from "../../circuit/model/types";
+import { parseCode } from "../../circuit/framework";
+import { generateCircuitCode } from "../../api/tutor-api";
 import { Breadcrumb } from "./Breadcrumb";
 import { ConceptViewer } from "./ConceptViewer";
 import { sanitizeLearningContent } from "./sanitizeContent";
 import { getConceptExample } from "./conceptExample";
-import { TutorModes } from "./TutorModes";
 import "../../App.css";
 import "../LearnerPage.css";
 import "./ConceptPage.css";
@@ -35,26 +23,31 @@ interface ConceptPageProps {
   onNavigateConcept: (sourceFile: string) => void;
 }
 
-const sensorOptions = { activationConstraint: { distance: 4 } };
-type SectionKey = "circuit" | "task" | "code" | "probability" | "bloch" | "qsphere" | "tutor";
-interface TaskFeedback {
-  ok: boolean;
-  message: string;
-}
+// Module-level so a concept's AI-generated circuit is only fetched once per
+// page session, not re-generated (and re-billed) every time the learner
+// reopens the same concept. Keyed by sourceFile since concept `id`s repeat
+// across modules. Deliberately in-memory only — stale across a hard reload
+// is fine, this is a cost/latency optimization, not a durability guarantee.
+const generatedCodeCache = new Map<string, string>();
 
 /** Full-page concept view — replaces the roadmap graph entirely while a
  * concept is open (not a side panel). Reuses the existing ConceptViewer
  * (markdown rendering, Mark Complete, Try in Circuit Lab) and Breadcrumb
  * unmodified; this just adds the page chrome (back button, breadcrumb,
- * GitHub link, prev/next-within-module navigation), plus — when
- * getConceptExample finds a matching demo — the same embedded interactive
- * editor + visualization panels the Learner page's TopicDetailPanel uses
- * (GateToolbox/CircuitCanvas/CodeEditorPanel/ProbabilitiesPanel/
- * BlochSpheresPanel/QSpherePanel/TutorPanel, all self-contained against the
- * shared circuit/simulation/tutor stores — no second implementation of any
- * of them). There's no separate per-stage or per-module page in this app,
- * so every breadcrumb segment except the current concept returns to the
- * single roadmap view. */
+ * GitHub link, prev/next-within-module navigation) plus a single "Open in
+ * Circuit Editor" entry point, shown for every concept in the syllabus.
+ *
+ * For the concepts getConceptExample doesn't have a hand-authored circuit
+ * for (most of them), the AI tutor generates one instead: it's asked for
+ * Qiskit code restricted to the editor's exact supported syntax subset,
+ * that code is run through the same parser the Code Editor uses, and the
+ * resulting circuit is loaded — so every concept opens with something
+ * actually built from that concept's content, not a blank canvas or last
+ * concept's leftover circuit. Falls back to blank only if generation or
+ * parsing fails (offline backend, unparseable output, etc). The embedded
+ * circuit/task/code/probability/Bloch/Q-sphere/tutor panels this page used
+ * to render inline were dropped in favor of sending learners into the real
+ * Circuit Editor page, which already has all of that. */
 export function ConceptPage({
   stage,
   learningModule,
@@ -65,21 +58,8 @@ export function ConceptPage({
   onBack,
   onNavigateConcept,
 }: ConceptPageProps) {
-  const sensors = useSensors(useSensor(PointerSensor, sensorOptions));
-  const [openSections, setOpenSections] = useState<Partial<Record<SectionKey, boolean>>>({});
-  const [hintsRevealed, setHintsRevealed] = useState(0);
-  const [taskFeedback, setTaskFeedback] = useState<TaskFeedback | null>(null);
-  const [attemptCount, setAttemptCount] = useState(0);
-  const loadedExampleFor = useRef<string | null>(null);
-  const completedTaskIds = useLearnerTaskStore((s) => s.completedTaskIds);
-  const isTaskComplete = completedTaskIds.includes(concept.sourceFile);
-
-  useEffect(() => {
-    setOpenSections({});
-    setHintsRevealed(0);
-    setTaskFeedback(null);
-    setAttemptCount(0);
-  }, [concept.sourceFile]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const requestSourceFileRef = useRef<string | null>(null);
 
   const index = learningModule.concepts.findIndex((c) => c.sourceFile === concept.sourceFile);
   const prevConcept = index > 0 ? learningModule.concepts[index - 1] : null;
@@ -92,58 +72,60 @@ export function ConceptPage({
 
   const example = useMemo(() => getConceptExample(concept), [concept]);
 
-  const loadExample = useCallback(() => {
-    if (!example) return;
-    useCircuitStore.getState().setCircuit(example.build());
-    useCircuitStore.getState().setName(`${example.label} — ${concept.title}`);
-    loadedExampleFor.current = concept.sourceFile;
-  }, [example, concept.sourceFile, concept.title]);
+  const loadBlank = useCallback(() => {
+    useCircuitStore.getState().setCircuit(createEmptyCircuit(2, 2));
+    useCircuitStore.getState().setName(concept.title);
+  }, [concept.title]);
 
-  const openInEditor = useCallback(() => {
-    loadExample();
-    onOpenEditor();
-  }, [loadExample, onOpenEditor]);
-
-  const checkTaskWork = useCallback(() => {
-    if (!example) return;
-    try {
-      const circuit = useCircuitStore.getState().circuit;
-      const result = runSimulation(circuit);
-      const ok = example.task.checkSuccess(result.probabilities);
-      setAttemptCount((n) => n + 1);
-      setTaskFeedback({
-        ok,
-        message: ok
-          ? example.task.successMessage
-          : example.task.diagnose?.(circuit) ?? "Not quite yet — check the Probability panel above against the goal, then try again.",
-      });
-      if (ok) useLearnerTaskStore.getState().markTaskComplete(concept.sourceFile);
-    } catch {
-      setTaskFeedback({ ok: false, message: "Couldn't simulate the current circuit — check it doesn't have validation errors." });
+  // Always replaces whatever circuit was already in the editor — without
+  // this, a concept with no curated example would silently leave behind
+  // whichever unrelated topic's circuit was last loaded.
+  const openInEditor = useCallback(async () => {
+    if (example) {
+      useCircuitStore.getState().setCircuit(example.build());
+      useCircuitStore.getState().setName(`${example.label} — ${concept.title}`);
+      onOpenEditor();
+      return;
     }
-  }, [example, concept.sourceFile]);
 
-  const revealNextHint = useCallback(() => {
-    if (!example) return;
-    setHintsRevealed((n) => Math.min(n + 1, example.task.hints.length));
-  }, [example]);
-
-  const toggleSection = useCallback(
-    (key: SectionKey) => {
-      // Side effects (loading the example circuit into the store) must not
-      // live inside the setOpenSections updater — React can invoke that
-      // function during render (e.g. Strict Mode), and a store update from
-      // in there triggers "Cannot update a component while rendering a
-      // different component" for anything subscribed to circuit-store
-      // (BackendSimulationController).
-      const willOpen = !openSections[key];
-      if (willOpen && key === "circuit" && loadedExampleFor.current !== concept.sourceFile) {
-        loadExample();
+    const sourceFile = concept.sourceFile;
+    const cached = generatedCodeCache.get(sourceFile);
+    if (cached) {
+      const { circuit } = parseCode("qiskit", cached);
+      if (circuit) {
+        useCircuitStore.getState().setCircuit(circuit);
+        useCircuitStore.getState().setName(concept.title);
+        onOpenEditor();
+        return;
       }
-      setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-    },
-    [concept.sourceFile, loadExample, openSections]
-  );
+    }
+
+    requestSourceFileRef.current = sourceFile;
+    setIsGenerating(true);
+    try {
+      const { code } = await generateCircuitCode(concept.title, concept.content);
+      // The learner may have navigated to a different concept while this
+      // was in flight — a stale response landing now would silently
+      // overwrite whatever circuit belongs to the concept they're on now.
+      if (requestSourceFileRef.current !== sourceFile) return;
+
+      const { circuit } = parseCode("qiskit", code);
+      if (circuit) {
+        generatedCodeCache.set(sourceFile, code);
+        useCircuitStore.getState().setCircuit(circuit);
+        useCircuitStore.getState().setName(concept.title);
+      } else {
+        loadBlank();
+      }
+    } catch {
+      if (requestSourceFileRef.current === sourceFile) loadBlank();
+    } finally {
+      if (requestSourceFileRef.current === sourceFile) {
+        setIsGenerating(false);
+        onOpenEditor();
+      }
+    }
+  }, [example, concept.sourceFile, concept.title, concept.content, onOpenEditor, loadBlank]);
 
   return (
     <div className="cpg-page">
@@ -164,102 +146,11 @@ export function ConceptPage({
       <div className="cpg-body">
         <ConceptViewer concept={displayConcept} isComplete={isComplete} onMarkComplete={onMarkComplete} onOpenEditor={onOpenEditor} />
 
-        {example && (
-          <>
-            <div className="topic-circuit-embed-actions">
-              <button type="button" className="page-home-btn" onClick={openInEditor}>
-                Open in Circuit Editor →
-              </button>
-            </div>
-
-            <DetailSection title="Interactive Circuit" isOpen={!!openSections.circuit} onToggle={() => toggleSection("circuit")}>
-              <div className="topic-circuit-embed-actions">
-                <button type="button" className="page-home-btn" onClick={loadExample}>
-                  Reload example circuit
-                </button>
-              </div>
-              <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-                <div className="topic-circuit-embed">
-                  <div className="app-left-col">
-                    <GateToolbox onAddGate={handleAddGateClick} />
-                    <GateInspector />
-                  </div>
-                  <div className="app-center-col">
-                    <CanvasToolbar showExpandToggle={false} />
-                    <CircuitCanvas />
-                  </div>
-                </div>
-              </DndContext>
-            </DetailSection>
-
-            <DetailSection title="Hands-on Challenge" isOpen={!!openSections.task} onToggle={() => toggleSection("task")}>
-              <p className="hot-goal">
-                <strong>Goal:</strong> {example.task.goal}
-              </p>
-              <ol className="hot-steps">
-                {example.task.steps.map((step, i) => (
-                  <li key={i}>{step}</li>
-                ))}
-              </ol>
-              <div className="hot-check-row">
-                <button type="button" className="page-home-btn" onClick={checkTaskWork}>
-                  Check My Work
-                </button>
-                {isTaskComplete && <span className="hot-complete-badge">✓ Challenge complete</span>}
-              </div>
-              {taskFeedback && <p className={`hot-feedback ${taskFeedback.ok ? "is-success" : "is-pending"}`}>{taskFeedback.message}</p>}
-
-              <TutorModes
-                task={example.task}
-                isTaskComplete={isTaskComplete}
-                hintsRevealed={hintsRevealed}
-                attemptCount={attemptCount}
-                lastDiagnosis={taskFeedback && !taskFeedback.ok ? taskFeedback.message : null}
-                onRevealNextHint={revealNextHint}
-              />
-            </DetailSection>
-
-            <DetailSection title="Qiskit Code" isOpen={!!openSections.code} onToggle={() => toggleSection("code")}>
-              <div className="topic-panel-embed topic-panel-embed-tall">
-                <CodeEditorPanel />
-              </div>
-            </DetailSection>
-
-            {example.showProbability && (
-              <DetailSection title="Probability" isOpen={!!openSections.probability} onToggle={() => toggleSection("probability")}>
-                <div className="topic-panel-embed">
-                  <ProbabilitiesPanel />
-                </div>
-              </DetailSection>
-            )}
-
-            {example.showBloch && (
-              <DetailSection title="Bloch Sphere" isOpen={!!openSections.bloch} onToggle={() => toggleSection("bloch")}>
-                <div className="topic-panel-embed">
-                  <BlochSpheresPanel />
-                </div>
-              </DetailSection>
-            )}
-
-            {example.showQSphere && (
-              <DetailSection title="Q-sphere" isOpen={!!openSections.qsphere} onToggle={() => toggleSection("qsphere")}>
-                <div className="topic-panel-embed">
-                  <QSpherePanel />
-                </div>
-              </DetailSection>
-            )}
-
-            <DetailSection title="AI Tutor" isOpen={!!openSections.tutor} onToggle={() => toggleSection("tutor")}>
-              <div className="topic-panel-embed topic-panel-embed-tall">
-                <TutorPanel />
-              </div>
-            </DetailSection>
-          </>
-        )}
-
-        {!example && (
-          <p className="cpg-no-hands-on">This concept currently has no hands-on challenge. Continue to the next topic.</p>
-        )}
+        <div className="topic-circuit-embed-actions">
+          <button type="button" className="page-home-btn" onClick={openInEditor} disabled={isGenerating}>
+            {isGenerating ? "Generating circuit…" : "Open in Circuit Editor →"}
+          </button>
+        </div>
 
         <a className="cpg-github-link" href={concept.githubUrl} target="_blank" rel="noreferrer noopener">
           Open on GitHub →

@@ -9,10 +9,8 @@ import { useLearningData } from "./learning-center/useLearningData";
 import { useLearningProgress } from "./learning-center/useLearningProgress";
 import { RoadmapRevamp, type RoadmapFilter, type RevampStage } from "./learner-module/RoadmapRevamp";
 import { ConceptPage } from "./learning-center/ConceptPage";
-import { getConceptExample } from "./learning-center/conceptExample";
 import type { LearningConcept, LearningModule, LearningStage } from "./learning-center/types";
 import { useLearnerRoleStore } from "../state/learner-role-store";
-import { useLearnerTaskStore } from "../state/learner-task-store";
 import { useLearnerStreakStore } from "../state/learner-streak-store";
 import { RoleSelect } from "./learner-module/RoleSelect";
 import { ROLE_INFO, getRoadmapForRole, getRecommendedConcept } from "./learner-module/roles";
@@ -75,7 +73,6 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
   const lastOpenedSourceFile = useLearnerRoleStore((s) => s.lastOpenedSourceFile);
   const setLastOpened = useLearnerRoleStore((s) => s.setLastOpened);
 
-  const completedTaskIds = useLearnerTaskStore((s) => s.completedTaskIds);
   const streak = useLearnerStreakStore((s) => s.streak);
   const recordVisit = useLearnerStreakStore((s) => s.recordVisit);
   useEffect(() => {
@@ -192,23 +189,6 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
   // from the same per-lesson `complete` flags it renders, so the headline
   // percentage can never drift out of step with the cards below it.
 
-  // Hands-on challenge totals across the whole role roadmap (5.5 dashboard).
-  const { handsOnTotal, handsOnCompleted } = useMemo(() => {
-    let total = 0;
-    let completed = 0;
-    for (const stage of orderedRoadmap) {
-      for (const learningModule of stage.modules) {
-        for (const concept of learningModule.concepts) {
-          if (getConceptExample(concept)) {
-            total++;
-            if (completedTaskIds.includes(concept.sourceFile)) completed++;
-          }
-        }
-      }
-    }
-    return { handsOnTotal: total, handsOnCompleted: completed };
-  }, [orderedRoadmap, completedTaskIds]);
-
   // Resume point: the last-opened concept if it's still incomplete,
   // otherwise the first not-yet-completed concept in role order.
   const resumeContext = useMemo(() => {
@@ -257,20 +237,6 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
     [orderedRoadmap, isConceptComplete, resumeContext]
   );
 
-  // Hands-on tally for the just-completed module, shown in its summary card.
-  const moduleHandsOn = useMemo(() => {
-    if (!justCompletedModule) return null;
-    let total = 0;
-    let completed = 0;
-    for (const concept of justCompletedModule.learningModule.concepts) {
-      if (getConceptExample(concept)) {
-        total++;
-        if (completedTaskIds.includes(concept.sourceFile)) completed++;
-      }
-    }
-    return { total, completed };
-  }, [justCompletedModule, completedTaskIds]);
-
   // The revamped roadmap paints its own full-bleed background and owns its
   // page header, so it renders as a direct child of the page rather than
   // inside .lm-content's 1200px column — otherwise its surface would appear
@@ -301,8 +267,6 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
           roleLabel={ROLE_INFO[role].label}
           stages={revampStages}
           streak={streak}
-          handsOnCompleted={handsOnCompleted}
-          handsOnTotal={handsOnTotal}
           resume={
             resumeContext
               ? {
@@ -361,12 +325,6 @@ export function LearnerModule({ onHome, onOpenEditor }: LearnerModuleProps) {
                 <li key={c.sourceFile}>✓ {c.title}</li>
               ))}
             </ul>
-
-            {moduleHandsOn && moduleHandsOn.total > 0 && (
-              <p className="lm-module-complete-hands-on">
-                Hands-on: {moduleHandsOn.completed} / {moduleHandsOn.total} challenges
-              </p>
-            )}
 
             {resumeContext && (
               <p className="lm-module-complete-next">

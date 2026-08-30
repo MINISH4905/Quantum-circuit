@@ -120,6 +120,32 @@ export function buildSuperdenseCodingCircuit(): QuantumCircuit {
   ]);
 }
 
+/**
+ * Quantum Teleportation, with q2 (the destination) also measured — unlike
+ * buildTeleportationCircuit(), whose 2 classical bits only capture the
+ * random Bell-measurement outcome and can't confirm anything by themselves.
+ * Adding q2's measurement makes success checkable from the histogram alone:
+ * bitstrings follow this app's "highest qubit index first" convention, so
+ * q2 is the leftmost digit — it reads '1' in 100% of outcomes, confirming
+ * q0's X-prepared |1⟩ landed on q2 regardless of which of the four random
+ * Bell outcomes occurred on q0/q1 (verified via runSimulation, not assumed).
+ */
+export function buildTeleportationCircuitVerified(): QuantumCircuit {
+  const [q0, q1, q2] = [0, 1, 2];
+  return build(3, 3, [
+    op("x", [q0], 0),
+    op("h", [q1], 1),
+    op("cx", [q2], 2, { controls: [q1] }),
+    op("cx", [q1], 3, { controls: [q0] }),
+    op("h", [q0], 4),
+    op("measure", [q0], 5),
+    op("measure", [q1], 5),
+    op("cx", [q2], 6, { controls: [q1] }),
+    op("cz", [q2], 7, { controls: [q0] }),
+    op("measure", [q2], 8),
+  ]);
+}
+
 export interface WorkedExample {
   id: string;
   label: string;

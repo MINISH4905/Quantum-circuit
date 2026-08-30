@@ -68,3 +68,12 @@ class TutorChatResponse(BaseModel):
     answer: str
     sources: list[SourceInfo] = []
     confidence_score: float = 0.0
+
+
+class GenerateCircuitRequest(BaseModel):
+    title: str
+    content: str = ""
+
+
+class GenerateCircuitResponse(BaseModel):
+    code: str

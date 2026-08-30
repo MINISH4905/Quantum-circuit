@@ -288,6 +288,49 @@ Quantum Circuit Lab features (reference when guiding users):
 """
 
 
+CIRCUIT_GEN_SYSTEM_PROMPT = """\
+You generate a single short Qiskit circuit that demonstrates a specific quantum computing \
+concept, for an editor that only understands a small, strict, line-oriented subset of Qiskit.
+
+=== OUTPUT FORMAT — FOLLOW EXACTLY ===
+
+Output ONLY Python code. No markdown code fences, no explanation, no comments — just the \
+code, one statement per line, in this exact order: the QuantumCircuit line first, then gates, \
+then measurements last.
+
+Allowed lines (nothing else is understood):
+  qc = QuantumCircuit(<qubits>, <classicalBits>)
+  qc.h(<qubit>)
+  qc.x(<qubit>)
+  qc.y(<qubit>)
+  qc.z(<qubit>)
+  qc.s(<qubit>)
+  qc.t(<qubit>)
+  qc.rx(<theta>, <qubit>)
+  qc.ry(<theta>, <qubit>)
+  qc.rz(<theta>, <qubit>)
+  qc.cx(<control>, <target>)
+  qc.cz(<control>, <target>)
+  qc.swap(<q0>, <q1>)
+  qc.measure(<qubit>, <qubit>)
+
+<theta> may be a number, "pi", "pi/2", "2*pi", or "-pi/4" — no variables, no other functions.
+qc.measure's two arguments must be the same qubit index (e.g. qc.measure(1, 1)).
+
+=== HARD RULES ===
+
+- Exactly one qc = QuantumCircuit(...) line, and it must be first.
+- No loops, no conditionals, no variables, no functions, no imports, no print statements, no \
+  comments, no blank lines — only the exact statement forms listed above, one per line.
+- Use 2 to 4 qubits. classicalBits must equal qubits.
+- End with one qc.measure(i, i) line for every qubit, in order, so the result is visible.
+- The circuit must genuinely illustrate the given concept, using real gates that connect to \
+  it — not a generic filler circuit. If the concept itself isn't a specific gate/algorithm \
+  (e.g. it's about hardware, history, or business context), build the closest reasonable \
+  illustrative circuit (e.g. superposition or entanglement) rather than refusing.
+"""
+
+
 class LLMNotConfiguredError(RuntimeError):
     """Raised when generate() is called but no provider credentials are set."""
 
@@ -625,3 +668,33 @@ class GroqTutorProvider:
                 raise LLMProviderError(f"Groq streaming request failed: {exc}") from exc
 
         raise LLMProviderError(f"All API keys exhausted (rate limited)")
+
+    def generate_circuit_code(self, *, title: str, description: str) -> str:
+        if not self._api_key:
+            raise LLMNotConfiguredError(
+                "GROQ_API_KEY environment variable is not set. "
+                "Get a free key at https://console.groq.com"
+            )
+
+        user_prompt = f"Concept: {title}\n\nContent excerpt:\n{description[:2000]}\n\nGenerate the circuit now."
+
+        body = self._post_with_rotation({
+            "model": self._model,
+            "messages": [
+                {"role": "system", "content": CIRCUIT_GEN_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 512,
+        })
+
+        try:
+            raw = body["choices"][0]["message"]["content"]
+        except (KeyError, IndexError) as exc:
+            raise LLMProviderError(f"Unexpected Groq response shape: {exc}") from exc
+
+        raw = re.sub(r"<think>[\s\S]*?</think>\s*", "", raw).strip()
+        # Defensive: strip a markdown fence if the model adds one despite instructions.
+        raw = re.sub(r"^```(?:python)?\s*\n?", "", raw)
+        raw = re.sub(r"\n?```\s*$", "", raw)
+        return raw.strip()

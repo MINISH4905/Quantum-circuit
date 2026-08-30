@@ -36,8 +36,6 @@ export interface RoadmapRevampProps {
   roleLabel: string;
   stages: RevampStage[];
   streak: number;
-  handsOnCompleted: number;
-  handsOnTotal: number;
   resume: { moduleTitle: string; lessonTitle: string; nextLessonTitle?: string } | null;
 
   /* Filter and expansion are optionally controlled. LearnerModule owns them
@@ -84,15 +82,6 @@ function IconBook({ className }: { className?: string }) {
   );
 }
 
-function IconTerminal({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.8" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M4.6 6.4L6.6 8l-2 1.6M8.4 10h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function IconFlame({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -135,8 +124,6 @@ export function RoadmapRevamp({
   roleLabel,
   stages,
   streak,
-  handsOnCompleted,
-  handsOnTotal,
   resume,
   filter: filterProp,
   onFilterChange,
@@ -258,15 +245,6 @@ export function RoadmapRevamp({
               </strong>{" "}
               concepts
             </span>
-            {handsOnTotal > 0 && (
-              <span className="rmv-chip">
-                <IconTerminal className="rmv-chip-icon" />
-                <strong>
-                  {handsOnCompleted}/{handsOnTotal}
-                </strong>{" "}
-                hands-on
-              </span>
-            )}
             <span className="rmv-chip is-streak">
               <IconFlame className="rmv-chip-icon" />
               <strong>{streak}</strong> session{streak === 1 ? "" : "s"}
