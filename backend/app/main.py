@@ -145,7 +145,7 @@ def _run_rag(question: str) -> tuple[str | None, list[SourceInfo], float]:
         from .rag.pipeline import get_rag_pipeline
         pipeline = get_rag_pipeline()
         if pipeline is None:
-            return None, [], 0.55
+            return None, [], 0.65
         result = pipeline.answer(question)
         sources = [
             SourceInfo(
@@ -161,7 +161,7 @@ def _run_rag(question: str) -> tuple[str | None, list[SourceInfo], float]:
         return result.context, sources, result.confidence_score
     except Exception as exc:
         logger.warning("RAG retrieval failed: %s", exc)
-        return None, [], 0.55
+        return None, [], 0.65
 
 
 @app.post("/api/tutor/chat", response_model=TutorChatResponse)

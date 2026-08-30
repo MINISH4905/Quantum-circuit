@@ -26,13 +26,13 @@ def _compute_confidence(chunks: list[RetrievedChunk]) -> float:
         return 0.0
     semantic_scores = [c.semantic_score for c in chunks[:3] if c.semantic_score > 0]
     if not semantic_scores:
-        return 0.4
+        return 0.55
     top = semantic_scores[0]
     avg = sum(semantic_scores) / len(semantic_scores)
-    score = 0.2 + 0.55 * top + 0.25 * avg
+    score = 0.65 + 0.25 * (top ** 0.5) + 0.1 * (avg ** 0.5)
     both_count = sum(1 for c in chunks[:3] if c.retrieval_method == "both")
     score += both_count * 0.05
-    return min(score, 1.0)
+    return min(score, 0.97)
 
 
 class RAGPipeline:
