@@ -51,6 +51,68 @@ async function extractErrorMessage(res: Response): Promise<string> {
   return `Backend returned HTTP ${res.status}`;
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  answer: string;
+}
+
+async function fetchChat(
+  body: string,
+  signal?: AbortSignal
+): Promise<Response> {
+  return fetch(`${BACKEND_URL}/api/tutor/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    credentials: "include",
+    signal,
+  });
+}
+
+export async function chatWithTutor(
+  question: string,
+  circuit: QuantumCircuit | null,
+  history: ChatMessage[],
+  signal?: AbortSignal
+): Promise<ChatResponse> {
+  const payload = JSON.stringify({ question, circuit, history: history.slice(-10) });
+
+  let res: Response;
+  try {
+    res = await fetchChat(payload, signal);
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    throw new SimulationApiError("Could not reach the tutor backend. Is it running?");
+  }
+
+  if (res.status === 404 || res.status === 503) {
+    await new Promise((r) => setTimeout(r, 2000));
+    try {
+      res = await fetchChat(payload, signal);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") throw err;
+      throw new SimulationApiError("Could not reach the tutor backend. Is it running?");
+    }
+  }
+
+  if (!res.ok) {
+    const msg = await extractErrorMessage(res);
+    if (res.status === 404) {
+      throw new SimulationApiError(
+        "Chat endpoint not available — restart the backend server.",
+        res.status
+      );
+    }
+    throw new SimulationApiError(msg, res.status);
+  }
+
+  return (await res.json()) as ChatResponse;
+}
+
 export async function analyzeCircuitWithTutor(circuit: QuantumCircuit, signal?: AbortSignal): Promise<TutorAnalysis> {
   let res: Response;
   try {

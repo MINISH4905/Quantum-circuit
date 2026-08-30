@@ -14,6 +14,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoleGate } from "./components/auth/RoleGate";
 import { LearningCenter } from "./pages/LearningCenter";
 import { LearnerModule } from "./pages/LearnerModule";
+
 import "./AppRoot.css";
 
 // LearningCenter/LearnerModule take onHome/onOpenEditor callback props

@@ -1,35 +1,80 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useTutorStore } from "../../state/tutor-store";
+import { chatWithTutor } from "../../api/tutor-api";
+import { formatMarkdown } from "../../utils/format-chat";
 
-type TutorTab = "explain" | "steps" | "gates";
+type TutorTab = "explain" | "steps" | "gates" | "chat";
+
+const SUGGESTIONS = [
+  "What is a qubit?",
+  "Explain superposition",
+  "How does entanglement work?",
+  "What is a quantum gate?",
+];
 
 export function TutorPanel() {
   const hasErrors = useCircuitStore((s) => s.errors.length > 0);
   const hasGates = useCircuitStore((s) => s.circuit.operations.length > 0);
   const operations = useCircuitStore((s) => s.circuit.operations);
+  const circuit = useCircuitStore((s) => s.circuit);
 
   const result = useTutorStore((s) => s.result);
   const error = useTutorStore((s) => s.error);
   const loading = useTutorStore((s) => s.loading);
 
+  const chatMessages = useTutorStore((s) => s.chatMessages);
+  const chatLoading = useTutorStore((s) => s.chatLoading);
+  const chatError = useTutorStore((s) => s.chatError);
+  const addChatMessage = useTutorStore((s) => s.addChatMessage);
+  const setChatLoading = useTutorStore((s) => s.setChatLoading);
+  const setChatError = useTutorStore((s) => s.setChatError);
+
   const stepData = useUiStore((s) => s.highlightedStepData);
   const highlightStep = useUiStore((s) => s.highlightStep);
 
   const [activeTab, setActiveTab] = useState<TutorTab>("explain");
+  const [chatInput, setChatInput] = useState("");
   const activeStepIndex = stepData?.stepIndex ?? null;
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     highlightStep(null);
   }, [result, highlightStep]);
 
-  // Scroll the active step card into view when navigating from the spotlight callout
   useEffect(() => {
     if (activeStepIndex === null) return;
     const card = document.querySelector(`.tutor-step-card[data-step-index="${activeStepIndex}"]`);
     card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [activeStepIndex]);
+
+  useEffect(() => {
+    if (activeTab === "chat") {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, chatLoading, activeTab]);
+
+  useEffect(() => {
+    const container = chatMessagesRef.current;
+    if (!container) return;
+    const handleClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-code-action]");
+      if (!btn) return;
+      const codeBlock = btn.closest<HTMLElement>(".tutor-chat-code-wrap");
+      const code = codeBlock?.querySelector("code")?.textContent ?? "";
+      if (btn.dataset.codeAction === "copy") {
+        navigator.clipboard.writeText(code).then(() => {
+          btn.textContent = "Copied!";
+          setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+        });
+      }
+    };
+    container.addEventListener("click", handleClick);
+    return () => container.removeEventListener("click", handleClick);
+  }, []);
 
   const getOpIdForStep = useCallback(
     (stepIndex: number, step: { opId?: string }) => {
@@ -62,6 +107,45 @@ export function TutorPanel() {
     [activeStepIndex, getOpIdForStep, highlightStep, result]
   );
 
+  const handleChatSend = useCallback(async () => {
+    const question = chatInput.trim();
+    if (!question || chatLoading) return;
+
+    setChatInput("");
+    addChatMessage({ role: "user", content: question });
+    setChatLoading(true);
+    setChatError(null);
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const res = await chatWithTutor(
+        question,
+        circuit.operations.length > 0 ? circuit : null,
+        chatMessages.concat({ role: "user", content: question }),
+        controller.signal
+      );
+      addChatMessage({ role: "assistant", content: res.answer });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      setChatError(err instanceof Error ? err.message : "Failed to get response");
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatLoading, chatMessages, circuit, addChatMessage, setChatLoading, setChatError]);
+
+  const handleChatKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleChatSend();
+      }
+    },
+    [handleChatSend]
+  );
+
   return (
     <section className="tutor-panel" id="wt-ai-tutor" aria-label="AI circuit tutor">
       <div className="probabilities-header">
@@ -71,7 +155,7 @@ export function TutorPanel() {
         {result && (
           <span
             className={`tutor-badge${result.source === "deterministic" ? " is-deterministic" : ""}`}
-            title={result.source === "deterministic" ? "No LLM configured — showing rule-based analysis" : "Powered by Groq (Llama 3.3 70B)"}
+            title={result.source === "deterministic" ? "No LLM configured — showing rule-based analysis" : "Powered by Groq"}
           >
             {result.source === "deterministic" ? "rule-based" : "AI"}
           </span>
@@ -81,55 +165,63 @@ export function TutorPanel() {
       <div className="probabilities-body tutor-body">
         {hasErrors && <p className="inspector-empty">Fix circuit validation errors to get tutor feedback.</p>}
 
-        {!hasErrors && !hasGates && !result && (
+        {!hasErrors && !hasGates && !result && activeTab !== "chat" && (
           <p className="inspector-empty">Add a gate to the circuit to get an explanation, warnings, and tips.</p>
         )}
 
-        {!hasErrors && loading && !result && <p className="inspector-empty">Analyzing circuit...</p>}
+        {!hasErrors && loading && !result && activeTab !== "chat" && <p className="inspector-empty">Analyzing circuit...</p>}
 
-        {!hasErrors && error && (
+        {!hasErrors && error && activeTab !== "chat" && (
           <p className="sim-fallback-note" role="alert">
             {error}
           </p>
         )}
 
-        {!hasErrors && result && (
+        {/* Tab navigation — always visible */}
+        <div className="tutor-tabs" role="tablist">
+          <button
+            className={`tutor-tab${activeTab === "explain" ? " is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "explain"}
+            onClick={() => setActiveTab("explain")}
+          >
+            Explanation
+          </button>
+          <button
+            className={`tutor-tab${activeTab === "steps" ? " is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "steps"}
+            onClick={() => setActiveTab("steps")}
+          >
+            Steps {result ? `(${result.steps?.length ?? 0})` : ""}
+          </button>
+          <button
+            className={`tutor-tab${activeTab === "gates" ? " is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "gates"}
+            onClick={() => setActiveTab("gates")}
+          >
+            Gate Defs {result ? `(${result.gateDefinitions?.length ?? 0})` : ""}
+          </button>
+          <button
+            className={`tutor-tab${activeTab === "chat" ? " is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "chat"}
+            onClick={() => setActiveTab("chat")}
+          >
+            Ask AI
+          </button>
+        </div>
+
+        {!hasErrors && result && activeTab !== "chat" && (
           <div className={`tutor-sections${loading ? " is-refreshing" : ""}`}>
             {/* Algorithm detection banner */}
-            {result.algorithm && !result.algorithm.startsWith("Custom") && (
+            {activeTab === "explain" && result.algorithm && !result.algorithm.startsWith("Custom") && (
               <div className="tutor-algorithm-banner">
                 <span className="tutor-algorithm-icon">&#x1F9EC;</span>
                 <span>{result.algorithm}</span>
               </div>
             )}
-
-            {/* Tab navigation */}
-            <div className="tutor-tabs" role="tablist">
-              <button
-                className={`tutor-tab${activeTab === "explain" ? " is-active" : ""}`}
-                role="tab"
-                aria-selected={activeTab === "explain"}
-                onClick={() => setActiveTab("explain")}
-              >
-                Explanation
-              </button>
-              <button
-                className={`tutor-tab${activeTab === "steps" ? " is-active" : ""}`}
-                role="tab"
-                aria-selected={activeTab === "steps"}
-                onClick={() => setActiveTab("steps")}
-              >
-                Steps ({result.steps?.length ?? 0})
-              </button>
-              <button
-                className={`tutor-tab${activeTab === "gates" ? " is-active" : ""}`}
-                role="tab"
-                aria-selected={activeTab === "gates"}
-                onClick={() => setActiveTab("gates")}
-              >
-                Gate Defs ({result.gateDefinitions?.length ?? 0})
-              </button>
-            </div>
 
             {/* Explanation tab */}
             {activeTab === "explain" && (
@@ -213,6 +305,78 @@ export function TutorPanel() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Ask AI chat tab */}
+        {activeTab === "chat" && (
+          <div className="tutor-chat-container">
+            <div className="tutor-chat-messages" ref={chatMessagesRef}>
+              {chatMessages.length === 0 && !chatLoading && (
+                <div className="tutor-chat-welcome">
+                  <p className="tutor-chat-welcome-title">Ask me anything</p>
+                  <p className="tutor-chat-welcome-sub">
+                    Quantum computing, gates, algorithms, or CS concepts.
+                  </p>
+                  <div className="tutor-chat-suggestions">
+                    {SUGGESTIONS.map((q) => (
+                      <button
+                        key={q}
+                        className="tutor-chat-suggestion"
+                        onClick={() => setChatInput(q)}
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {chatMessages.map((msg, i) => (
+                <div key={i} className={`tutor-chat-msg is-${msg.role}`}>
+                  <div className="tutor-chat-msg-label">{msg.role === "user" ? "You" : "AI Tutor"}</div>
+                  <div
+                    className="tutor-chat-msg-content"
+                    dangerouslySetInnerHTML={
+                      msg.role === "assistant" ? { __html: formatMarkdown(msg.content, { showApplyButtons: true }) } : undefined
+                    }
+                  >
+                    {msg.role === "user" ? msg.content : undefined}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="tutor-chat-msg is-assistant">
+                  <div className="tutor-chat-msg-label">AI Tutor</div>
+                  <div className="tutor-chat-msg-content tutor-chat-typing">
+                    <span /><span /><span />
+                  </div>
+                </div>
+              )}
+              {chatError && <div className="tutor-chat-error">{chatError}</div>}
+              <div ref={chatEndRef} />
+            </div>
+
+            <div className="tutor-chat-input-bar">
+              <input
+                type="text"
+                className="tutor-chat-input"
+                placeholder="Ask about quantum concepts..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={handleChatKeyDown}
+                disabled={chatLoading}
+                autoFocus
+              />
+              <button
+                type="button"
+                className="tutor-chat-send"
+                onClick={handleChatSend}
+                disabled={!chatInput.trim() || chatLoading}
+                aria-label="Send message"
+              >
+                &#x27A4;
+              </button>
+            </div>
           </div>
         )}
       </div>
