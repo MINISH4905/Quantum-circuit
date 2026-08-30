@@ -6,13 +6,13 @@ interface Feature {
   icon: string;
   title: string;
   description: string;
-  target: "dashboard" | "learner" | "folders" | "learning-center" | "learner-module";
+  target: "dashboard" | "folders" | "learner-module";
 }
 
 const FEATURES: Feature[] = [
   {
     icon: "📁",
-    title: "Folders",
+    title: "Labs",
     description: "Every circuit you save lands here, alongside one-click worked examples like Deutsch–Jozsa and Grover's Search.",
     target: "folders",
   },
@@ -21,18 +21,6 @@ const FEATURES: Feature[] = [
     title: "Interactive Circuit Editor",
     description: "Drag, drop, and wire up gates on a live qubit grid, with real Qiskit simulation and instant visualizations.",
     target: "dashboard",
-  },
-  {
-    icon: "🎓",
-    title: "Learner",
-    description: "An AI tutor that explains your circuit, plus 10 core quantum computing concepts to learn as you go.",
-    target: "learner",
-  },
-  {
-    icon: "📚",
-    title: "Learning Center",
-    description: "A guided path through Qiskit's official learning content, fetched straight from GitHub.",
-    target: "learning-center",
   },
   {
     icon: "🧭",
@@ -44,9 +32,7 @@ const FEATURES: Feature[] = [
 
 const CTA_LABEL: Record<Feature["target"], string> = {
   dashboard: "Open dashboard →",
-  learner: "Open Learner →",
-  folders: "Open Folders →",
-  "learning-center": "Open Learning Center →",
+  folders: "Open Labs →",
   "learner-module": "Open Learner Module →",
 };
 
@@ -57,9 +43,7 @@ export function LandingPage() {
   const go = (target: Feature["target"]) => {
     const routes: Record<Feature["target"], string> = {
       dashboard: "/dashboard",
-      learner: "/learner",
       folders: "/folders",
-      "learning-center": "/learning-center",
       "learner-module": "/learner-module",
     };
     navigate(routes[target]);
