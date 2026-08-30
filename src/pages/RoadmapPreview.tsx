@@ -108,8 +108,6 @@ export function RoadmapPreview() {
       roleLabel="Software Developer"
       stages={STAGES}
       streak={4}
-      handsOnCompleted={3}
-      handsOnTotal={11}
       resume={{
         moduleTitle: "Use a QC Today",
         lessonTitle: "Read the results",

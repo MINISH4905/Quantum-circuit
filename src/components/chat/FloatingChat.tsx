@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { useTutorStore } from "../../state/tutor-store";
 import { chatWithTutor } from "../../api/tutor-api";
 import { formatMarkdown } from "../../utils/format-chat";
@@ -13,7 +12,6 @@ const SUGGESTIONS = [
 ];
 
 export function FloatingChat() {
-  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
@@ -26,8 +24,6 @@ export function FloatingChat() {
   const addChatMessage = useTutorStore((s) => s.addChatMessage);
   const setChatLoading = useTutorStore((s) => s.setChatLoading);
   const setChatError = useTutorStore((s) => s.setChatError);
-
-  const isDashboard = location.pathname === "/dashboard";
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });

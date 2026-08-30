@@ -9,6 +9,17 @@ import type { LearningConcept } from "./types";
 const CIRCUIT_KEYWORDS = /circuit|gate|qubit|quantumcircuit|qasm|cnot|hadamard/i;
 const MIN_CONTENT_LENGTH = 50;
 
+// The fetched markdown comes straight from Qiskit/documentation and its
+// images use root-relative paths (e.g. "/learning/images/...") meant to
+// resolve against the docs site, not this app's own origin — without this
+// they 404 against localhost/whatever domain we're served from.
+const DOCS_ORIGIN = "https://quantum.cloud.ibm.com";
+
+function resolveImageSrc(src?: string): string | undefined {
+  if (!src || !src.startsWith("/")) return src;
+  return `${DOCS_ORIGIN}${src}`;
+}
+
 interface ConceptViewerProps {
   concept: LearningConcept;
   isComplete: boolean;
@@ -42,7 +53,11 @@ export function ConceptViewer({ concept, isComplete, onMarkComplete, onOpenEdito
 
       {hasContent ? (
         <div className="lc-markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeHighlight, rehypeKatex]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeHighlight, rehypeKatex]}
+            components={{ img: ({ src, ...props }) => <img src={resolveImageSrc(src as string)} {...props} /> }}
+          >
             {concept.content}
           </ReactMarkdown>
         </div>

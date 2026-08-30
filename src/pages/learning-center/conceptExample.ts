@@ -6,7 +6,12 @@ import {
   buildControlledGateCircuit,
   buildSwapCircuit,
 } from "../../learner/example-circuits";
-import { buildDeutschJozsaCircuit, buildGroverCircuit } from "../../circuit/examples/worked-examples";
+import {
+  buildDeutschJozsaCircuit,
+  buildGroverCircuit,
+  buildSuperdenseCodingCircuit,
+  buildTeleportationCircuitVerified,
+} from "../../circuit/examples/worked-examples";
 import type { LearningConcept } from "./types";
 
 /** A hands-on task tied to a ConceptExample's demo circuit. checkSuccess is
@@ -178,6 +183,70 @@ const TITLE_RULES: Rule[] = [
         diagnose: (circuit) => {
           if (!hasGate(circuit, "cx") && !hasGate(circuit, "cz")) return `Your circuit applies ${describeGates(circuit)} — it needs a CNOT (CX) gate connecting q0 to q1.`;
           if (!hasGate(circuit, "h")) return "The CNOT is there, but q0 isn't in superposition yet — add an H gate on q0 first.";
+          return null;
+        },
+      },
+    },
+  },
+  {
+    test: /superdense/i,
+    example: {
+      label: "Superdense Coding",
+      build: buildSuperdenseCodingCircuit,
+      showProbability: true,
+      task: {
+        goal: "Send two classical bits (11) from Alice to Bob using just one qubit, by exploiting a shared Bell pair.",
+        steps: [
+          "Open the Interactive Circuit section and load the example.",
+          "Run the local simulator.",
+          "Check that Bob decodes exactly 11 every time — never any other outcome.",
+        ],
+        hints: [
+          "H then CX first creates a shared Bell pair between Alice's qubit (q0) and Bob's (q1).",
+          "Alice encodes her 2-bit message onto her own qubit only, using X then Z — no message-bearing qubit is sent, only q0 itself.",
+          "Bob decodes by reversing the entangling step (CX then H) and measuring — this is why the result is 11 with certainty.",
+        ],
+        challenge: "Remove the Z gate (keep the X) and predict which 2-bit message Bob now decodes instead of 11.",
+        successMessage: "Bob decoded 11 with certainty — two classical bits delivered using a single transmitted qubit.",
+        checkSuccess: (probs) => p(probs, "11") > 0.9,
+        diagnose: (circuit) => {
+          if (!hasGate(circuit, "h") || !hasGate(circuit, "cx")) return `Your circuit applies ${describeGates(circuit)} — it needs the initial H + CX pair to share a Bell state before Alice can encode anything.`;
+          if (!hasGate(circuit, "x") || !hasGate(circuit, "z")) return "The shared Bell pair is there, but Alice's encoding (X then Z on q0) is incomplete — add whichever of X/Z is missing.";
+          return null;
+        },
+      },
+    },
+  },
+  {
+    test: /teleport/i,
+    example: {
+      label: "Quantum Teleportation",
+      build: buildTeleportationCircuitVerified,
+      showProbability: true,
+      showBloch: true,
+      task: {
+        goal: "Teleport q0's state onto q2 using a shared Bell pair with q1, then confirm q2 always ends up matching q0's original state.",
+        steps: [
+          "Open the Interactive Circuit section and load the example (X prepares q0 as |1⟩).",
+          "Run the local simulator.",
+          "Check the Probability panel: the leftmost digit of every outcome (q2) should always read 1, even though the other two digits (the random Bell measurement) vary.",
+        ],
+        hints: [
+          "q0's state is never physically moved — only classical measurement results and pre-shared entanglement (the Bell pair on q1/q2) are used.",
+          "The Bell measurement on q0/q1 is genuinely random (four equally likely outcomes) — that's expected and doesn't mean it failed.",
+          "The corrections (CX then CZ) applied using q1/q0 as controls reproduce exactly the classically-conditioned correction each of the four outcomes needs — that's why q2 always lands on the right state regardless.",
+        ],
+        challenge: "Remove the initial X gate so q0 starts as |0⟩ instead, and predict what q2 will now always measure (leftmost digit) before running it.",
+        successMessage: "q2 read 1 in every outcome — q0's state was successfully teleported, no matter which random Bell result occurred.",
+        checkSuccess: (probs) => {
+          let success = 0;
+          for (const [key, prob] of Object.entries(probs)) if (key[0] === "1") success += prob;
+          return success > 0.9;
+        },
+        diagnose: (circuit) => {
+          if (!hasGate(circuit, "x")) return "q0 isn't prepared with an X gate yet — the state you're teleporting needs to start as |1⟩ to make success easy to verify.";
+          if (!hasGate(circuit, "h") || circuit.operations.filter((op) => op.gate === "cx").length < 2) return `Your circuit applies ${describeGates(circuit)} — it needs H + CX to build the shared Bell pair, plus a second CX entangling q0 with it.`;
+          if (!hasGate(circuit, "cz")) return "The Bell pair and entangling step are there, but the final CZ correction on q2 (controlled by q0) is missing.";
           return null;
         },
       },

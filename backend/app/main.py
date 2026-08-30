@@ -49,7 +49,7 @@ except ImportError:
     pass
 
 from .llm_provider import GroqTutorProvider as _GroqProvider, LLMNotConfiguredError, LLMProviderError
-from .tutor_models import TutorChatRequest, TutorChatResponse
+from .tutor_models import GenerateCircuitRequest, GenerateCircuitResponse, TutorChatRequest, TutorChatResponse
 
 _default_tutor_provider = _GroqProvider()
 
@@ -137,6 +137,20 @@ def tutor_chat(request: TutorChatRequest) -> TutorChatResponse:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     return TutorChatResponse(answer=answer)
+
+
+@app.post("/api/tutor/generate-circuit", response_model=GenerateCircuitResponse)
+def tutor_generate_circuit(request: GenerateCircuitRequest) -> GenerateCircuitResponse:
+    provider = get_tutor_provider()
+    if provider is None or not provider.is_configured():
+        raise HTTPException(status_code=503, detail="AI tutor is not configured (missing GROQ_API_KEY)")
+
+    try:
+        code = provider.generate_circuit_code(title=request.title, description=request.content)
+    except (LLMNotConfiguredError, LLMProviderError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return GenerateCircuitResponse(code=code)
 
 
 if _qiskit_available:

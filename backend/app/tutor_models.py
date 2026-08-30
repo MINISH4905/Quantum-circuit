@@ -56,3 +56,12 @@ class TutorChatRequest(BaseModel):
 
 class TutorChatResponse(BaseModel):
     answer: str
+
+
+class GenerateCircuitRequest(BaseModel):
+    title: str
+    content: str = ""
+
+
+class GenerateCircuitResponse(BaseModel):
+    code: str

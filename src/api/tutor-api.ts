@@ -113,6 +113,37 @@ export async function chatWithTutor(
   return (await res.json()) as ChatResponse;
 }
 
+export interface GeneratedCircuit {
+  code: string;
+}
+
+export async function generateCircuitCode(
+  title: string,
+  content: string,
+  signal?: AbortSignal
+): Promise<GeneratedCircuit> {
+  let res: Response;
+  try {
+    res = await fetch(`${BACKEND_URL}/api/tutor/generate-circuit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content }),
+      credentials: "include",
+      signal,
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    throw new SimulationApiError("Could not reach the tutor backend. Is it running?");
+  }
+
+  if (!res.ok) {
+    const msg = await extractErrorMessage(res);
+    throw new SimulationApiError(msg, res.status);
+  }
+
+  return (await res.json()) as GeneratedCircuit;
+}
+
 export async function analyzeCircuitWithTutor(circuit: QuantumCircuit, signal?: AbortSignal): Promise<TutorAnalysis> {
   let res: Response;
   try {
