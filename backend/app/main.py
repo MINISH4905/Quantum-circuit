@@ -26,7 +26,7 @@ try:
     from .circuit_builder import CircuitBuildError
     from .cirq_builder import CirqBuildError
     from .pennylane_builder import PennyLaneBuildError
-    from .llm_provider import GroqTutorProvider, TutorLLMProvider
+    from .llm_provider import GroqTutorProvider, LLMNotConfiguredError, LLMProviderError, TutorLLMProvider
     from .models import (
         BackendResult,
         BlochAngle,
@@ -48,9 +48,10 @@ try:
 except ImportError:
     pass
 
-_default_tutor_provider = None
-if _qiskit_available:
-    _default_tutor_provider = GroqTutorProvider()
+from .llm_provider import GroqTutorProvider as _GroqProvider, LLMNotConfiguredError, LLMProviderError
+from .tutor_models import TutorChatRequest, TutorChatResponse
+
+_default_tutor_provider = _GroqProvider()
 
 
 def get_tutor_provider():
@@ -111,6 +112,31 @@ app.include_router(groups_router)
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/tutor/chat", response_model=TutorChatResponse)
+def tutor_chat(request: TutorChatRequest) -> TutorChatResponse:
+    provider = get_tutor_provider()
+    if provider is None or not provider.is_configured():
+        raise HTTPException(status_code=503, detail="AI tutor is not configured (missing GROQ_API_KEY)")
+
+    circuit_context = None
+    if request.circuit and request.circuit.operations:
+        ops = sorted(request.circuit.operations, key=lambda op: (op.timeStep, op.id))
+        lines = [f"{request.circuit.qubits} qubit(s), {request.circuit.classicalBits} classical bit(s). Gates:"]
+        for op in ops:
+            controls = f", control=q{op.controls}" if op.controls else ""
+            lines.append(f"  step {op.timeStep}: {op.gate.upper()}(targets=q{op.targets}{controls})")
+        circuit_context = "\n".join(lines)
+
+    history = [{"role": m.role, "content": m.content} for m in request.history[-10:]]
+
+    try:
+        answer = provider.chat(question=request.question, circuit_context=circuit_context, history=history)
+    except (LLMNotConfiguredError, LLMProviderError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return TutorChatResponse(answer=answer)
 
 
 if _qiskit_available:
