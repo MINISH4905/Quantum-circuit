@@ -1,0 +1,18 @@
+# Backend image build context is the repo root (see docker-compose.yml /
+# render.yaml) so knowledge_base/ can be baked in alongside backend/ — this
+# keeps everything else (frontend source, node_modules, git history) out of
+# the upload.
+.git
+node_modules
+dist
+backup
+backupsih
+samples
+
+backend/.venv
+backend/.env
+backend/__pycache__
+backend/**/__pycache__
+backend/*.pyc
+backend/.pytest_cache
+backend/data

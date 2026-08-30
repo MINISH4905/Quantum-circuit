@@ -12,17 +12,24 @@ services:
 
   - type: web
     name: quantum-circuit-backend
-    runtime: python
-    rootDir: backend
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    runtime: docker
+    # Build context must be the repo root, not backend/ — knowledge_base/
+    # (read by the RAG pipeline) lives one level above backend/ and has to
+    # be baked into the image; see backend/Dockerfile's comment.
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile
+    # RAG (embeddings + chromadb) needs more than the free tier's 512MB RAM,
+    # and disks (for persisting the vector index across deploys) require a
+    # paid plan — pick the smallest plan that actually has enough memory.
+    plan: starter
+    disk:
+      name: rag-data
+      mountPath: /rag_data
+      sizeGB: 1
     envVars:
       - key: ALLOWED_ORIGINS
         sync: false
-      - key: OLLAMA_BASE_URL
-        sync: false
-      - key: OLLAMA_MODEL
+      - key: GROQ_API_KEY
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
