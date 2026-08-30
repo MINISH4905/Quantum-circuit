@@ -480,6 +480,7 @@ def build_tutor_response(
             warning=TutorWarning(detected=bool(issues), message=" ".join(issues)),
             optimization=_fallback_optimization(issues, circuit),
             source="deterministic",
+            confidence_score=0.95,
         )
 
     llm_steps = [
@@ -491,12 +492,15 @@ def build_tutor_response(
     ] if llm_output.gate_definitions else det_gate_defs
 
     detected = bool(issues) or llm_output.warning_detected
+    algo = llm_output.algorithm or det_algorithm
+    llm_confidence = 0.88 if algo and not algo.lower().startswith("custom") else 0.78
     return TutorAnalyzeResponse(
         explanation=llm_output.explanation,
         steps=llm_steps,
         gateDefinitions=llm_gate_defs,
-        algorithm=llm_output.algorithm or det_algorithm,
+        algorithm=algo,
         warning=TutorWarning(detected=detected, message=llm_output.warning_message or " ".join(issues)),
         optimization=llm_output.optimization,
         source="llm",
+        confidence_score=llm_confidence,
     )

@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://localhost:8001";
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://localhost:8000";
 
 export interface AdminUser {
   id: string;

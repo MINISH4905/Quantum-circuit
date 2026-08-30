@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import logging
 import math
 import os
 import time
@@ -20,6 +22,8 @@ from .routers.auth import router as auth_router
 from .routers.groups import router as groups_router
 from .routers.users import router as users_router
 from .session import RedisSessionMiddleware
+
+logger = logging.getLogger(__name__)
 
 _qiskit_available = False
 try:
@@ -49,7 +53,7 @@ except ImportError:
     pass
 
 from .llm_provider import GroqTutorProvider as _GroqProvider, LLMNotConfiguredError, LLMProviderError
-from .tutor_models import TutorChatRequest, TutorChatResponse
+from .tutor_models import SourceInfo, TutorChatRequest, TutorChatResponse
 
 _default_tutor_provider = _GroqProvider()
 
@@ -64,6 +68,11 @@ async def lifespan(_: FastAPI):
     await create_tables()
     if _default_tutor_provider:
         _default_tutor_provider.warm_up()
+    try:
+        from .rag.pipeline import init_rag_pipeline
+        await init_rag_pipeline()
+    except Exception as exc:
+        logger.warning("RAG pipeline init failed (chat will work without RAG): %s", exc)
     yield
     await close_redis()
 
@@ -114,29 +123,135 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _build_circuit_context(request: TutorChatRequest) -> str | None:
+    if not request.circuit or not request.circuit.operations:
+        return None
+    ops = sorted(request.circuit.operations, key=lambda op: (op.timeStep, op.id))
+    lines = [f"{request.circuit.qubits} qubit(s), {request.circuit.classicalBits} classical bit(s). Gates:"]
+    for op in ops:
+        controls = f", control=q{op.controls}" if op.controls else ""
+        lines.append(f"  step {op.timeStep}: {op.gate.upper()}(targets=q{op.targets}{controls})")
+    return "\n".join(lines)
+
+
+def _run_rag(question: str) -> tuple[str | None, list[SourceInfo], float]:
+    try:
+        from .rag.pipeline import get_rag_pipeline
+        pipeline = get_rag_pipeline()
+        if pipeline is None:
+            return None, [], 0.55
+        result = pipeline.answer(question)
+        sources = [
+            SourceInfo(
+                index=s.index,
+                title=s.title,
+                framework=s.framework,
+                doc_type=s.doc_type,
+                url=s.source_url,
+                heading_path=s.heading_path,
+            )
+            for s in result.sources
+        ]
+        return result.context, sources, result.confidence_score
+    except Exception as exc:
+        logger.warning("RAG retrieval failed: %s", exc)
+        return None, [], 0.55
+
+
 @app.post("/api/tutor/chat", response_model=TutorChatResponse)
 def tutor_chat(request: TutorChatRequest) -> TutorChatResponse:
     provider = get_tutor_provider()
     if provider is None or not provider.is_configured():
         raise HTTPException(status_code=503, detail="AI tutor is not configured (missing GROQ_API_KEY)")
 
-    circuit_context = None
-    if request.circuit and request.circuit.operations:
-        ops = sorted(request.circuit.operations, key=lambda op: (op.timeStep, op.id))
-        lines = [f"{request.circuit.qubits} qubit(s), {request.circuit.classicalBits} classical bit(s). Gates:"]
-        for op in ops:
-            controls = f", control=q{op.controls}" if op.controls else ""
-            lines.append(f"  step {op.timeStep}: {op.gate.upper()}(targets=q{op.targets}{controls})")
-        circuit_context = "\n".join(lines)
-
+    circuit_context = _build_circuit_context(request)
     history = [{"role": m.role, "content": m.content} for m in request.history[-10:]]
+    rag_context, sources, confidence = _run_rag(request.question)
 
     try:
-        answer = provider.chat(question=request.question, circuit_context=circuit_context, history=history)
+        answer = provider.chat(
+            question=request.question,
+            circuit_context=circuit_context,
+            history=history,
+            rag_context=rag_context,
+        )
     except (LLMNotConfiguredError, LLMProviderError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
-    return TutorChatResponse(answer=answer)
+    return TutorChatResponse(answer=answer, sources=sources, confidence_score=confidence)
+
+
+@app.post("/api/tutor/chat/stream")
+async def tutor_chat_stream(request: TutorChatRequest):
+    from sse_starlette.sse import EventSourceResponse
+
+    provider = get_tutor_provider()
+    if provider is None or not provider.is_configured():
+        raise HTTPException(status_code=503, detail="AI tutor is not configured (missing GROQ_API_KEY)")
+
+    circuit_context = _build_circuit_context(request)
+    history = [{"role": m.role, "content": m.content} for m in request.history[-10:]]
+    rag_context, sources, confidence = _run_rag(request.question)
+
+    async def event_generator():
+        if sources:
+            yield {
+                "event": "sources",
+                "data": json.dumps([s.model_dump() for s in sources]),
+            }
+        yield {
+            "event": "confidence",
+            "data": json.dumps(confidence),
+        }
+
+        try:
+            async for token in provider.chat_stream(
+                question=request.question,
+                circuit_context=circuit_context,
+                history=history,
+                rag_context=rag_context,
+            ):
+                yield {"event": "token", "data": token}
+        except (LLMNotConfiguredError, LLMProviderError) as exc:
+            yield {"event": "error", "data": str(exc)}
+            return
+
+        yield {"event": "done", "data": ""}
+
+    return EventSourceResponse(event_generator())
+
+
+@app.get("/api/admin/rag/status")
+def rag_status():
+    try:
+        from .rag.pipeline import get_rag_pipeline
+        from .rag.config import get_rag_settings
+        pipeline = get_rag_pipeline()
+        settings = get_rag_settings()
+        if pipeline is None:
+            return {"enabled": False, "reason": "Pipeline not initialized"}
+        count = pipeline.retriever.vector_store.count()
+        return {
+            "enabled": True,
+            "chunks_indexed": count,
+            "bm25_built": pipeline.retriever.bm25_index.is_built,
+            "kb_dir": str(settings.knowledge_base_dir),
+            "embedding_model": settings.embedding_model,
+        }
+    except Exception as exc:
+        return {"enabled": False, "reason": str(exc)}
+
+
+@app.post("/api/admin/rag/ingest")
+def rag_ingest(force: bool = False):
+    try:
+        from .rag.config import get_rag_settings
+        from .rag.ingest import ingest
+        settings = get_rag_settings()
+        result = ingest(settings.knowledge_base_dir, settings, force=force)
+        return {"status": "ok", "result": str(result)}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 if _qiskit_available:

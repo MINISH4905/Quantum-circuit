@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTutorialStore } from "../../state/tutorial-store";
 import { useCircuitStore } from "../../state/circuit-store";
-import { buildDefaultOperation } from "../../circuit/model/placement";
 import { getGate } from "../../circuit/gate-registry/registry";
 import { createEmptyCircuit } from "../../circuit/model/types";
 
@@ -72,10 +71,13 @@ export function TutorialOverlay() {
     if (!step) return;
     const gate = getGate(step.gateId);
     if (!gate) return;
-    const circuit = useCircuitStore.getState().circuit;
-    const anchor = step.controls?.[0] ?? step.targets[0];
-    const newOp = buildDefaultOperation(gate, anchor, circuit, step.timeStep);
-    addOperation(newOp);
+    addOperation({
+      gate: step.gateId,
+      targets: step.targets,
+      controls: step.controls?.length ? step.controls : undefined,
+      timeStep: step.timeStep,
+      parameters: gate.parameterCount > 0 ? Array(gate.parameterCount).fill(Math.PI / 2) : undefined,
+    });
   }, [step, addOperation]);
 
   const handleRestart = useCallback(() => {

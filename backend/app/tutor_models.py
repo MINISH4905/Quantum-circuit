@@ -41,6 +41,7 @@ class TutorAnalyzeResponse(BaseModel):
     warning: TutorWarning
     optimization: str
     source: Literal["llm", "deterministic"]
+    confidence_score: float = 0.0
 
 
 class ChatMessageModel(BaseModel):
@@ -54,5 +55,16 @@ class TutorChatRequest(BaseModel):
     history: list[ChatMessageModel] = []
 
 
+class SourceInfo(BaseModel):
+    index: int
+    title: str
+    framework: str = ""
+    doc_type: str = ""
+    url: str = ""
+    heading_path: str = ""
+
+
 class TutorChatResponse(BaseModel):
     answer: str
+    sources: list[SourceInfo] = []
+    confidence_score: float = 0.0

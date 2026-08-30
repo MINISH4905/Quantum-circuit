@@ -10,6 +10,7 @@ import {
   type AdminGroup,
 } from "../api/admin-api";
 import { useAuthStore } from "../state/auth-store";
+import "./PageHeader.css";
 import "./AdminDashboard.css";
 
 /* ------------------------------------------------------------------ */
@@ -390,12 +391,17 @@ export function AdminDashboard() {
 
   return (
     <div className="admin-page">
-      <header className="admin-header">
-        <button className="admin-back" onClick={() => navigate("/dashboard")}>
-          &larr; Dashboard
+      <header className="page-nav">
+        <span className="page-brand">Quantum Circuit Lab</span>
+        <button type="button" className="page-home-btn" onClick={() => navigate("/")}>
+          ← Home
         </button>
-        <h1>Admin Panel</h1>
       </header>
+
+      <div className="page-intro">
+        <p className="page-eyebrow">Admin</p>
+        <h1 className="page-title">Admin Panel</h1>
+      </div>
 
       <nav className="admin-tabs">
         <button

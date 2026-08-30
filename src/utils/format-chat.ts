@@ -40,6 +40,20 @@ export function stripLatex(text: string): string {
   return t.trim();
 }
 
+/**
+ * Lightweight formatter for streaming text — no markdown parsing, just
+ * escape HTML and convert newlines.  Avoids the flickering asterisks /
+ * broken words that happen when formatMarkdown runs on incomplete markdown.
+ */
+export function formatStreamingText(raw: string): string {
+  let t = stripLatex(raw);
+  t = escapeHtml(t);
+  // Double newlines → paragraph break, single → line break
+  t = t.replace(/\n\n+/g, "</p><p>");
+  t = t.replace(/\n/g, "<br>");
+  return `<p>${t}</p>`;
+}
+
 interface FormatOptions {
   showApplyButtons?: boolean;
 }
@@ -93,6 +107,7 @@ export function formatMarkdown(
     formatted = formatted.replace(/\x00INLINE(\d+)\x00/g, (_, i) => inlineCode[+i]);
     formatted = formatted.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     formatted = formatted.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    formatted = formatted.replace(/\[(\d{1,2})\]/g, '<span class="tutor-source-ref">[$1]</span>');
 
     if (/^#{1,4}\s/.test(trimmed)) {
       if (inList) { inList = false; out.push("</ul>"); }

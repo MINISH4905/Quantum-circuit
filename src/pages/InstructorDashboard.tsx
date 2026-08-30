@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyGroups, type GroupDetail } from "../api/groups-api";
+import "./PageHeader.css";
 import "./InstructorDashboard.css";
 
 /* ------------------------------------------------------------------ */
@@ -96,12 +97,17 @@ export function InstructorDashboard() {
 
   return (
     <div className="instructor-page">
-      <header className="instructor-header">
-        <button className="instructor-back" onClick={() => navigate("/dashboard")}>
-          &larr; Dashboard
+      <header className="page-nav">
+        <span className="page-brand">Quantum Circuit Lab</span>
+        <button type="button" className="page-home-btn" onClick={() => navigate("/")}>
+          ← Home
         </button>
-        <h1>My Groups</h1>
       </header>
+
+      <div className="page-intro">
+        <p className="page-eyebrow">Instructor</p>
+        <h1 className="page-title">My Groups</h1>
+      </div>
 
       {error && <div className="instructor-error">{error}</div>}
 

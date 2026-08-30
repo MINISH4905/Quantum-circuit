@@ -3,9 +3,21 @@ import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useTutorStore } from "../../state/tutor-store";
 import { chatWithTutor } from "../../api/tutor-api";
+import type { SourceInfo } from "../../api/tutor-api";
 import { formatMarkdown } from "../../utils/format-chat";
 
 type TutorTab = "explain" | "steps" | "gates" | "chat";
+
+function confidenceBadge(score: number | undefined) {
+  if (score == null || score <= 0) return null;
+  const level = score >= 0.8 ? "high" : score >= 0.5 ? "medium" : "low";
+  const label = score >= 0.8 ? "High" : score >= 0.5 ? "Medium" : "Low";
+  return (
+    <span className={`tutor-confidence is-${level}`} title={`Confidence: ${Math.round(score * 100)}%`}>
+      {label} {Math.round(score * 100)}%
+    </span>
+  );
+}
 
 const SUGGESTIONS = [
   "What is a qubit?",
@@ -107,6 +119,8 @@ export function TutorPanel() {
     [activeStepIndex, getOpIdForStep, highlightStep, result]
   );
 
+  const [expandedSources, setExpandedSources] = useState<Record<number, boolean>>({});
+
   const handleChatSend = useCallback(async () => {
     const question = chatInput.trim();
     if (!question || chatLoading) return;
@@ -121,13 +135,13 @@ export function TutorPanel() {
     abortRef.current = controller;
 
     try {
-      const res = await chatWithTutor(
+      const resp = await chatWithTutor(
         question,
         circuit.operations.length > 0 ? circuit : null,
         chatMessages.concat({ role: "user", content: question }),
-        controller.signal
+        controller.signal,
       );
-      addChatMessage({ role: "assistant", content: res.answer });
+      addChatMessage({ role: "assistant", content: resp.answer, sources: resp.sources, confidenceScore: resp.confidence_score });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
       setChatError(err instanceof Error ? err.message : "Failed to get response");
@@ -153,12 +167,15 @@ export function TutorPanel() {
           AI Tutor
         </h2>
         {result && (
-          <span
-            className={`tutor-badge${result.source === "deterministic" ? " is-deterministic" : ""}`}
-            title={result.source === "deterministic" ? "No LLM configured — showing rule-based analysis" : "Powered by Groq"}
-          >
-            {result.source === "deterministic" ? "rule-based" : "AI"}
-          </span>
+          <>
+            <span
+              className={`tutor-badge${result.source === "deterministic" ? " is-deterministic" : ""}`}
+              title={result.source === "deterministic" ? "No LLM configured — showing rule-based analysis" : "Powered by Groq"}
+            >
+              {result.source === "deterministic" ? "rule-based" : "AI"}
+            </span>
+            {confidenceBadge(result.confidence_score)}
+          </>
         )}
       </div>
 
@@ -333,7 +350,10 @@ export function TutorPanel() {
               )}
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`tutor-chat-msg is-${msg.role}`}>
-                  <div className="tutor-chat-msg-label">{msg.role === "user" ? "You" : "AI Tutor"}</div>
+                  <div className="tutor-chat-msg-label">
+                    {msg.role === "user" ? "You" : "AI Tutor"}
+                    {msg.role === "assistant" && confidenceBadge(msg.confidenceScore)}
+                  </div>
                   <div
                     className="tutor-chat-msg-content"
                     dangerouslySetInnerHTML={
@@ -342,6 +362,32 @@ export function TutorPanel() {
                   >
                     {msg.role === "user" ? msg.content : undefined}
                   </div>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="tutor-chat-sources">
+                      <button
+                        className="tutor-chat-sources-toggle"
+                        onClick={() => setExpandedSources((prev) => ({ ...prev, [i]: !prev[i] }))}
+                      >
+                        Sources ({msg.sources.length}) {expandedSources[i] ? "▾" : "▸"}
+                      </button>
+                      {expandedSources[i] && (
+                        <ul className="tutor-chat-sources-list">
+                          {msg.sources.map((s: SourceInfo) => (
+                            <li key={s.index} className="tutor-chat-source-item">
+                              <span className="tutor-source-ref">[{s.index}]</span>
+                              {s.url ? (
+                                <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+                              ) : (
+                                <span>{s.title}</span>
+                              )}
+                              {s.framework && <span className="tutor-source-badge">{s.framework}</span>}
+                              {s.doc_type && <span className="tutor-source-badge is-type">{s.doc_type}</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
               {chatLoading && (

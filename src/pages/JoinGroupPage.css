@@ -2,34 +2,13 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding: clamp(20px, 5vw, 64px);
+  padding: 0 0 clamp(20px, 5vw, 64px);
   font-family: -apple-system, "Segoe UI", sans-serif;
 }
 
-.join-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.join-header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.join-back {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  cursor: pointer;
-  font-size: 13px;
-  padding: 0;
-  transition: color 0.15s;
-}
-.join-back:hover {
-  color: var(--text);
+.join-page > :not(.page-nav):not(.page-intro) {
+  padding-left: clamp(20px, 5vw, 64px);
+  padding-right: clamp(20px, 5vw, 64px);
 }
 
 .join-content {

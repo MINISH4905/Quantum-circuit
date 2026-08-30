@@ -2,33 +2,12 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding: clamp(20px, 5vw, 64px);
+  padding: 0 0 clamp(20px, 5vw, 64px);
 }
 
-.instructor-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 28px;
-}
-
-.instructor-header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.instructor-back {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  cursor: pointer;
-  font-size: 13px;
-  padding: 6px 10px;
-}
-
-.instructor-back:hover {
-  color: var(--text);
+.instructor-page > :not(.page-nav):not(.page-intro) {
+  padding-left: clamp(20px, 5vw, 64px);
+  padding-right: clamp(20px, 5vw, 64px);
 }
 
 .instructor-card {

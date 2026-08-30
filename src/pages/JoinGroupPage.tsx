@@ -7,6 +7,7 @@ import {
   type JoinResult,
   type GroupMembership,
 } from "../api/groups-api";
+import "./PageHeader.css";
 import "./JoinGroupPage.css";
 
 function formatDate(iso: string): string {
@@ -78,12 +79,17 @@ export function JoinGroupPage() {
 
   return (
     <div className="join-page">
-      <header className="join-header">
-        <button className="join-back" onClick={() => navigate("/dashboard")}>
-          &larr; Dashboard
+      <header className="page-nav">
+        <span className="page-brand">Quantum Circuit Lab</span>
+        <button type="button" className="page-home-btn" onClick={() => navigate("/")}>
+          ← Home
         </button>
-        <h1>Join a Group</h1>
       </header>
+
+      <div className="page-intro">
+        <p className="page-eyebrow">Groups</p>
+        <h1 className="page-title">Join a Group</h1>
+      </div>
 
       <div className="join-content">
         {/* ---- Join form card ---- */}

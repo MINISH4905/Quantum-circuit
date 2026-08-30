@@ -51,7 +51,28 @@ function handleDragEnd(event: DragEndEvent) {
   if (activeData.type === "new-gate") {
     const gate = getGate(activeData.gateId);
     if (!gate) return;
-    const newOp = buildDefaultOperation(gate, overData.qubit, circuit, overData.timeStep);
+
+    let newOp;
+    const tutState = useTutorialStore.getState();
+    if (tutState.status === "active") {
+      const tutStep = tutState.currentStep();
+      if (tutStep && tutStep.gateId === activeData.gateId) {
+        const expectedAnchor = tutStep.controls?.[0] ?? tutStep.targets[0];
+        if (overData.qubit === expectedAnchor) {
+          newOp = {
+            gate: tutStep.gateId,
+            targets: tutStep.targets,
+            controls: tutStep.controls?.length ? tutStep.controls : undefined,
+            timeStep: tutStep.timeStep,
+            parameters: gate.parameterCount > 0 ? Array(gate.parameterCount).fill(Math.PI / 2) : undefined,
+          };
+        }
+      }
+    }
+    if (!newOp) {
+      newOp = buildDefaultOperation(gate, overData.qubit, circuit, overData.timeStep);
+    }
+
     const id = store.addOperation(newOp);
     useUiStore.getState().select(id);
     return;
@@ -80,6 +101,8 @@ function handleDragEnd(event: DragEndEvent) {
 }
 
 function handleAddGateClick(gateId: string) {
+  if (useTutorialStore.getState().isActive()) return;
+
   const gate = getGate(gateId);
   if (!gate) return;
   const store = useCircuitStore.getState();

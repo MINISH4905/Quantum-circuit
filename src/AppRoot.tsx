@@ -60,11 +60,7 @@ function AppRoot() {
 
       {/* Protected routes — require authentication */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={
-          <div className="dashboard-with-home">
-            <App />
-          </div>
-        } />
+        <Route path="/dashboard" element={<App />} />
         <Route path="/learner" element={<LearnerPage />} />
         <Route path="/folders" element={<FoldersPage />} />
         <Route path="/join-group" element={<JoinGroupPage />} />

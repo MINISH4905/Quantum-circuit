@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useUiStore } from "../../state/ui-store";
 import { useSavedCircuitsStore } from "../../state/saved-circuits-store";
@@ -27,6 +28,7 @@ const SHORTCUTS: Array<{ label: string; keys: string }> = [
 ];
 
 export function Toolbar() {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const circuit = useCircuitStore((s) => s.circuit);
   const setCircuit = useCircuitStore((s) => s.setCircuit);
@@ -213,6 +215,14 @@ export function Toolbar() {
 
   return (
     <header className="app-toolbar" role="toolbar" aria-label="Circuit toolbar">
+      <button
+        type="button"
+        className="toolbar-home-btn"
+        onClick={() => navigate("/")}
+        aria-label="Back to home"
+      >
+        ← Home
+      </button>
       {isEditingTitle ? (
         <input
           ref={titleInputRef}

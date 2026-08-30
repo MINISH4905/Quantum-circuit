@@ -15,6 +15,7 @@ import json
 import os
 import re
 import threading
+from collections.abc import AsyncIterator
 from typing import Protocol
 
 GROQ_DEFAULT_MODEL = "qwen/qwen3.8-27b"
@@ -472,20 +473,27 @@ class GroqTutorProvider:
         except (KeyError, IndexError, json.JSONDecodeError) as exc:
             raise LLMProviderError(f"Unexpected Groq response shape: {exc}") from exc
 
-    def chat(
+    def _build_chat_messages(
         self,
-        *,
         question: str,
         circuit_context: str | None = None,
         history: list[dict[str, str]] | None = None,
-    ) -> str:
-        if not self._api_key:
-            raise LLMNotConfiguredError(
-                "GROQ_API_KEY environment variable is not set. "
-                "Get a free key at https://console.groq.com"
-            )
-
+        rag_context: str | None = None,
+    ) -> list[dict]:
         messages: list[dict] = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}]
+
+        if rag_context:
+            messages.append({
+                "role": "system",
+                "content": (
+                    "=== KNOWLEDGE BASE CONTEXT ===\n"
+                    "The following excerpts come from authoritative quantum computing documentation. "
+                    "Ground your answer in these sources. Cite them using bracketed numbers like [1], [2]. "
+                    "If the excerpts don't contain enough information to answer, say so honestly and answer "
+                    "from your general knowledge, making it clear you're doing so.\n\n"
+                    f"{rag_context}"
+                ),
+            })
 
         if circuit_context:
             messages.append({
@@ -497,6 +505,23 @@ class GroqTutorProvider:
             messages.extend(history)
 
         messages.append({"role": "user", "content": question})
+        return messages
+
+    def chat(
+        self,
+        *,
+        question: str,
+        circuit_context: str | None = None,
+        history: list[dict[str, str]] | None = None,
+        rag_context: str | None = None,
+    ) -> str:
+        if not self._api_key:
+            raise LLMNotConfiguredError(
+                "GROQ_API_KEY environment variable is not set. "
+                "Get a free key at https://console.groq.com"
+            )
+
+        messages = self._build_chat_messages(question, circuit_context, history, rag_context)
 
         body = self._post_with_rotation({
             "model": self._model,
@@ -511,3 +536,92 @@ class GroqTutorProvider:
             return _strip_latex(raw)
         except (KeyError, IndexError) as exc:
             raise LLMProviderError(f"Unexpected Groq response shape: {exc}") from exc
+
+    async def chat_stream(
+        self,
+        *,
+        question: str,
+        circuit_context: str | None = None,
+        history: list[dict[str, str]] | None = None,
+        rag_context: str | None = None,
+    ) -> AsyncIterator[str]:
+        if not self._api_key:
+            raise LLMNotConfiguredError(
+                "GROQ_API_KEY environment variable is not set. "
+                "Get a free key at https://console.groq.com"
+            )
+
+        import httpx
+
+        messages = self._build_chat_messages(question, circuit_context, history, rag_context)
+
+        payload = {
+            "model": self._model,
+            "messages": messages,
+            "temperature": 0.3,
+            "max_tokens": 1024,
+            "stream": True,
+        }
+
+        in_think = False
+        last_exc = None
+        for _ in range(len(self._keys) or 1):
+            try:
+                async with httpx.AsyncClient(timeout=self._timeout) as client:
+                    async with client.stream(
+                        "POST",
+                        self._base_url,
+                        json=payload,
+                        headers={
+                            "Authorization": f"Bearer {self._api_key}",
+                            "Content-Type": "application/json",
+                        },
+                    ) as resp:
+                        if resp.status_code in (429, 401) and len(self._keys) > 1:
+                            self._rotate_key()
+                            payload_copy = payload.copy()
+                            last_exc = LLMProviderError(f"HTTP {resp.status_code}")
+                            continue
+                        resp.raise_for_status()
+
+                        async for line in resp.aiter_lines():
+                            if not line.startswith("data: "):
+                                continue
+                            data_str = line[6:]
+                            if data_str.strip() == "[DONE]":
+                                return
+                            try:
+                                chunk = json.loads(data_str)
+                                delta = chunk["choices"][0].get("delta", {})
+                                token = delta.get("content", "")
+                            except (json.JSONDecodeError, KeyError, IndexError):
+                                continue
+
+                            if not token:
+                                continue
+
+                            if "<think>" in token:
+                                in_think = True
+                                token = token.split("<think>")[0]
+                            if in_think:
+                                if "</think>" in token:
+                                    in_think = False
+                                    token = token.split("</think>", 1)[1]
+                                else:
+                                    continue
+
+                            if token:
+                                yield token
+                        return
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in (429, 401) and len(self._keys) > 1:
+                    self._rotate_key()
+                    last_exc = exc
+                    continue
+                raise LLMProviderError(
+                    f"Groq API returned {exc.response.status_code}"
+                ) from exc
+            except httpx.HTTPError as exc:
+                raise LLMProviderError(f"Groq streaming request failed: {exc}") from exc
+
+        raise LLMProviderError(f"All API keys exhausted (rate limited)")
