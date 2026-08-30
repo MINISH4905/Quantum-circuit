@@ -448,25 +448,26 @@ The provider is injected via FastAPI's dependency system, making it trivially sw
 
 ## Getting Started
 
+**See [QUICKSTART.md](QUICKSTART.md) for the full step-by-step setup**, including Google OAuth, the Postgres/Redis services, and the known Apple Silicon dependency issue.
+
 ### Prerequisites
 
-- **Node.js** (for the frontend)
-- **Python 3.11+** (for the backend, optional)
+- **Node.js 20.19+** (for the frontend — Vite 8 warns below this)
+- **Python 3.11+** (for the backend)
+- **Postgres 14+** and **Redis 7+** (required — see below)
 - **Ollama** (for the AI tutor LLM, optional)
 
-### Frontend only (no backend needed)
+### The backend is no longer optional
+
+Google SSO and instructor groups added `init_redis()` and `create_tables()` to the backend's startup lifespan (`app/main.py`), so **Postgres and Redis must be running for the backend to boot**. Login is also required to reach the editor — `/dashboard` is behind `ProtectedRoute`, so without OAuth configured you only get the landing and login pages.
+
+The in-browser simulator still runs entirely client-side once you are past login, and still works if the backend goes down mid-session.
 
 ```bash
-npm install
-npm run dev
-```
+# Services
+docker compose up -d postgres redis
 
-Opens at `http://localhost:5173`. The in-browser simulator provides full circuit simulation, probability histograms, Bloch spheres, and Q-sphere — no backend required.
-
-### With backend (adds Qiskit Aer + AI Tutor)
-
-```bash
-# Terminal 1 — backend
+# Terminal 1 — backend (create backend/.env first, see QUICKSTART.md)
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
@@ -474,6 +475,8 @@ uvicorn app.main:app --reload
 # Terminal 2 — frontend
 npm run dev
 ```
+
+First backend start takes 60–90 seconds — Qiskit, Cirq, and PennyLane are imported at module load. Wait for `Application startup complete.`
 
 Toggle "Qiskit Aer" in the canvas toolbar to use the backend simulator. The AI Tutor panel auto-fires on every circuit change.
 
