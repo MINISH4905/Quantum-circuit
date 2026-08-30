@@ -201,3 +201,23 @@
     align-items: flex-start;
   }
 }
+
+/* --- Assessment progress columns --- */
+
+.instructor-progress-error {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: #e5a5a2;
+}
+
+.instructor-score {
+  font-weight: 600;
+}
+
+.instructor-score.is-pass {
+  color: #4cc38a;
+}
+
+.instructor-score.is-low {
+  color: #e5b06a;
+}

@@ -16,6 +16,7 @@ import { TutorPanel } from "../../components/tutor/TutorPanel";
 import { DetailSection } from "../../components/shared/DetailSection";
 import { Breadcrumb } from "./Breadcrumb";
 import { ConceptViewer } from "./ConceptViewer";
+import { AssessmentPanel } from "./assessment/AssessmentPanel";
 import { sanitizeLearningContent } from "./sanitizeContent";
 import { getConceptExample } from "./conceptExample";
 import { TutorModes } from "./TutorModes";
@@ -90,7 +91,17 @@ export function ConceptPage({
   // than inside ConceptViewer/the data layer so neither has to change.
   const displayConcept = useMemo(() => ({ ...concept, content: sanitizeLearningContent(concept.content) }), [concept]);
 
-  const example = useMemo(() => getConceptExample(concept), [concept]);
+  // Assessment nodes carry a structured `assessment` object; their prose
+  // `content` states the correct answer and explanation for every question
+  // inline, so it must never be rendered. AssessmentPanel replaces the markdown
+  // body for these and reveals the key only after a submission.
+  const assessment = concept.type === "assessment" ? concept.assessment : undefined;
+
+  // Suppressed on assessments: getConceptExample matches on title, so
+  // "Assessment — Deutsch's algorithm" would otherwise pull in the guided
+  // tutorial (hints, Check My Work) underneath a graded assessment. The
+  // assessment's own coding challenges cover the hands-on part.
+  const example = useMemo(() => (assessment ? null : getConceptExample(concept)), [assessment, concept]);
 
   const loadExample = useCallback(() => {
     if (!example) return;
@@ -162,7 +173,16 @@ export function ConceptPage({
       </div>
 
       <div className="cpg-body">
-        <ConceptViewer concept={displayConcept} isComplete={isComplete} onMarkComplete={onMarkComplete} onOpenEditor={onOpenEditor} />
+        {assessment ? (
+          <AssessmentPanel
+            concept={concept}
+            assessment={assessment}
+            isComplete={isComplete}
+            onMarkComplete={onMarkComplete}
+          />
+        ) : (
+          <ConceptViewer concept={displayConcept} isComplete={isComplete} onMarkComplete={onMarkComplete} onOpenEditor={onOpenEditor} />
+        )}
 
         {example && (
           <>
@@ -257,7 +277,7 @@ export function ConceptPage({
           </>
         )}
 
-        {!example && (
+        {!example && !assessment && (
           <p className="cpg-no-hands-on">This concept currently has no hands-on challenge. Continue to the next topic.</p>
         )}
 

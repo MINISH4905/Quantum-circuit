@@ -83,3 +83,66 @@ class AuthUserOut(BaseModel):
     picture: str | None = None
     role: str
     memberships: list[MembershipOut] = []
+
+
+# --- Assessments ---------------------------------------------------------
+
+
+class AttemptCreate(BaseModel):
+    """A graded submission from the client.
+
+    Grading happens client-side: the answer key lives only in the frontend's
+    learning-content.json, so the server records the reported result rather than
+    re-deriving it. That means a determined student could post a fabricated
+    score — acceptable for a self-study tool, but it is why these numbers are
+    "reported" progress, not exam-grade marks. Bounds below at least keep the
+    stored data sane.
+    """
+
+    source_file: str = Field(min_length=1, max_length=512)
+    concept_title: str = Field(default="", max_length=512)
+    kind: Literal["quiz", "challenge"]
+    challenge_id: str | None = Field(default=None, max_length=128)
+    score: int = Field(ge=0, le=1000)
+    max_score: int = Field(ge=0, le=1000)
+    passed: bool = False
+    answers: dict | list | None = None
+
+
+class AttemptOut(BaseModel):
+    id: uuid.UUID
+    source_file: str
+    concept_title: str
+    kind: str
+    challenge_id: str | None
+    score: int
+    max_score: int
+    passed: bool
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+
+class AssessmentSummary(BaseModel):
+    """Best result per assessment for one learner."""
+
+    source_file: str
+    concept_title: str
+    #: Best quiz mark. Both are 0 when the learner has only tried the
+    #: coding challenges, which keeps such rows out of score averages.
+    best_score: int
+    max_score: int
+    attempts: int
+    challenges_passed: int = 0
+    passed: bool
+    last_attempt_at: datetime
+
+
+class MemberProgress(BaseModel):
+    user_id: uuid.UUID
+    name: str
+    email: str
+    assessments_completed: int
+    quizzes_attempted: int
+    challenges_passed: int
+    average_percent: float | None = None
+    last_activity_at: datetime | None = None

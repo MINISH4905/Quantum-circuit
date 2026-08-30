@@ -26,6 +26,12 @@ dist-ssr
 # Environment files (secrets)
 .env
 backend/.env
+# ...including timestamped backups. backend/.env.bak-* held a live
+# SESSION_SECRET and GOOGLE_CLIENT_SECRET while matching no rule above.
+.env.*
+!.env.example
+backend/.env.*
+!backend/.env.example
 
 # Backend (Python)
 backend/.venv
@@ -36,3 +42,7 @@ backend/.pytest_cache
 # scripts/fetch-learning-content.js resumable fetch cache (raw file content —
 # large, and regenerable by re-running `npm run fetch-content`)
 .fetch-cache
+
+# scripts/merge-assessments.js writes a timestamped copy of
+# learning-content.json before each run — ~3 MB each and regenerable.
+src/data/learning-content.backup-*.json

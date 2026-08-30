@@ -21,7 +21,11 @@ async def join_group(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(InstructorGroup).where(InstructorGroup.code == body.code))
+    result = await db.execute(
+        select(InstructorGroup)
+        .where(InstructorGroup.code == body.code)
+        .options(selectinload(InstructorGroup.instructor))
+    )
     group = result.scalar_one_or_none()
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid group code")
@@ -43,7 +47,15 @@ async def join_group(
     db.add(membership)
     await db.commit()
 
-    return {"detail": "Joined group", "group_id": str(group.id), "group_name": group.name}
+    # group_code / instructor_name are here because the join confirmation in
+    # src/pages/JoinGroupPage.tsx renders them.
+    return {
+        "detail": "Joined group",
+        "group_id": str(group.id),
+        "group_name": group.name,
+        "group_code": group.code,
+        "instructor_name": group.instructor.name,
+    }
 
 
 @router.delete("/leave/{group_id}", status_code=status.HTTP_204_NO_CONTENT)

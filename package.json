@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "fetch-content": "node scripts/fetch-learning-content.js && node scripts/merge-assessments.js",
+    "merge-assessments": "node scripts/merge-assessments.js",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

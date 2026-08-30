@@ -1,0 +1,138 @@
+/* My Assessment Progress — learner-facing gradebook. Palette matches
+   InstructorDashboard.css / AssessmentPanel.css. */
+
+.progress-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1.75rem 3rem;
+}
+
+.progress-notice {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed #4a4a58;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  color: #b6b6c2;
+}
+
+.progress-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #9a9aa8;
+  font-size: 0.92rem;
+}
+
+.progress-empty p {
+  margin: 0 0 1rem;
+}
+
+/* ---------- stat tiles ---------- */
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+}
+
+.progress-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+  background: #1c1c21;
+  border: 1px solid #2e2e36;
+  border-radius: 12px;
+}
+
+.progress-stat.is-warn {
+  border-color: rgba(229, 176, 106, 0.5);
+}
+
+.progress-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f2f2f5;
+  line-height: 1.1;
+}
+
+.progress-stat-label {
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+/* ---------- table ---------- */
+
+.progress-table-wrap {
+  overflow-x: auto;
+  background: #1c1c21;
+  border: 1px solid #2e2e36;
+  border-radius: 12px;
+  padding: 0.5rem 1.1rem 1rem;
+}
+
+.progress-table {
+  width: 100%;
+  min-width: 46rem;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.progress-table th,
+.progress-table td {
+  text-align: left;
+  padding: 0.65rem 0.9rem 0.65rem 0;
+  border-bottom: 1px solid #2b2b34;
+  color: #d4d4de;
+  white-space: nowrap;
+}
+
+.progress-table th {
+  font-size: 0.71rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+.progress-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.progress-title-cell {
+  white-space: normal;
+  min-width: 15rem;
+  color: #f0f0f4;
+  font-weight: 500;
+}
+
+.progress-module-cell {
+  white-space: normal;
+  color: #9a9aa8;
+  font-size: 0.83rem;
+}
+
+.progress-muted {
+  color: #7c7c8a;
+}
+
+.progress-pct {
+  font-weight: 700;
+}
+
+.progress-pct.is-perfect,
+.progress-pct.is-pass {
+  color: #4cc38a;
+}
+
+.progress-pct.is-low {
+  color: #e5b06a;
+}
+
+@media (max-width: 720px) {
+  .progress-page {
+    padding: 1rem 1rem 2rem;
+  }
+}

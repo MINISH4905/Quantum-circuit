@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyGroups, type GroupDetail } from "../api/groups-api";
+import { getGroupProgress, type MemberProgress } from "../api/assessments-api";
 import "./InstructorDashboard.css";
 
 /* ------------------------------------------------------------------ */
@@ -9,6 +10,25 @@ import "./InstructorDashboard.css";
 
 function GroupCard({ group }: { group: GroupDetail }) {
   const [copied, setCopied] = useState(false);
+  // Assessment progress is fetched per group, separately from the roster, so a
+  // failure here still leaves the group and its members rendered.
+  const [progress, setProgress] = useState<Record<string, MemberProgress>>({});
+  const [progressError, setProgressError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    getGroupProgress(group.id)
+      .then((data) => {
+        if (cancelled) return;
+        setProgress(Object.fromEntries(data.members.map((m) => [m.user_id, m])));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setProgressError(err instanceof Error ? err.message : "Failed to load progress");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [group.id]);
 
   const handleCopy = async () => {
     try {
@@ -39,6 +59,8 @@ function GroupCard({ group }: { group: GroupDetail }) {
         Members ({group.members.length})
       </h3>
 
+      {progressError && <div className="instructor-progress-error">Progress unavailable: {progressError}</div>}
+
       {group.members.length === 0 ? (
         <div className="instructor-no-members">No students have joined yet</div>
       ) : (
@@ -49,16 +71,35 @@ function GroupCard({ group }: { group: GroupDetail }) {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Joined</th>
+                <th>Quizzes</th>
+                <th>Challenges</th>
+                <th>Avg score</th>
+                <th>Last active</th>
               </tr>
             </thead>
             <tbody>
-              {group.members.map((m) => (
-                <tr key={m.id}>
-                  <td>{m.name}</td>
-                  <td>{m.email}</td>
-                  <td>{new Date(m.joined_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
+              {group.members.map((m) => {
+                const p = progress[m.id];
+                return (
+                  <tr key={m.id}>
+                    <td>{m.name}</td>
+                    <td>{m.email}</td>
+                    <td>{new Date(m.joined_at).toLocaleDateString()}</td>
+                    <td>{p ? p.quizzes_attempted : "—"}</td>
+                    <td>{p ? p.challenges_passed : "—"}</td>
+                    <td>
+                      {p && p.average_percent !== null ? (
+                        <span className={`instructor-score ${p.average_percent >= 60 ? "is-pass" : "is-low"}`}>
+                          {p.average_percent}%
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td>{p?.last_activity_at ? new Date(p.last_activity_at).toLocaleDateString() : "—"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -81,8 +122,7 @@ export function InstructorDashboard() {
     setLoading(true);
     setError("");
     try {
-      const data = await getMyGroups();
-      setGroups(data.groups);
+      setGroups(await getMyGroups());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load groups");
     } finally {

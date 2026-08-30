@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://localhost:8001";
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://localhost:8000";
 
 export interface GroupMembership {
   group_id: string;
@@ -44,24 +44,29 @@ export async function joinGroup(code: string): Promise<JoinResult> {
   return await res.json();
 }
 
+// Paths and response shapes below mirror backend/app/routers/groups.py exactly:
+// DELETE /leave/{id}, GET /my, GET /membership — and /my and /membership each
+// return a bare array, not an object wrapper.
+
 export async function leaveGroup(groupId: string): Promise<void> {
-  const res = await fetch(`${BACKEND_URL}/api/groups/${groupId}/leave`, {
-    method: "POST",
+  const res = await fetch(`${BACKEND_URL}/api/groups/leave/${groupId}`, {
+    method: "DELETE",
     credentials: "include",
   });
   if (!res.ok) throw new Error(await extractDetail(res));
 }
 
-export async function getMyGroups(): Promise<{ groups: GroupDetail[] }> {
-  const res = await fetch(`${BACKEND_URL}/api/groups/mine`, {
+/** Instructor-only: the groups the caller owns, each with its members. */
+export async function getMyGroups(): Promise<GroupDetail[]> {
+  const res = await fetch(`${BACKEND_URL}/api/groups/my`, {
     credentials: "include",
   });
   if (!res.ok) throw new Error(await extractDetail(res));
   return await res.json();
 }
 
-export async function getMyMemberships(): Promise<{ memberships: GroupMembership[] }> {
-  const res = await fetch(`${BACKEND_URL}/api/groups/memberships`, {
+export async function getMyMemberships(): Promise<GroupMembership[]> {
+  const res = await fetch(`${BACKEND_URL}/api/groups/membership`, {
     credentials: "include",
   });
   if (!res.ok) throw new Error(await extractDetail(res));
