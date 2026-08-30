@@ -10,6 +10,7 @@ import { FoldersPage } from "./pages/FoldersPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { InstructorDashboard } from "./pages/InstructorDashboard";
 import { JoinGroupPage } from "./pages/JoinGroupPage";
+import { MyProgressPage } from "./pages/MyProgressPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoleGate } from "./components/auth/RoleGate";
 import { LearningCenter } from "./pages/LearningCenter";
@@ -64,6 +65,7 @@ function AppRoot() {
         <Route path="/learner" element={<LearnerPage />} />
         <Route path="/folders" element={<FoldersPage />} />
         <Route path="/join-group" element={<JoinGroupPage />} />
+        <Route path="/my-progress" element={<MyProgressPage />} />
         <Route path="/learning-center" element={<LearningCenterRoute />} />
         <Route path="/learner-module" element={<LearnerModuleRoute />} />
 

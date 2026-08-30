@@ -22,3 +22,5 @@ rank-bm25>=0.2.2
 sse-starlette>=2.0
 pyyaml>=6.0
 fakeredis>=2.21
+# Test-only: in-process async SQLite for backend/tests/test_assessments_api.py
+aiosqlite>=0.20

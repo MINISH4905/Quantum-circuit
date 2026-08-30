@@ -1,0 +1,466 @@
+/* Interactive assessment view. Colour/surface values follow the same dark
+   palette the surrounding Learning Center CSS uses (ConceptPage.css). */
+
+.asm-panel {
+  background: #1c1c21;
+  border: 1px solid #2e2e36;
+  border-radius: 14px;
+  padding: 1.75rem 2rem 2rem;
+}
+
+.asm-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #2e2e36;
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.asm-eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+.asm-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #f2f2f5;
+}
+
+.asm-meta {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: #9a9aa8;
+}
+
+.asm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.asm-section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #e8e8ee;
+}
+
+.asm-quiz-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.asm-progress-label {
+  font-size: 0.82rem;
+  color: #8b8b98;
+}
+
+.asm-empty,
+.asm-quiz-only-note {
+  margin: 1.5rem 0 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed #34343e;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #9a9aa8;
+}
+
+/* ---------- score banner ---------- */
+
+.asm-score-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid;
+  margin-bottom: 1.5rem;
+}
+
+.asm-score-banner.is-perfect,
+.asm-score-banner.is-pass {
+  background: rgba(46, 160, 100, 0.12);
+  border-color: rgba(46, 160, 100, 0.45);
+}
+
+.asm-score-banner.is-fail {
+  background: rgba(214, 96, 96, 0.12);
+  border-color: rgba(214, 96, 96, 0.45);
+}
+
+.asm-score-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f2f2f5;
+}
+
+.asm-score-percent {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c9c9d4;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.asm-score-text {
+  font-size: 0.88rem;
+  color: #b6b6c2;
+}
+
+/* ---------- questions ---------- */
+
+.asm-question-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.asm-question {
+  border: 1px solid #2e2e36;
+  border-radius: 12px;
+  padding: 1.15rem 1.3rem;
+  background: #202027;
+}
+
+.asm-question.is-correct {
+  border-color: rgba(46, 160, 100, 0.5);
+}
+
+.asm-question.is-incorrect {
+  border-color: rgba(214, 96, 96, 0.5);
+}
+
+.asm-question-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.asm-question-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+.asm-verdict {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.asm-verdict.is-correct {
+  color: #4cc38a;
+}
+
+.asm-verdict.is-incorrect {
+  color: #e5837f;
+}
+
+.asm-question-text {
+  color: #ebebf0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.asm-question-text p,
+.asm-option-text p,
+.asm-explanation p {
+  margin: 0;
+}
+
+/* ---------- options ---------- */
+
+.asm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.asm-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #34343e;
+  border-radius: 9px;
+  background: #24242c;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.asm-option:hover:not(.is-locked) {
+  border-color: #4a4a58;
+  background: #292932;
+}
+
+.asm-option.is-chosen {
+  border-color: #6f7ae8;
+  background: rgba(111, 122, 232, 0.13);
+}
+
+.asm-option.is-locked {
+  cursor: default;
+}
+
+/* After grading: the key is always highlighted green, and a wrong pick red. */
+.asm-option.is-key {
+  border-color: rgba(46, 160, 100, 0.7);
+  background: rgba(46, 160, 100, 0.13);
+}
+
+.asm-option.is-wrong {
+  border-color: rgba(214, 96, 96, 0.7);
+  background: rgba(214, 96, 96, 0.13);
+}
+
+.asm-option input {
+  margin-top: 0.25rem;
+  accent-color: #6f7ae8;
+  flex-shrink: 0;
+}
+
+.asm-option-key {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #a8a8b8;
+  min-width: 1.1rem;
+  flex-shrink: 0;
+}
+
+.asm-option-text {
+  color: #dcdce4;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  flex: 1;
+}
+
+.asm-option-tag {
+  align-self: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4cc38a;
+  white-space: nowrap;
+}
+
+/* ---------- explanation (post-submit only) ---------- */
+
+.asm-explanation {
+  margin-top: 0.95rem;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid #6f7ae8;
+  border-radius: 0 8px 8px 0;
+  background: rgba(111, 122, 232, 0.08);
+  color: #ccccd8;
+  font-size: 0.89rem;
+  line-height: 1.6;
+}
+
+.asm-explanation-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8f97ee;
+  margin-bottom: 0.35rem;
+}
+
+/* ---------- submit ---------- */
+
+.asm-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.asm-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.asm-submit-hint {
+  font-size: 0.82rem;
+  color: #8b8b98;
+}
+
+/* ---------- coding challenges ---------- */
+
+.asm-challenges {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2e2e36;
+}
+
+.asm-challenges .asm-section-title {
+  margin-bottom: 1rem;
+}
+
+.asm-challenge-desc {
+  color: #dcdce4;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.asm-challenge-hint {
+  margin: 0.8rem 0 1rem;
+  font-size: 0.82rem;
+  color: #9a9aa8;
+  line-height: 1.6;
+}
+
+.asm-challenge-hint code {
+  background: #2a2a33;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.8rem;
+  color: #c6cbf5;
+}
+
+.asm-editor {
+  border: 1px solid #34343e;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.asm-challenge-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
+.asm-reset-btn {
+  background: transparent;
+  border: 1px solid #3c3c46;
+  color: #b6b6c2;
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.83rem;
+  cursor: pointer;
+}
+
+.asm-reset-btn:hover {
+  border-color: #52525e;
+  color: #e2e2ea;
+}
+
+.asm-challenge-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4cc38a;
+}
+
+.asm-challenge-result {
+  margin-top: 1rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid;
+}
+
+.asm-challenge-result.is-pass {
+  background: rgba(46, 160, 100, 0.1);
+  border-color: rgba(46, 160, 100, 0.45);
+}
+
+.asm-challenge-result.is-fail {
+  background: rgba(214, 96, 96, 0.1);
+  border-color: rgba(214, 96, 96, 0.45);
+}
+
+.asm-challenge-verdict {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #ededf2;
+}
+
+.asm-challenge-message {
+  margin: 0.5rem 0 0;
+  font-size: 0.86rem;
+  color: #c2c2ce;
+}
+
+.asm-parse-errors {
+  margin: 0.7rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  color: #e5b0ad;
+  line-height: 1.6;
+}
+
+.asm-parse-errors strong {
+  color: #f0c9c6;
+}
+
+/* Wide tables scroll inside their own container rather than the page. */
+.asm-prob-table-wrap {
+  margin-top: 0.85rem;
+  overflow-x: auto;
+}
+
+.asm-prob-table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 24rem;
+}
+
+.asm-prob-table th,
+.asm-prob-table td {
+  text-align: left;
+  padding: 0.4rem 0.85rem 0.4rem 0;
+  border-bottom: 1px solid #32323c;
+  color: #ccccd8;
+}
+
+.asm-prob-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+.asm-prob-table code {
+  background: #2a2a33;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  color: #c6cbf5;
+}
+
+.asm-prob-table tr.is-off td {
+  color: #e5a5a2;
+}
+
+@media (max-width: 720px) {
+  .asm-panel {
+    padding: 1.25rem 1.1rem 1.5rem;
+  }
+
+  .asm-header,
+  .asm-quiz-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

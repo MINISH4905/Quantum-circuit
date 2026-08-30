@@ -5,6 +5,7 @@ import { parseCode } from "../../circuit/framework";
 import { generateCircuitCode } from "../../api/tutor-api";
 import { Breadcrumb } from "./Breadcrumb";
 import { ConceptViewer } from "./ConceptViewer";
+import { AssessmentPanel } from "./assessment/AssessmentPanel";
 import { sanitizeLearningContent } from "./sanitizeContent";
 import { getConceptExample } from "./conceptExample";
 import "../../App.css";
@@ -71,6 +72,14 @@ export function ConceptPage({
   const displayConcept = useMemo(() => ({ ...concept, content: sanitizeLearningContent(concept.content) }), [concept]);
 
   const example = useMemo(() => getConceptExample(concept), [concept]);
+
+  // Assessment nodes carry a structured `assessment` object; their prose
+  // `content` states the correct answer and explanation for every question
+  // inline, so it must never be rendered. AssessmentPanel replaces the markdown
+  // body for these and reveals the key only after a submission. Everything else
+  // on this page — the circuit-generation flow, prev/next nav, GitHub link —
+  // behaves identically for assessments.
+  const assessment = concept.type === "assessment" ? concept.assessment : undefined;
 
   const loadBlank = useCallback(() => {
     useCircuitStore.getState().setCircuit(createEmptyCircuit(2, 2));
@@ -144,7 +153,16 @@ export function ConceptPage({
       </div>
 
       <div className="cpg-body">
-        <ConceptViewer concept={displayConcept} isComplete={isComplete} onMarkComplete={onMarkComplete} onOpenEditor={onOpenEditor} />
+        {assessment ? (
+          <AssessmentPanel
+            concept={concept}
+            assessment={assessment}
+            isComplete={isComplete}
+            onMarkComplete={onMarkComplete}
+          />
+        ) : (
+          <ConceptViewer concept={displayConcept} isComplete={isComplete} onMarkComplete={onMarkComplete} onOpenEditor={onOpenEditor} />
+        )}
 
         <div className="topic-circuit-embed-actions">
           <button type="button" className="page-home-btn" onClick={openInEditor} disabled={isGenerating}>

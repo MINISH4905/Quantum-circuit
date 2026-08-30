@@ -18,6 +18,7 @@ from fastapi.responses import JSONResponse
 from .config import get_settings
 from .db.session import create_tables
 from .redis import close_redis, init_redis
+from .routers.assessments import router as assessments_router
 from .routers.auth import router as auth_router
 from .routers.groups import router as groups_router
 from .routers.users import router as users_router
@@ -122,6 +123,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(groups_router)
+app.include_router(assessments_router)
 
 
 @app.get("/health")

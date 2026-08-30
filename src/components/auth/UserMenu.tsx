@@ -92,6 +92,10 @@ export function UserMenu({ user }: Props) {
             </button>
           )}
 
+          <button className="user-menu-item" onClick={() => handleNav("/my-progress")}>
+            My Progress
+          </button>
+
           <button className="user-menu-item" onClick={() => handleNav("/join-group")}>
             Join a Group
           </button>

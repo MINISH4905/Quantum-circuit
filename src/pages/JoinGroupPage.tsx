@@ -25,8 +25,7 @@ export function JoinGroupPage() {
 
   async function loadMemberships() {
     try {
-      const data = await getMyMemberships();
-      setMemberships(data.memberships);
+      setMemberships(await getMyMemberships());
     } catch {
       // silent – memberships are supplementary
     }
