@@ -1,0 +1,964 @@
+{
+  "roadmap": [
+    {
+      "id": "foundations",
+      "title": "Foundations of Quantum Computing",
+      "order": 1,
+      "modules": [
+        {
+          "id": "courses-basics-of-quantum-information",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "15 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "chsh-game",
+              "title": "CHSH game",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "qiskit-implementation",
+              "title": "Qiskit implementation",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-teleportation",
+              "title": "Quantum teleportation",
+              "type": "concept"
+            },
+            {
+              "id": "superdense-coding",
+              "title": "Superdense coding",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Basics of quantum information",
+              "type": "exam"
+            },
+            {
+              "id": "classical-information",
+              "title": "Classical information",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "qiskit-implementation",
+              "title": "Qiskit implementation",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-information",
+              "title": "Quantum information",
+              "type": "concept"
+            },
+            {
+              "id": "circuits",
+              "title": "Circuits",
+              "type": "concept"
+            },
+            {
+              "id": "inner-products-and-projections",
+              "title": "Inner products and projections",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "limitations-on-quantum-information",
+              "title": "Limitations on quantum information",
+              "type": "concept"
+            },
+            {
+              "id": "classical-information",
+              "title": "Classical information",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "qiskit-implementation",
+              "title": "Qiskit implementation",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-information",
+              "title": "Quantum information",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-use-a-qc-today",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "5 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "build-and-run-your-first-quantum-program",
+              "title": "Build and run your first quantum program",
+              "type": "concept"
+            },
+            {
+              "id": "continue-your-learning-journey",
+              "title": "Continue your learning journey",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Use a quantum computer today",
+              "type": "exam"
+            },
+            {
+              "id": "quantum-computing-context",
+              "title": "Quantum computing context",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-mechanics-basics",
+              "title": "Quantum mechanics basics",
+              "type": "concept"
+            },
+            {
+              "id": "your-first-quantum-experiment",
+              "title": "Your first quantum experiment",
+              "type": "concept"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "algorithms",
+      "title": "Quantum Algorithms",
+      "order": 2,
+      "modules": [
+        {
+          "id": "courses-fundamentals-of-quantum-algorithms",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "15 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "exam",
+              "title": "Exam for Fundamentals of quantum algorithms",
+              "type": "exam"
+            },
+            {
+              "id": "analysis",
+              "title": "Analysis",
+              "type": "concept"
+            },
+            {
+              "id": "concluding-remarks",
+              "title": "Concluding remarks",
+              "type": "concept"
+            },
+            {
+              "id": "grover-algorithm-description",
+              "title": "Grover's algorithm description",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "number-of-iterations",
+              "title": "Choosing the number of iterations",
+              "type": "concept"
+            },
+            {
+              "id": "unstructured-search",
+              "title": "Unstructured search",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "phase-estimation-problem",
+              "title": "The phase-estimation problem",
+              "type": "concept"
+            },
+            {
+              "id": "phase-estimation-procedure",
+              "title": "The phase-estimation procedure",
+              "type": "concept"
+            },
+            {
+              "id": "shor-algorithm",
+              "title": "Shor's algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "factoring-and-gcd",
+              "title": "Factoring and computing GCDs",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "measuring-computational-cost",
+              "title": "Measuring computational cost",
+              "type": "concept"
+            },
+            {
+              "id": "simulating-classical-computations",
+              "title": "Classical computations on quantum computers",
+              "type": "concept"
+            },
+            {
+              "id": "deutsch-algorithm",
+              "title": "Deutsch's algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "deutsch-jozsa-algorithm",
+              "title": "The Deutsch-Jozsa algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "query-model-of-computation",
+              "title": "The query model of computation",
+              "type": "concept"
+            },
+            {
+              "id": "simon-algorithm",
+              "title": "Simon's algorithm",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-quantum-diagonalization-algorithms",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "10 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "exam",
+              "title": "Exam | Quantum diagonalization algorithms",
+              "type": "exam"
+            },
+            {
+              "id": "introduction",
+              "title": "QDA Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "krylov",
+              "title": "Krylov quantum diagonalization",
+              "type": "concept"
+            },
+            {
+              "id": "skqd",
+              "title": "Sample-based Krylov Quantum Diagonalization",
+              "type": "concept"
+            },
+            {
+              "id": "sqd-implementation",
+              "title": "SQD Implementation",
+              "type": "concept"
+            },
+            {
+              "id": "sqd-overview",
+              "title": "Sample-based Quantum Diagonalization",
+              "type": "concept"
+            },
+            {
+              "id": "vqe",
+              "title": "Variational Quantum Eigensolver",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-utility-scale-quantum-computing",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "15 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "bits-gates-and-circuits",
+              "title": "Bits, gates, and circuits",
+              "type": "concept"
+            },
+            {
+              "id": "classical-simulation",
+              "title": "Lesson 08 Classical simulation",
+              "type": "concept"
+            },
+            {
+              "id": "error-mitigation",
+              "title": "Error mitigation",
+              "type": "concept"
+            },
+            {
+              "id": "grovers-algorithm",
+              "title": "Grover algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "hardware",
+              "title": "Hardware",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-circuit-optimization",
+              "title": "Quantum circuit optimization",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-phase-estimation",
+              "title": "Quantum phase estimation",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-simulation",
+              "title": "Quantum simulation",
+              "type": "concept"
+            },
+            {
+              "id": "teleportation",
+              "title": "Teleportation",
+              "type": "concept"
+            },
+            {
+              "id": "utility-i",
+              "title": "Utility I",
+              "type": "concept"
+            },
+            {
+              "id": "utility-ii",
+              "title": "Utility II",
+              "type": "concept"
+            },
+            {
+              "id": "utility-iii",
+              "title": "Utility III",
+              "type": "concept"
+            },
+            {
+              "id": "variational-quantum-algorithms",
+              "title": "Variational quantum algorithms",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-variational-algorithm-design",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "8 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "ansaetze-and-variational-forms",
+              "title": "ansaetze and variational forms",
+              "type": "concept"
+            },
+            {
+              "id": "cost-functions",
+              "title": "Cost functions",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Variational algorithm design",
+              "type": "exam"
+            },
+            {
+              "id": "examples-and-applications",
+              "title": "Examples and applications",
+              "type": "concept"
+            },
+            {
+              "id": "instances-and-extensions",
+              "title": "Instances and extensions",
+              "type": "concept"
+            },
+            {
+              "id": "optimization-loops",
+              "title": "Optimization loops",
+              "type": "concept"
+            },
+            {
+              "id": "reference-states",
+              "title": "Reference states",
+              "type": "concept"
+            },
+            {
+              "id": "variational-algorithms",
+              "title": "Variational algorithms",
+              "type": "concept"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "advanced-topics",
+      "title": "Advanced Topics",
+      "order": 3,
+      "modules": [
+        {
+          "id": "courses-foundations-of-quantum-error-correction",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "15 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "discretization-of-errors",
+              "title": "Discretization of errors",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "repetition-codes",
+              "title": "Classical repetition codes",
+              "type": "concept"
+            },
+            {
+              "id": "shor-code",
+              "title": "The 9-qubit Shor code",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Foundations of quantum error correction",
+              "type": "exam"
+            },
+            {
+              "id": "approach-to-fault-tolerance",
+              "title": "Approach to fault tolerance",
+              "type": "concept"
+            },
+            {
+              "id": "controlling-error-propagation",
+              "title": "Controlling error propagation",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "threshold-theorem",
+              "title": "Threshold theorem",
+              "type": "concept"
+            },
+            {
+              "id": "css-codes",
+              "title": "CSS codes",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "other-code-families",
+              "title": "Other code families",
+              "type": "concept"
+            },
+            {
+              "id": "toric-code",
+              "title": "Toric code",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "pauli-operations-and-observables",
+              "title": "Pauli operations and observables",
+              "type": "concept"
+            },
+            {
+              "id": "repetition-code-revisited",
+              "title": "Repetition code revisited",
+              "type": "concept"
+            },
+            {
+              "id": "stabilizer-codes",
+              "title": "Stabilizer codes",
+              "type": "concept"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exploration",
+      "title": "Exploration",
+      "order": 4,
+      "modules": [
+        {
+          "id": "courses-designing-and-leading-quantum-projects",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "4 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "early-stages",
+              "title": "Early stages",
+              "type": "concept"
+            },
+            {
+              "id": "grant-writing",
+              "title": "Grant writing for quantum computing",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "standing-up-team",
+              "title": "Assemble your team",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-general-formulation-of-quantum-information",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "15 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "bloch-sphere",
+              "title": "Bloch sphere",
+              "type": "concept"
+            },
+            {
+              "id": "convex-combinations",
+              "title": "Convex combinations of density matrices",
+              "type": "concept"
+            },
+            {
+              "id": "density-matrix-basics",
+              "title": "Density matrix basics",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "multiple-systems",
+              "title": "Multiple systems and reduced states",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam  | General formulation of quantum information",
+              "type": "exam"
+            },
+            {
+              "id": "discrimination-and-tomography",
+              "title": "Quantum state discrimination and tomography",
+              "type": "concept"
+            },
+            {
+              "id": "formulations-of-measurements",
+              "title": "Mathematical formulations of measurements",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "naimark-theorem",
+              "title": "Naimark's theorem",
+              "type": "concept"
+            },
+            {
+              "id": "fidelity",
+              "title": "Fidelity",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "purifications",
+              "title": "Purifications",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-channel-basics",
+              "title": "Quantum channel basics",
+              "type": "concept"
+            },
+            {
+              "id": "representation-equivalence",
+              "title": "Equivalence of the representations",
+              "type": "concept"
+            },
+            {
+              "id": "representations-of-channels",
+              "title": "Channel representations",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-integrating-quantum-and-high-performance-computing",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "6 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "compute-resources",
+              "title": "Computing resources",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Integrating quantum and high-performance computing",
+              "type": "exam"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "next-steps",
+              "title": "Next steps",
+              "type": "concept"
+            },
+            {
+              "id": "programming-models",
+              "title": "Programming models",
+              "type": "concept"
+            },
+            {
+              "id": "sqd-skqd",
+              "title": "SQD and SKQD",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-quantum-business-foundations",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "3 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "business-impacts",
+              "title": "Business Impact",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Quantum business foundations",
+              "type": "exam"
+            },
+            {
+              "id": "how-to-become-quantum-ready",
+              "title": "How to become quantum ready",
+              "type": "concept"
+            },
+            {
+              "id": "introduction-to-quantum-computing",
+              "title": "Introduction to quantum computing",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-computing-fundamentals",
+              "title": "quantum Computing fundamentals",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-technology",
+              "title": "Quantum Technology",
+              "type": "concept"
+            },
+            {
+              "id": "start-your-quantum-journey",
+              "title": "Start your Quantum journey",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-quantum-chem-with-vqe",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "5 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "ansatz",
+              "title": "Ansatz",
+              "type": "concept"
+            },
+            {
+              "id": "classical-optimizers",
+              "title": "Molecular geometry",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Quantum chemistry with VQE",
+              "type": "exam"
+            },
+            {
+              "id": "geometry",
+              "title": "Molecular geometry",
+              "type": "concept"
+            },
+            {
+              "id": "ground-state",
+              "title": "Ground state energies",
+              "type": "concept"
+            },
+            {
+              "id": "hamiltonian-construction",
+              "title": "Hamiltonians",
+              "type": "concept"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-quantum-computing-in-practice",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "8 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "applications-of-qc",
+              "title": "Which problems are quantum computers good for?",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Quantum computing in practice",
+              "type": "exam"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "mapping",
+              "title": "Mapping",
+              "type": "concept"
+            },
+            {
+              "id": "running-quantum-circuits",
+              "title": "Running quantum circuits",
+              "type": "concept"
+            },
+            {
+              "id": "simulating-nature",
+              "title": "Simulating nature",
+              "type": "concept"
+            },
+            {
+              "id": "utility-scale-qaoa",
+              "title": "Utility-scale QAOA",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "courses-quantum-machine-learning",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "10 hr",
+          "order": null,
+          "concepts": [
+            {
+              "id": "classical-ml-review",
+              "title": "Classical ML review",
+              "type": "concept"
+            },
+            {
+              "id": "data-encoding",
+              "title": "Data encoding",
+              "type": "concept"
+            },
+            {
+              "id": "exam",
+              "title": "Exam | Quantum machine learning",
+              "type": "exam"
+            },
+            {
+              "id": "introduction",
+              "title": "Introduction",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-kernel-methods",
+              "title": "Quantum kernel methods",
+              "type": "concept"
+            },
+            {
+              "id": "qvc-qnn",
+              "title": "QVCs and QNNs",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "modules-computer-science",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "",
+          "order": null,
+          "concepts": [
+            {
+              "id": "deutsch-jozsa",
+              "title": "The Deutsch-Jozsa Algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "grovers",
+              "title": "Grover's algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "qft",
+              "title": "Quantum Fourier transform",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-key-distribution",
+              "title": "Quantum Key Distribution",
+              "type": "concept"
+            },
+            {
+              "id": "quantum-teleportation",
+              "title": "Quantum Teleportation",
+              "type": "concept"
+            },
+            {
+              "id": "shors-algorithm",
+              "title": "Shor's algorithm",
+              "type": "concept"
+            },
+            {
+              "id": "vqe",
+              "title": "Variational Quantum Eigensolver",
+              "type": "concept"
+            }
+          ]
+        },
+        {
+          "id": "modules-quantum-mechanics",
+          "title": "Overview",
+          "difficulty": "beginner",
+          "estimatedTime": "",
+          "order": null,
+          "concepts": [
+            {
+              "id": "bells-inequality-with-qiskit",
+              "title": "Bell's inequality with Qiskit",
+              "type": "concept"
+            },
+            {
+              "id": "exploring-uncertainty-with-qiskit",
+              "title": "Exploring uncertainty with Qiskit",
+              "type": "concept"
+            },
+            {
+              "id": "get-started-with-qiskit",
+              "title": "Get started with Qiskit in the classroom",
+              "type": "concept"
+            },
+            {
+              "id": "stern-gerlach-measurements-with-qiskit",
+              "title": "Stern-Gerlach measurements with Qiskit",
+              "type": "concept"
+            },
+            {
+              "id": "superposition-with-qiskit",
+              "title": "Superposition with Qiskit",
+              "type": "concept"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "fetchedAt": "2026-08-30T00:00:36.768Z",
+    "totalModules": 16,
+    "totalConcepts": 156,
+    "source": "https://github.com/Qiskit/documentation/tree/main/learning",
+    "filesFetched": 173,
+    "filesTotal": 173
+  }
+}

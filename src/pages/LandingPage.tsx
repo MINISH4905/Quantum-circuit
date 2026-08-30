@@ -6,7 +6,7 @@ interface Feature {
   icon: string;
   title: string;
   description: string;
-  target: "dashboard" | "learner" | "folders";
+  target: "dashboard" | "learner" | "folders" | "learning-center" | "learner-module";
 }
 
 const FEATURES: Feature[] = [
@@ -28,12 +28,26 @@ const FEATURES: Feature[] = [
     description: "An AI tutor that explains your circuit, plus 10 core quantum computing concepts to learn as you go.",
     target: "learner",
   },
+  {
+    icon: "📚",
+    title: "Learning Center",
+    description: "A guided path through Qiskit's official learning content, fetched straight from GitHub.",
+    target: "learning-center",
+  },
+  {
+    icon: "🧭",
+    title: "Learner Module",
+    description: "Pick a role — Beginner, Professional, or Advanced — and get a roadmap tailored to it, with hands-on challenges.",
+    target: "learner-module",
+  },
 ];
 
 const CTA_LABEL: Record<Feature["target"], string> = {
   dashboard: "Open dashboard →",
   learner: "Open Learner →",
   folders: "Open Folders →",
+  "learning-center": "Open Learning Center →",
+  "learner-module": "Open Learner Module →",
 };
 
 export function LandingPage() {
@@ -45,6 +59,8 @@ export function LandingPage() {
       dashboard: "/dashboard",
       learner: "/learner",
       folders: "/folders",
+      "learning-center": "/learning-center",
+      "learner-module": "/learner-module",
     };
     navigate(routes[target]);
   };
