@@ -107,7 +107,7 @@ export function CircuitCanvas() {
 
       <div
         className="circuit-scroll"
-        id="wt-circuit-grid"
+        data-tour="circuit-canvas"
         tabIndex={0}
         role="grid"
         aria-label="Quantum circuit"

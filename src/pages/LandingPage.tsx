@@ -1,16 +1,20 @@
 import "./LandingPage.css";
+import { useLearnerProgressStore, getOverallProgress, getRecommendedTopic } from "../state/learner-progress-store";
+import { getTopic } from "../learner/roadmap";
 
 interface LandingPageProps {
   onExplore: () => void;
   onLearn: () => void;
   onFolders: () => void;
+  onLearningCenter: () => void;
+  onLearnerModule: () => void;
 }
 
 interface Feature {
   icon: string;
   title: string;
   description: string;
-  target: "dashboard" | "learner" | "folders";
+  target: "dashboard" | "learner" | "folders" | "learning-center" | "learner-module";
 }
 
 const FEATURES: Feature[] = [
@@ -32,21 +36,44 @@ const FEATURES: Feature[] = [
     description: "An AI tutor that explains your circuit, plus 10 core quantum computing concepts to learn as you go.",
     target: "learner",
   },
+  {
+    icon: "📚",
+    title: "Learning Center",
+    description: "A guided path through Qiskit's official learning content, fetched straight from GitHub.",
+    target: "learning-center",
+  },
+  {
+    icon: "🧭",
+    title: "Learner Module",
+    description: "Pick a role — Beginner, Professional, or Advanced — and get a roadmap tailored to it.",
+    target: "learner-module",
+  },
 ];
 
 const CTA_LABEL: Record<Feature["target"], string> = {
   dashboard: "Open dashboard →",
   learner: "Open Learner →",
   folders: "Open Folders →",
+  "learning-center": "Open Learning Center →",
+  "learner-module": "Open Learner Module →",
 };
 
-export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps) {
+export function LandingPage({ onExplore, onLearn, onFolders, onLearningCenter, onLearnerModule }: LandingPageProps) {
   const handlers: Record<Feature["target"], () => void> = {
     dashboard: onExplore,
     learner: onLearn,
     folders: onFolders,
+    "learning-center": onLearningCenter,
+    "learner-module": onLearnerModule,
   };
   const go = (target: Feature["target"]) => handlers[target]();
+
+  const completedTopicIds = useLearnerProgressStore((s) => s.completedTopicIds);
+  const currentTopicId = useLearnerProgressStore((s) => s.currentTopicId);
+  const progress = { completedTopicIds, currentTopicId };
+  const overall = getOverallProgress(progress);
+  const currentTopic = currentTopicId ? getTopic(currentTopicId) : getRecommendedTopic(progress);
+  const hasStarted = overall.completed > 0 || currentTopicId !== null;
 
   return (
     <div className="landing-page">
@@ -100,10 +127,34 @@ export function LandingPage({ onExplore, onLearn, onFolders }: LandingPageProps)
               {f.icon}
             </span>
             <h3 className="landing-feature-title">{f.title}</h3>
-            <p className="landing-feature-desc">{f.description}</p>
-            <span className="landing-feature-cta" aria-hidden="true">
-              {CTA_LABEL[f.target]}
-            </span>
+
+            {f.target === "learner" ? (
+              <>
+                <p className="landing-feature-desc">Quantum Learning Roadmap</p>
+                <div className="landing-feature-progress-bar" aria-hidden="true">
+                  <div className="landing-feature-progress-fill" style={{ width: `${overall.percent}%` }} />
+                </div>
+                <p className="landing-feature-progress-label">
+                  {overall.percent}% · {overall.completed}/{overall.total} topics
+                </p>
+                {currentTopic && (
+                  <p className="landing-feature-desc landing-feature-current">
+                    {hasStarted ? "Current: " : "Start with: "}
+                    {currentTopic.title}
+                  </p>
+                )}
+                <span className="landing-feature-cta" aria-hidden="true">
+                  {hasStarted ? "Continue Learning →" : CTA_LABEL[f.target]}
+                </span>
+              </>
+            ) : (
+              <>
+                <p className="landing-feature-desc">{f.description}</p>
+                <span className="landing-feature-cta" aria-hidden="true">
+                  {CTA_LABEL[f.target]}
+                </span>
+              </>
+            )}
           </button>
         ))}
       </section>

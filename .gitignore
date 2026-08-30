@@ -28,3 +28,7 @@ backend/.venv
 backend/__pycache__
 backend/**/__pycache__
 backend/.pytest_cache
+
+# scripts/fetch-learning-content.js resumable fetch cache (raw file content —
+# large, and regenerable by re-running `npm run fetch-content`)
+.fetch-cache

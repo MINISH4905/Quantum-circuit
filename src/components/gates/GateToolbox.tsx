@@ -45,7 +45,7 @@ interface GateToolboxProps {
 
 export function GateToolbox({ onAddGate }: GateToolboxProps) {
   return (
-    <nav className="gate-toolbox" id="wt-gate-panel" aria-label="Gate toolbox">
+    <nav className="gate-toolbox" data-tour="gate-palette" aria-label="Gate toolbox">
       <h2 className="panel-title">Gates</h2>
       {CATEGORY_ORDER.map((category) => (
         <section key={category} className="toolbox-section">

@@ -1026,108 +1026,90 @@
   padding: 8px 10px;
 }
 
-/* Page walkthrough — lightweight spotlight + tooltip onboarding tour */
-.walkthrough-root {
+/* Dynamic module expansion — shared by ExpandableModule (Qiskit Code,
+   Probabilities, Bloch Sphere, Q-Sphere, AI Tutor) and the Circuit Editor's
+   in-page expand. Panels keep their own base class; this just overrides
+   position/size, so no panel needs its own expanded-state styling. */
+.expandable-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1200;
-  pointer-events: none;
-}
-.walkthrough-backdrop {
-  position: fixed;
-  inset: 0;
+  z-index: 1000;
   background: rgba(0, 0, 0, 0.65);
+  animation: expandable-fade-in 150ms ease;
 }
-.walkthrough-spotlight {
+.module-expanded {
   position: fixed;
-  border-radius: var(--radius-md);
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
-  pointer-events: none;
-  transition: top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease;
+  top: 50%;
+  left: 50%;
+  width: min(1080px, 90vw);
+  height: min(720px, 85vh);
+  max-width: none;
+  max-height: none;
+  z-index: 1001;
+  resize: none;
+  transform: translate(-50%, -50%);
+  animation: expandable-scale-in 160ms ease;
 }
-.walkthrough-tooltip {
-  position: fixed;
-  z-index: 1201;
-  pointer-events: auto;
-  box-sizing: border-box;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-panel);
-  padding: 14px 16px;
-  max-width: calc(100vw - 24px);
+@keyframes expandable-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.walkthrough-tooltip:focus-visible,
-.walkthrough-tooltip:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+@keyframes expandable-scale-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
-.walkthrough-step-indicator {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
-  margin-bottom: 6px;
-}
-.walkthrough-title {
-  margin: 0 0 6px;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-}
-.walkthrough-desc {
-  margin: 0 0 14px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-dim);
-}
-.walkthrough-actions {
+.module-header-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.walkthrough-nav-btns {
-  display: flex;
   gap: 8px;
 }
-.walkthrough-actions button {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  height: 30px;
-  padding: 0 14px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+/* Circuit Editor expands in place (it needs the gate toolbox sidebar to stay
+   usable for drag-and-drop) rather than as a full-screen overlay — hiding
+   these siblings via display:none keeps them mounted (state preserved) while
+   freeing their flex space for the canvas toolbar + grid to grow into. */
+.is-hidden-for-expand {
+  display: none;
 }
-.walkthrough-actions button:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.14);
-}
-.walkthrough-actions button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-.walkthrough-skip {
-  background: transparent !important;
-  border-color: transparent !important;
-  color: var(--text-faint) !important;
-}
-.walkthrough-skip:hover {
-  color: var(--text-dim) !important;
-}
-.walkthrough-primary {
-  background: var(--accent-soft) !important;
-  border-color: var(--accent-border) !important;
-  color: #cfe0ff !important;
+.circuit-editor-expanded {
+  min-width: 0;
 }
 
-@media (max-width: 480px) {
-  .walkthrough-tooltip {
-    left: 12px !important;
-    right: 12px;
-    width: auto !important;
+/* Purely presentational: let the histogram (percentage-based fill, no logic
+   change) and the sphere visualizations fill the larger expanded card. The
+   Bloch/Q-sphere SVGs themselves are rendered at a larger pixel size when
+   expanded (via a `size` prop) rather than CSS-scaled, since these panels
+   have overflow:hidden and a CSS transform would just get clipped. */
+.module-expanded .histogram-bars {
+  height: 400px;
+  gap: 20px;
+  justify-content: center;
+}
+.module-expanded .histogram-bar-col {
+  min-width: 56px;
+}
+.module-expanded .histogram-track {
+  width: 40px;
+}
+.module-expanded .histogram-value-label,
+.module-expanded .histogram-x-label {
+  font-size: 13px;
+}
+.module-expanded .bloch-body,
+.module-expanded .qsphere-body {
+  flex: 1;
+  justify-content: center;
+}
+.module-expanded .bloch-spheres-row {
+  justify-content: center;
+  gap: 32px;
+}
+.module-expanded .qsphere-layout {
+  gap: 28px;
+}
+
+@media (max-width: 720px) {
+  .module-expanded {
+    width: 94vw;
+    height: 90vh;
   }
 }

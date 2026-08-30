@@ -26,3 +26,6 @@
   background: rgba(255, 255, 255, 0.12);
   border-color: var(--accent-border);
 }
+.learn-float-btn {
+  left: calc(50% + 92px);
+}

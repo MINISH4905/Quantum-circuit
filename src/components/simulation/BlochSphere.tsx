@@ -2,9 +2,7 @@
 // present in this project — see package.json — so this follows the same 2D
 // projected-wireframe approach already used by QSpherePanel's Q-sphere).
 
-const SIZE = 130;
-const CENTER = SIZE / 2;
-const SPHERE_R = SIZE / 2 - 26;
+const DEFAULT_SIZE = 130;
 const AZ_DEG = -35;
 const EL_DEG = 20;
 
@@ -21,7 +19,8 @@ interface Vec2 {
 }
 
 // Same rotate-then-tilt projection as computeQSphereLayout, with the Bloch
-// z-axis (pole) mapped to the viewer's vertical axis.
+// z-axis (pole) mapped to the viewer's vertical axis. Size-independent — the
+// same normalized projection is scaled by the caller's chosen radius.
 function project(x: number, y: number, z: number): Vec2 {
   const az = (AZ_DEG * Math.PI) / 180;
   const el = (EL_DEG * Math.PI) / 180;
@@ -39,26 +38,35 @@ function project(x: number, y: number, z: number): Vec2 {
   return { sx: X2, sy: -Y2 };
 }
 
-function ellipsePath(rx: number, ry: number, cy = 0): string {
-  return `M ${CENTER - rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER + rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER - rx} ${CENTER + cy}`;
-}
-
 function hueForPhi(phi: number): string {
   const deg = (((phi + 2 * Math.PI) % (2 * Math.PI)) / (2 * Math.PI)) * 360;
   return `hsl(${deg}, 85%, 62%)`;
 }
 
-function axisLine(dx: number, dy: number, dz: number) {
-  const p = project(dx, dy, dz);
-  return { x2: CENTER + p.sx * SPHERE_R, y2: CENTER + p.sy * SPHERE_R };
+interface BlochSphereProps {
+  qubitIndex: number;
+  angle: BlochSphereAngle | null;
+  /** Rendered pixel size — larger when the panel is in its expanded view. */
+  size?: number;
 }
 
-const X_AXIS = axisLine(1, 0, 0);
-const Y_AXIS = axisLine(0, 1, 0);
-const Z_TOP = axisLine(0, 0, 1);
-const Z_BOTTOM = axisLine(0, 0, -1);
+export function BlochSphere({ qubitIndex, angle, size = DEFAULT_SIZE }: BlochSphereProps) {
+  const CENTER = size / 2;
+  const SPHERE_R = size / 2 - 26;
 
-export function BlochSphere({ qubitIndex, angle }: { qubitIndex: number; angle: BlochSphereAngle | null }) {
+  const ellipsePath = (rx: number, ry: number, cy = 0): string =>
+    `M ${CENTER - rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER + rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER - rx} ${CENTER + cy}`;
+
+  const axisLine = (dx: number, dy: number, dz: number) => {
+    const p = project(dx, dy, dz);
+    return { x2: CENTER + p.sx * SPHERE_R, y2: CENTER + p.sy * SPHERE_R };
+  };
+
+  const X_AXIS = axisLine(1, 0, 0);
+  const Y_AXIS = axisLine(0, 1, 0);
+  const Z_TOP = axisLine(0, 0, 1);
+  const Z_BOTTOM = axisLine(0, 0, -1);
+
   // Before the first simulation result lands, default to |0> (+Z) rather than
   // showing an empty sphere — every circuit starts there.
   const effective: BlochSphereAngle = angle ?? { theta: 0, phi: 0, r: 1, pure: true };
@@ -81,7 +89,7 @@ export function BlochSphere({ qubitIndex, angle }: { qubitIndex: number; angle: 
 
   return (
     <div className="bloch-sphere" aria-label={`Bloch sphere for qubit ${qubitIndex}`}>
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" className="bloch-sphere-svg">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" className="bloch-sphere-svg">
         <circle cx={CENTER} cy={CENTER} r={SPHERE_R} fill="none" stroke="#383835" strokeWidth={1} />
         <path d={ellipsePath(SPHERE_R, SPHERE_R * 0.32)} fill="none" stroke="#2c2c2a" strokeWidth={1} />
         <ellipse cx={CENTER} cy={CENTER} rx={SPHERE_R * 0.32} ry={SPHERE_R} fill="none" stroke="#2c2c2a" strokeWidth={1} />

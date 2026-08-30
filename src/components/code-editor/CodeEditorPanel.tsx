@@ -2,8 +2,11 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import type { editor as MonacoEditorNs } from "monaco-editor";
 import { useCircuitStore } from "../../state/circuit-store";
+import { useExpandable } from "../../state/expand-store";
 import { generateQiskitCode } from "../../circuit/generator/qiskit-generator";
 import { parseQiskitCode, type ParseError } from "../../circuit/parser/qiskit-parser";
+import { ExpandableModule } from "../shared/ExpandableModule";
+import { ExpandToggleButton } from "../shared/ExpandToggleButton";
 
 const DEBOUNCE_MS = 400;
 
@@ -18,6 +21,7 @@ export function CodeEditorPanel() {
   const debounceRef = useRef<number | undefined>(undefined);
   const editorRef = useRef<MonacoEditorNs.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof import("monaco-editor") | null>(null);
+  const { expanded, toggle, collapse } = useExpandable("qiskit-code");
 
   // Visual -> Code: regenerate editor text whenever the IR changes for a reason
   // other than our own successful parse (drag/drop, undo/redo, load, param edits, ...).
@@ -79,21 +83,31 @@ export function CodeEditorPanel() {
   };
 
   return (
-    <div className="code-editor-panel">
+    <ExpandableModule
+      as="div"
+      className="code-editor-panel"
+      ariaLabel="Qiskit code"
+      title="Qiskit Code"
+      expanded={expanded}
+      onCollapse={collapse}
+    >
       <div className="code-editor-header">
         <span className="panel-title" style={{ margin: 0 }}>
           Qiskit Code
         </span>
-        {parseErrors.length > 0 && (
-          <span className="code-editor-status is-error" role="status">
-            {parseErrors.length} error{parseErrors.length > 1 ? "s" : ""} — showing last valid circuit
-          </span>
-        )}
-        {parseErrors.length === 0 && (
-          <span className="code-editor-status is-ok" role="status">
-            Synced
-          </span>
-        )}
+        <div className="module-header-actions">
+          {parseErrors.length > 0 && (
+            <span className="code-editor-status is-error" role="status">
+              {parseErrors.length} error{parseErrors.length > 1 ? "s" : ""} — showing last valid circuit
+            </span>
+          )}
+          {parseErrors.length === 0 && (
+            <span className="code-editor-status is-ok" role="status">
+              Synced
+            </span>
+          )}
+          <ExpandToggleButton expanded={expanded} onClick={toggle} label="Qiskit code" />
+        </div>
       </div>
       <div className="code-editor-monaco">
         <Editor
@@ -123,6 +137,6 @@ export function CodeEditorPanel() {
           ))}
         </ul>
       )}
-    </div>
+    </ExpandableModule>
   );
 }

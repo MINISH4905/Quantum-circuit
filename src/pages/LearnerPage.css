@@ -5,136 +5,766 @@
   font-family: -apple-system, "Segoe UI", sans-serif;
 }
 
-/* Course catalog grid */
-.learner-grid {
+/* Dashboard summary: overall progress + Continue Learning */
+.learner-dashboard-summary {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) 18px;
+}
+.roadmap-progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.roadmap-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 250ms ease;
+}
+.learner-dashboard-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.learner-dashboard-summary-stat {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.learner-continue-btn {
+  height: 38px;
+  padding: 0 18px;
+  font-size: 13px;
+}
+.learner-dashboard-summary-next {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* Search + filters */
+.learner-toolbar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.roadmap-search-input {
+  height: 34px;
+  min-width: 220px;
+  flex: 1 1 220px;
+  max-width: 320px;
+  box-sizing: border-box;
+  background: var(--panel-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0 12px;
+  font-size: 13px;
+}
+.roadmap-search-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.roadmap-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.roadmap-filter-chip {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.roadmap-filter-chip:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text);
+}
+.roadmap-filter-chip.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: #cfe0ff;
+}
+.roadmap-filter-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Single-column layout: full-width roadmap flowchart, topic detail below */
+.learner-split {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 clamp(20px, 5vw, 64px) 60px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.course-card {
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top-level roadmap: just the seven main curriculum tabs, connected in a
+   single clean vertical chain (one spine through the center of each box) —
+   roadmap.sh's own main-trunk pattern, in this app's dark theme. */
+.roadmap-main-tree {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 0;
+}
+.roadmap-main-tree::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  bottom: 24px;
+  width: 2px;
+  background: var(--border);
+  transform: translateX(-1px);
+}
+.roadmap-main-node {
+  position: relative;
+  z-index: 1;
   width: 100%;
+  max-width: 520px;
+  display: flex;
+  justify-content: center;
+}
+.roadmap-main-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 18px 22px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.roadmap-main-box:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+}
+.roadmap-main-box:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.roadmap-main-box.is-highlighted {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-panel), 0 0 0 3px var(--accent-soft);
+}
+.roadmap-main-box.is-complete {
+  border-color: rgba(107, 208, 138, 0.4);
+}
+.roadmap-main-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.roadmap-main-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  max-width: 44ch;
+}
+.roadmap-main-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 220px;
+  margin-top: 4px;
+}
+.roadmap-main-progress-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.roadmap-main-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 250ms ease;
+}
+.roadmap-main-progress-label {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.roadmap-main-cta {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Curriculum view (one section drilled into) and cross-section search results */
+.roadmap-curriculum {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.roadmap-back-btn {
+  align-self: flex-start;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.roadmap-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-border);
+}
+.roadmap-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.roadmap-search-result-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+/* Roadmap flowchart: a vertical trunk of section nodes, each fanning out via
+   dotted connector lines to its topic nodes — roadmap.sh's connected-node
+   structure, rendered in this app's own dark theme/card language rather
+   than roadmap.sh's own colors or branding. Connector paths are computed
+   from actual rendered DOM positions (see RoadmapFlow.tsx), not hardcoded. */
+.roadmap-flow-outer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 10px 4px;
+}
+.roadmap-flow-outer::before {
+  content: "";
+  position: absolute;
+  left: 104px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: var(--border);
+}
+.roadmap-flow-section {
+  position: relative;
+}
+.roadmap-flow-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+}
+.roadmap-trunk-node {
+  position: relative;
+  z-index: 1;
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 12px;
+  background: var(--panel);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  text-align: center;
+}
+.roadmap-trunk-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.roadmap-trunk-progress {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.roadmap-flow-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+.roadmap-flow-path {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.5px;
+  stroke-dasharray: 3 4;
+}
+.roadmap-flow-branches {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.roadmap-branch-node {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.roadmap-branch-node:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+}
+.roadmap-branch-node:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.roadmap-branch-node:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.roadmap-branch-node.is-selected {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+.roadmap-branch-node.is-locked .roadmap-node-title {
+  color: var(--text-faint);
+}
+.roadmap-branch-status {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+.roadmap-branch-status.is-completed {
+  color: #6bd08a;
+}
+.roadmap-branch-status.is-current {
+  color: var(--accent);
+}
+.roadmap-branch-status.is-locked {
+  color: var(--text-faint);
+}
+.roadmap-node-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.roadmap-node-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.roadmap-node-difficulty {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-faint);
+}
+.roadmap-node-difficulty.is-beginner {
+  background: rgba(107, 208, 138, 0.14);
+  color: #6bd08a;
+}
+.roadmap-node-difficulty.is-intermediate {
+  background: rgba(255, 224, 138, 0.14);
+  color: #ffe08a;
+}
+.roadmap-node-difficulty.is-advanced {
+  background: rgba(240, 137, 92, 0.14);
+  color: var(--danger);
+}
+.roadmap-node-snippet {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.roadmap-topic-continue {
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.roadmap-empty-hint {
+  font-size: 13px;
+  color: var(--text-faint);
+  padding: 20px 4px;
+}
+
+/* Topic detail column */
+.topic-detail-column {
+  min-width: 0;
+}
+.topic-detail-placeholder {
+  background: var(--panel);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.topic-detail-panel {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
   overflow: hidden;
-  padding: 0;
-  font-family: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
 }
-.course-card:hover,
-.course-card:focus-visible {
-  transform: translateY(-2px);
-  border-color: var(--accent-border);
+.topic-detail-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--panel-alt);
 }
-.course-card:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.course-card.is-expanded {
-  grid-row: span 2;
-}
-
-.course-thumb {
+.topic-detail-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 84px;
-  font-size: 26px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
+  gap: 8px;
+  margin-bottom: 8px;
 }
-.course-thumb-tool {
-  background: linear-gradient(135deg, #6ea8fe 0%, #9d6efe 100%);
-}
-.course-thumb-1 {
-  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
-}
-.course-thumb-2 {
-  background: linear-gradient(135deg, #355c7d 0%, #6c5b7b 100%);
-}
-.course-thumb-3 {
-  background: linear-gradient(135deg, #1f4037 0%, #2f8e6f 100%);
-}
-.course-thumb-4 {
-  background: linear-gradient(135deg, #614385 0%, #516395 100%);
-}
-.course-thumb-5 {
-  background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-}
-.course-thumb-6 {
-  background: linear-gradient(135deg, #3a1c71 0%, #6ea8fe 100%);
-}
-
-.course-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+.topic-detail-difficulty {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #0a0a0c;
-  background: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
   border-radius: var(--radius-sm);
-  padding: 3px 7px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
 }
-.course-badge-tool {
-  background: #ffe08a;
+.topic-detail-difficulty.is-beginner {
+  background: rgba(107, 208, 138, 0.14);
+  color: #6bd08a;
 }
-
-.course-body {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 14px 14px;
-  gap: 4px;
+.topic-detail-difficulty.is-intermediate {
+  background: rgba(255, 224, 138, 0.14);
+  color: #ffe08a;
 }
-.course-title {
-  font-size: 14px;
+.topic-detail-difficulty.is-advanced {
+  background: rgba(240, 137, 92, 0.14);
+  color: var(--danger);
+}
+.topic-detail-status-pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+.topic-detail-status-pill[data-status="completed"] {
+  color: #6bd08a;
+  border-color: rgba(107, 208, 138, 0.35);
+}
+.topic-detail-status-pill[data-status="current"] {
+  color: #cfe0ff;
+  border-color: var(--accent-border);
+}
+.topic-detail-title {
+  margin: 0 0 8px;
+  font-size: 20px;
   font-weight: 700;
 }
-.course-blurb {
-  font-size: 12px;
-  color: var(--text-dim);
-  line-height: 1.4;
-}
-.course-meta {
+.topic-detail-prereqs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-top: 6px;
 }
-.course-details {
+.topic-detail-prereqs-label {
+  color: var(--text-faint);
+}
+.topic-chip {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+
+.topic-detail-body {
+  padding: 18px 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-soft);
+  gap: 16px;
 }
-.course-analogy {
-  font-size: 12px;
-  font-style: italic;
-  color: #cfe0ff;
-  padding: 6px 10px;
-  background: var(--accent-soft);
-  border-left: 3px solid var(--accent-border);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+.topic-detail-prose {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.course-explanation {
-  font-size: 12px;
+.topic-detail-prose-title {
+  margin: 8px 0 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.topic-detail-prose-title:first-child {
+  margin-top: 0;
+}
+.topic-detail-prose p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--text);
-  line-height: 1.5;
+}
+.topic-source-link {
+  align-self: flex-start;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.topic-source-link:hover {
+  text-decoration: underline;
+}
+
+.topic-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.topic-action-primary {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent-border) !important;
+  color: #cfe0ff !important;
+}
+.topic-action-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Collapsible learning-module subsections */
+.topic-detail-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.topic-detail-section-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-alt);
+  border: none;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.topic-detail-section-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.topic-detail-section-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.topic-detail-section-chevron {
+  color: var(--text-faint);
+  font-size: 14px;
+}
+.topic-detail-section-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topic-circuit-embed-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Learning Materials — real Qiskit lesson text, fetched live from the
+   backend's /api/learning/* endpoints (backend/data/learning_content.json,
+   sourced from github.com/Qiskit/documentation/tree/main/learning). */
+.learning-materials {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.learning-materials-source {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.learning-materials-source a {
+  color: var(--accent);
+}
+.learning-materials-body {
+  display: flex;
+  gap: 12px;
+  height: 320px;
+}
+.learning-materials-list {
+  flex: 0 0 200px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 10px;
+}
+.learning-materials-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.learning-materials-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+.learning-materials-item.is-selected {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: var(--text);
+}
+.learning-materials-reader {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+.learning-materials-reader-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.learning-materials-reader-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+}
+.topic-circuit-embed {
+  display: flex;
+  gap: var(--gap);
+  height: 460px;
+}
+.topic-panel-embed {
+  height: 340px;
+  display: flex;
+}
+.topic-panel-embed-tall {
+  height: 440px;
+}
+
+@media (max-width: 640px) {
+  .topic-circuit-embed {
+    flex-direction: column;
+    height: auto;
+  }
+  .topic-circuit-embed .app-left-col {
+    width: 100%;
+    height: 320px;
+  }
+  .topic-circuit-embed .app-center-col {
+    height: 420px;
+  }
+  /* The toolbar's button groups (undo/redo, qubit/timestep, sim-mode toggle)
+     don't fit in one row at this width — wrap instead of silently
+     overflowing past the embed's edge. */
+  .topic-circuit-embed .canvas-toolbar {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    height: auto;
+  }
+}
+
+/* Narrow screens: the fan-out connector lines don't have room, so stack the
+   trunk node above its branches instead of beside them. */
+@media (max-width: 720px) {
+  .roadmap-flow-outer::before {
+    display: none;
+  }
+  .roadmap-flow-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .roadmap-trunk-node {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .roadmap-flow-svg {
+    display: none;
+  }
+  .roadmap-flow-branches {
+    width: 100%;
+    padding-left: 14px;
+    border-left: 2px solid var(--border);
+  }
+  .roadmap-branch-node {
+    max-width: none;
+  }
 }

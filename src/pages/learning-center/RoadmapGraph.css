@@ -1,0 +1,275 @@
+/* Node graph: a solid vertical spine runs through module nodes; each
+   module's concepts branch off alternating left/right with dashed
+   connectors that only render while expanded. All stages/modules are
+   always unlocked — nothing here ever hides or blocks a node, filtering
+   only dims non-matching ones. */
+
+.rg-canvas {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.rg-stage {
+  margin-bottom: 24px;
+}
+.rg-stage-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 36px 0 12px;
+}
+.rg-stage-header::before,
+.rg-stage-header::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--border-soft);
+}
+.rg-stage-header-text {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.rg-stage-header-meta {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.rg-module-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 4px 0;
+}
+.rg-module-list::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  transform: translateX(-1px);
+  z-index: 0;
+}
+
+.rg-module-group {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rg-module-node-wrap {
+  position: relative;
+  margin: 10px 0;
+}
+.rg-module-node {
+  position: relative;
+  z-index: 1;
+  min-width: 280px;
+  width: fit-content;
+  max-width: min(360px, 88vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 14px 18px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.rg-module-node:hover {
+  transform: translateY(-2px);
+}
+.rg-module-node:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.rg-module-node.is-dimmed {
+  opacity: 0.35;
+}
+.rg-module-node.is-not-started {
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+.rg-module-node.is-in-progress {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-panel), 0 0 0 3px var(--accent-soft);
+}
+.rg-module-node.is-complete {
+  border-color: rgba(107, 208, 138, 0.5);
+  background: rgba(107, 208, 138, 0.08);
+}
+.rg-module-node-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.rg-module-node-count {
+  font-size: 10px;
+  color: var(--text-faint);
+}
+.rg-module-node-prereq {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+.rg-node-icon {
+  font-size: 12px;
+}
+.rg-module-node.is-complete .rg-node-icon {
+  color: #6bd08a;
+}
+
+/* Concept branches — max-height/opacity transition, never `auto` directly
+   (that's what causes clipping/overlap mid-transition). Rows use normal
+   flex flow rather than fixed-height absolute positioning, so content
+   never gets cropped regardless of how long a title is; only the small
+   decorative connector dash is absolutely positioned, and it only exists
+   in the DOM while expanded. */
+.rg-concept-branches {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+.rg-concept-branches.is-expanded {
+  max-height: 2000px;
+  overflow: visible;
+  opacity: 1;
+  padding: 6px 0 14px;
+}
+
+.rg-concept-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  width: 100%;
+}
+.rg-concept-row.is-left {
+  justify-content: flex-end;
+  padding-right: calc(50% + 36px);
+}
+.rg-concept-row.is-right {
+  justify-content: flex-start;
+  padding-left: calc(50% + 36px);
+}
+.rg-concept-connector {
+  position: absolute;
+  top: 50%;
+  width: 36px;
+  border-top: 1px dashed var(--border);
+  opacity: 0.6;
+  z-index: 0;
+}
+.rg-concept-row.is-left .rg-concept-connector {
+  right: 50%;
+}
+.rg-concept-row.is-right .rg-concept-connector {
+  left: 50%;
+}
+
+.rg-concept-node {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.15s ease;
+}
+.rg-concept-node:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+.rg-concept-node:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.rg-concept-node.is-complete {
+  color: var(--text);
+}
+.rg-concept-node.is-complete .rg-node-icon {
+  color: #6bd08a;
+}
+.rg-concept-node.is-recommended {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.rg-concept-node.is-recommended .rg-node-icon {
+  color: var(--accent);
+}
+.rg-concept-node.is-dimmed {
+  opacity: 0.3;
+}
+.rg-concept-node-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mobile: branching collapses to a plain stacked list under the spine. */
+@media (max-width: 768px) {
+  .rg-module-node {
+    min-width: 0;
+    width: 94vw;
+  }
+  .rg-concept-row.is-left,
+  .rg-concept-row.is-right {
+    justify-content: flex-start;
+    padding-left: 22px;
+    padding-right: 0;
+  }
+  .rg-concept-connector {
+    display: none;
+  }
+  .rg-concept-node {
+    max-width: none;
+  }
+  .rg-stage-header {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    font-size: 18px;
+  }
+  .rg-stage-header-text {
+    white-space: normal;
+    flex-shrink: 1;
+  }
+  .rg-stage-header::before,
+  .rg-stage-header::after {
+    min-width: 16px;
+  }
+}

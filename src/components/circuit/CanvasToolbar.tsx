@@ -1,7 +1,18 @@
 import { useCircuitStore } from "../../state/circuit-store";
 import { useSimulationStore } from "../../state/simulation-store";
+import { useExpandable } from "../../state/expand-store";
+import { ExpandToggleButton } from "../shared/ExpandToggleButton";
 
-export function CanvasToolbar() {
+interface CanvasToolbarProps {
+  /** The expand button targets the dashboard's specific "circuit-editor"
+   * layout (hiding app-right-col/app-bottom-row) — meaningless when this
+   * toolbar is reused elsewhere (e.g. the Learner page's embedded editor),
+   * so it can be turned off there instead of leaking a dead/misleading
+   * control tied to a layout that page doesn't have. */
+  showExpandToggle?: boolean;
+}
+
+export function CanvasToolbar({ showExpandToggle = true }: CanvasToolbarProps) {
   const circuit = useCircuitStore((s) => s.circuit);
   const simMode = useSimulationStore((s) => s.mode);
   const setSimMode = useSimulationStore((s) => s.setMode);
@@ -14,11 +25,12 @@ export function CanvasToolbar() {
   const redo = useCircuitStore((s) => s.redo);
   const canUndo = useCircuitStore((s) => s.canUndo());
   const canRedo = useCircuitStore((s) => s.canRedo());
+  const { expanded, toggle } = useExpandable("circuit-editor");
 
   const maxTimeStep = circuit.operations.reduce((max, op) => Math.max(max, op.timeStep), -1);
 
   return (
-    <div className="canvas-toolbar" id="wt-controls" role="toolbar" aria-label="Canvas controls">
+    <div className="canvas-toolbar" role="toolbar" aria-label="Canvas controls">
       <div className="canvas-toolbar-group">
         <button type="button" className="icon-btn" onClick={undo} disabled={!canUndo} aria-label="Undo (Ctrl+Z)" title="Undo">
           ↶
@@ -28,7 +40,7 @@ export function CanvasToolbar() {
         </button>
       </div>
       <div className="canvas-toolbar-divider" />
-      <div className="canvas-toolbar-group">
+      <div className="canvas-toolbar-group" data-tour="qubit-controls">
         <button type="button" className="icon-btn" onClick={addQubit} aria-label="Add qubit" title="Add qubit">
           q+
         </button>
@@ -87,6 +99,14 @@ export function CanvasToolbar() {
           Qiskit Aer{simMode === "backend" && backendLoading ? " …" : ""}
         </button>
       </div>
+      {showExpandToggle && (
+        <>
+          <div className="canvas-toolbar-divider" />
+          <div className="canvas-toolbar-group">
+            <ExpandToggleButton expanded={expanded} onClick={toggle} label="Circuit editor" />
+          </div>
+        </>
+      )}
     </div>
   );
 }

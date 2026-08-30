@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useSimulationStore } from "../../state/simulation-store";
+import { useExpandable } from "../../state/expand-store";
 import { computeStatevector, type Statevector } from "../../simulation/state-vector-simulator";
 import { computeQSphereLayout, DEFAULT_QSPHERE_VIEW, type QSphereView } from "../../simulation/qsphere-layout";
+import { ExpandableModule } from "../shared/ExpandableModule";
+import { ExpandToggleButton } from "../shared/ExpandToggleButton";
 
 const AUTO_RUN_QUBIT_LIMIT = 8;
 const DEBOUNCE_MS = 300;
-const SIZE = 190;
-const CENTER = SIZE / 2;
-const SPHERE_R = SIZE / 2 - 20;
+const DEFAULT_SIZE = 190;
+const EXPANDED_SIZE = 340;
 const DRAG_SENSITIVITY = 0.5;
 const MAX_ELEVATION = 89;
 const MIN_ELEVATION = -89;
@@ -20,10 +22,6 @@ function hueForPhase(phase: number): string {
 
 function formatPhase(phase: number): string {
   return `${((phase / Math.PI) * 180).toFixed(0)}°`;
-}
-
-function ellipsePath(rx: number, ry: number, cy = 0): string {
-  return `M ${CENTER - rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER + rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER - rx} ${CENTER + cy}`;
 }
 
 export function QSpherePanel() {
@@ -41,6 +39,7 @@ export function QSpherePanel() {
   const debounceRef = useRef<number | undefined>(undefined);
 
   const dragState = useRef<{ startX: number; startY: number; startView: QSphereView } | null>(null);
+  const { expanded, toggle, collapse } = useExpandable("q-sphere");
 
   const runLocal = useCallback(() => {
     if (hasErrors) {
@@ -105,19 +104,35 @@ export function QSpherePanel() {
   const tooBig = circuit.qubits > AUTO_RUN_QUBIT_LIMIT;
   const maxProb = useMemo(() => Math.max(...(points ?? []).map((p) => p.probability), 1e-9), [points]);
 
+  const size = expanded ? EXPANDED_SIZE : DEFAULT_SIZE;
+  const CENTER = size / 2;
+  const SPHERE_R = size / 2 - 20;
+  const ellipsePath = (rx: number, ry: number, cy = 0): string =>
+    `M ${CENTER - rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER + rx} ${CENTER + cy} A ${rx} ${ry} 0 1 0 ${CENTER - rx} ${CENTER + cy}`;
+
   return (
-    <section className="qsphere-panel" aria-label="Q-sphere state visualization">
+    <ExpandableModule
+      as="section"
+      className="qsphere-panel"
+      ariaLabel="Q-sphere state visualization"
+      title="Q-sphere"
+      expanded={expanded}
+      onCollapse={collapse}
+    >
       <div className="probabilities-header">
         <h2 className="panel-title" style={{ margin: 0 }}>
           Q-sphere
         </h2>
-        <div className="canvas-toolbar-group">
-          <button type="button" className="icon-btn" onClick={resetView} disabled={!points} aria-label="Reset Q-sphere view" title="Reset view">
-            ⤾
-          </button>
-          <button type="button" className="icon-btn" onClick={runLocal} disabled={hasErrors} aria-label="Refresh local statevector" title="Refresh">
-            ↻
-          </button>
+        <div className="module-header-actions">
+          <div className="canvas-toolbar-group">
+            <button type="button" className="icon-btn" onClick={resetView} disabled={!points} aria-label="Reset Q-sphere view" title="Reset view">
+              ⤾
+            </button>
+            <button type="button" className="icon-btn" onClick={runLocal} disabled={hasErrors} aria-label="Refresh local statevector" title="Refresh">
+              ↻
+            </button>
+          </div>
+          <ExpandToggleButton expanded={expanded} onClick={toggle} label="Q-sphere" />
         </div>
       </div>
 
@@ -137,9 +152,9 @@ export function QSpherePanel() {
         {!hasErrors && points && (
           <div className="qsphere-layout">
             <svg
-              width={SIZE}
-              height={SIZE}
-              viewBox={`0 0 ${SIZE} ${SIZE}`}
+              width={size}
+              height={size}
+              viewBox={`0 0 ${size} ${size}`}
               role="img"
               aria-label="Q-sphere — drag to rotate"
               className="qsphere-svg"
@@ -204,6 +219,6 @@ export function QSpherePanel() {
           </div>
         )}
       </div>
-    </section>
+    </ExpandableModule>
   );
 }

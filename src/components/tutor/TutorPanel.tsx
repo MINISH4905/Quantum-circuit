@@ -1,5 +1,8 @@
 import { useCircuitStore } from "../../state/circuit-store";
 import { useTutorStore } from "../../state/tutor-store";
+import { useExpandable } from "../../state/expand-store";
+import { ExpandableModule } from "../shared/ExpandableModule";
+import { ExpandToggleButton } from "../shared/ExpandToggleButton";
 
 export function TutorPanel() {
   const hasErrors = useCircuitStore((s) => s.errors.length > 0);
@@ -8,18 +11,29 @@ export function TutorPanel() {
   const result = useTutorStore((s) => s.result);
   const error = useTutorStore((s) => s.error);
   const loading = useTutorStore((s) => s.loading);
+  const { expanded, toggle, collapse } = useExpandable("ai-tutor");
 
   return (
-    <section className="tutor-panel" id="wt-ai-tutor" aria-label="AI circuit tutor">
+    <ExpandableModule
+      as="section"
+      className="tutor-panel"
+      ariaLabel="AI circuit tutor"
+      title="AI Tutor"
+      expanded={expanded}
+      onCollapse={collapse}
+    >
       <div className="probabilities-header">
         <h2 className="panel-title" style={{ margin: 0 }}>
           AI Tutor
         </h2>
-        {result && result.source === "deterministic" && (
-          <span className="tutor-badge" title="No LLM provider configured on the backend">
-            rule-based
-          </span>
-        )}
+        <div className="module-header-actions">
+          {result && result.source === "deterministic" && (
+            <span className="tutor-badge" title="No LLM provider configured on the backend">
+              rule-based
+            </span>
+          )}
+          <ExpandToggleButton expanded={expanded} onClick={toggle} label="AI tutor" />
+        </div>
       </div>
 
       <div className="probabilities-body tutor-body">
@@ -60,6 +74,6 @@ export function TutorPanel() {
           </div>
         )}
       </div>
-    </section>
+    </ExpandableModule>
   );
 }

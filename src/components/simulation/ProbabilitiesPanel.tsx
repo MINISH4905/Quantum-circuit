@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCircuitStore } from "../../state/circuit-store";
 import { useSimulationStore } from "../../state/simulation-store";
+import { useExpandable } from "../../state/expand-store";
 import { runSimulation, type SimulationResult } from "../../simulation/state-vector-simulator";
+import { ExpandableModule } from "../shared/ExpandableModule";
+import { ExpandToggleButton } from "../shared/ExpandToggleButton";
 
 const MAX_BARS = 16;
 const SHOTS = 1024;
@@ -33,6 +36,7 @@ export function ProbabilitiesPanel() {
   const [localRunError, setLocalRunError] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const debounceRef = useRef<number | undefined>(undefined);
+  const { expanded, toggle, collapse } = useExpandable("probabilities");
 
   const runLocal = () => {
     try {
@@ -81,21 +85,33 @@ export function ProbabilitiesPanel() {
   const needsManualLocalRun = circuit.qubits > AUTO_RUN_QUBIT_LIMIT && !localResult;
 
   return (
-    <section className="probabilities-panel" aria-label="Measurement probabilities">
+    <ExpandableModule
+      as="section"
+      dataTour="results-panel"
+      className="probabilities-panel"
+      ariaLabel="Measurement probabilities"
+      title="Probabilities"
+      expanded={expanded}
+      onCollapse={collapse}
+    >
       <div className="probabilities-header">
         <h2 className="panel-title" style={{ margin: 0 }}>
           Probabilities
         </h2>
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={runLocal}
-          disabled={hasErrors}
-          aria-label="Run local simulation"
-          title="Re-run local simulation"
-        >
-          ↻
-        </button>
+        <div className="module-header-actions">
+          <button
+            type="button"
+            className="icon-btn"
+            data-tour="simulate-btn"
+            onClick={runLocal}
+            disabled={hasErrors}
+            aria-label="Run local simulation"
+            title="Re-run local simulation"
+          >
+            ↻
+          </button>
+          <ExpandToggleButton expanded={expanded} onClick={toggle} label="Probabilities" />
+        </div>
       </div>
 
       <div className="probabilities-body">
@@ -171,6 +187,6 @@ export function ProbabilitiesPanel() {
           {tooltip.text}
         </div>
       )}
-    </section>
+    </ExpandableModule>
   );
 }

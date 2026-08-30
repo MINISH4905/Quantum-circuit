@@ -11,6 +11,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .circuit_builder import CircuitBuildError
+from .learning_content import (
+    LearningContentUnavailable,
+    get_collection,
+    get_document,
+    list_collections,
+    list_documents_for_collection,
+)
 from .llm_provider import OllamaTutorProvider, TutorLLMProvider
 from .models import BlochAngle, ComplexModel, SimulateRequest, SimulateResponse
 from .simulator import SimulationError, compute_bloch_angles, run_counts, run_statevector
@@ -73,6 +80,39 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+# Qiskit learning content — fetched from github.com/Qiskit/documentation
+# (learning/) by scripts/ingest_learning_content.py, served here so the
+# Learner roadmap can pull real lesson material instead of a static file.
+@app.get("/api/learning/collections")
+def learning_collections() -> list[dict]:
+    try:
+        return list_collections()
+    except LearningContentUnavailable as exc:
+        raise HTTPException(status_code=503, detail={"message": str(exc)}) from exc
+
+
+@app.get("/api/learning/collections/{collection_id:path}")
+def learning_collection_detail(collection_id: str) -> dict:
+    try:
+        collection = get_collection(collection_id)
+    except LearningContentUnavailable as exc:
+        raise HTTPException(status_code=503, detail={"message": str(exc)}) from exc
+    if not collection:
+        raise HTTPException(status_code=404, detail={"message": f"Unknown collection: {collection_id}"})
+    return {**collection, "documents": list_documents_for_collection(collection_id)}
+
+
+@app.get("/api/learning/documents/{doc_path:path}")
+def learning_document_detail(doc_path: str) -> dict:
+    try:
+        document = get_document(doc_path)
+    except LearningContentUnavailable as exc:
+        raise HTTPException(status_code=503, detail={"message": str(exc)}) from exc
+    if not document:
+        raise HTTPException(status_code=404, detail={"message": f"Unknown document: {doc_path}"})
+    return document
 
 
 @app.post("/simulate", response_model=SimulateResponse)
