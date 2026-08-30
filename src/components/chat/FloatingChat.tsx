@@ -91,7 +91,7 @@ export function FloatingChat() {
     [handleSend]
   );
 
-  if (isDashboard) return null;
+  // Show on all pages including dashboard
 
   return (
     <>
