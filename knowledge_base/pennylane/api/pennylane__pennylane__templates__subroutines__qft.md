@@ -1,0 +1,144 @@
+---
+framework: pennylane
+api_version: v0.45.1
+doc_type: api
+source_path: pennylane/templates/subroutines/qft.py
+source_url: https://github.com/PennyLaneAI/pennylane/blob/5f61ce25df3cc28a1ac785d20e47d70761202ed2/pennylane/templates/subroutines/qft.py
+license: Apache-2.0
+---
+
+## Module `pennylane/templates/subroutines/qft.py`
+
+This submodule contains the template for QFT.
+
+## `QFT`
+
+```python
+class QFT(Operation)
+```
+
+QFT(wires)
+Apply a quantum Fourier transform (QFT).
+
+For the :math:`N`-qubit computational basis state :math:`|m\rangle`, the QFT performs the
+transformation
+
+.. math::
+
+    |m\rangle \rightarrow \frac{1}{\sqrt{2^{N}}}\sum_{n=0}^{2^{N} - 1}\omega_{N}^{mn} |n\rangle,
+
+where :math:`\omega_{N} = e^{\frac{2 \pi i}{2^{N}}}` is the :math:`2^{N}`-th root of unity.
+
+**Details:**
+
+* Number of wires: Any (the operation can act on any number of wires)
+* Number of parameters: 0
+* Gradient recipe: None
+
+Args:
+    wires (int or Iterable[Number, str]]): the wire(s) the operation acts on
+
+**Example**
+
+The quantum Fourier transform is applied by specifying the corresponding wires:
+
+.. code-block:: python
+
+    wires = 3
+
+    dev = qp.device('default.qubit',wires=wires)
+
+    @qp.qnode(dev)
+    def circuit_qft(basis_state):
+        qp.BasisState(basis_state, wires=range(wires))
+        qp.QFT(wires=range(wires))
+        return qp.state()
+
+>>> circuit_qft(np.array([1.0, 0.0, 0.0])) # doctest: +SKIP
+array([ 0.3536+0.j, -0.3536+0.j,  0.3536+0.j, -0.3536+0.j,  0.3536+0.j,
+       -0.3536+0.j,  0.3536+0.j, -0.3536+0.j])
+
+.. details::
+    :title: Semiclassical Quantum Fourier transform
+
+    If the QFT is the last subroutine applied within a circuit, it can be
+    replaced by a
+    `semiclassical Fourier transform <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.76.3228>`_.
+    It makes use of mid-circuit measurements and dynamic circuit control based
+    on the measurement values, allowing to reduce the number of two-qubit gates.
+
+    As an example, consider the following circuit implementing addition between two
+    numbers with ``num_wires`` bits (modulo ``2**num_wires``):
+
+    .. code-block:: python
+
+        dev = qp.device("default.qubit")
+
+        @qp.qnode(dev, shots=1)
+        def qft_add(m, k, num_wires):
+            qp.BasisEmbedding(m, wires=range(num_wires))
+            qp.adjoint(qp.QFT)(wires=range(num_wires))
+            for j in range(num_wires):
+                qp.RZ(-k * np.pi / (2**j), wires=j)
+            qp.QFT(wires=range(num_wires))
+            return qp.sample()
+
+    >>> qft_add(7, 3, num_wires=4)
+    array([[1, 0, 1, 0]])
+
+    The last building block of this circuit is a QFT, so we may replace it by its
+    semiclassical counterpart:
+
+    .. code-block:: python
+
+        def scFT(num_wires):
+            '''semiclassical Fourier transform'''
+            for w in range(num_wires-1):
+                qp.Hadamard(w)
+                mcm = qp.measure(w)
+                for m in range(w + 1, num_wires):
+                    qp.cond(mcm, qp.PhaseShift)(np.pi / 2 ** (m + 1), wires=m)
+            qp.Hadamard(num_wires-1)
+
+        @qp.qnode(dev)
+        def scFT_add(m, k, num_wires):
+            qp.BasisEmbedding(m, wires=range(num_wires))
+            qp.adjoint(qp.QFT)(wires=range(num_wires))
+            for j in range(num_wires):
+                qp.RZ(-k * np.pi / (2**j), wires=j)
+            scFT(num_wires)
+            # Revert wire order because of PL's QFT convention
+            return qp.sample(wires=list(range(num_wires-1, -1, -1)))
+
+    >>> qp.set_shots(scFT_add, 1)(7, 3, num_wires=4) # doctest: +SKIP
+    array([[1, 1, 1, 0]])
+
+### `compute_decomposition`
+
+```python
+def compute_decomposition(wires: WiresLike)
+```
+
+Representation of the operator as a product of other operators (static method).
+
+.. math:: O = O_1 O_2 \dots O_n.
+
+
+.. seealso:: :meth:`~.QFT.decomposition`.
+
+Args:
+    wires (Iterable, Wires): wires that the operator acts on
+
+Returns:
+    list[Operator]: decomposition of the operator
+
+**Example:**
+
+>>> qp.QFT.compute_decomposition(wires=(0,1,2))
+[H(0),
+ ControlledPhaseShift(1.5707963267948966, wires=Wires([1, 0])),
+ ControlledPhaseShift(0.7853981633974483, wires=Wires([2, 0])),
+ H(1),
+ ControlledPhaseShift(1.5707963267948966, wires=Wires([2, 1])),
+ H(2),
+ SWAP(wires=[0, 2])]

@@ -1,0 +1,14 @@
+---
+framework: pennylane
+api_version: v0.45.1
+doc_type: concept
+source_path: doc/releases/changelog-0.3.1.md
+source_url: https://github.com/PennyLaneAI/pennylane/blob/5f61ce25df3cc28a1ac785d20e47d70761202ed2/doc/releases/changelog-0.3.1.md
+license: Apache-2.0
+---
+
+# Release 0.3.1
+
+<h3>Bug fixes</h3>
+
+* Fixed a bug where the interfaces submodule was not correctly being packaged via setup.py

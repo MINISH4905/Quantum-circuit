@@ -1,0 +1,2122 @@
+---
+framework: pennylane
+api_version: v0.45.1
+doc_type: api
+source_path: pennylane/estimator/ops/op_math/controlled_ops.py
+source_url: https://github.com/PennyLaneAI/pennylane/blob/5f61ce25df3cc28a1ac785d20e47d70761202ed2/pennylane/estimator/ops/op_math/controlled_ops.py
+license: Apache-2.0
+---
+
+## Module `pennylane/estimator/ops/op_math/controlled_ops.py`
+
+Resource operators for controlled operations.
+
+## `CH`
+
+```python
+class CH(ResourceOperator)
+```
+
+Resource class for the CH gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+Resources:
+    The resources are derived from the following identities:
+
+    .. math::
+
+        \begin{align}
+            \hat{H} &= \hat{R}_{y}(\frac{\pi}{4}) \cdot \hat{Z}  \cdot \hat{R}_{y}(\frac{-\pi}{4}), \\
+            \hat{Z} &= \hat{H} \cdot \hat{X}  \cdot \hat{H}.
+        \end{align}
+
+    Specifically, the resources are defined as two ``RY``, two ``Hadamard`` and one ``CNOT`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CH`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CH.resource_decomp()
+[(2 x Hadamard), (2 x RY), (1 x CNOT)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list of ``GateCount`` objects representing the resources of the operator..
+
+Resources:
+    The resources are derived from the following identities:
+
+    .. math::
+
+        \begin{align}
+            \hat{H} &= \hat{R}_{y}(\frac{\pi}{4}) \cdot \hat{Z}  \cdot \hat{R}_{y}(\frac{-\pi}{4}), \\
+            \hat{Z} &= \hat{H} \cdot \hat{X}  \cdot \hat{H}.
+        \end{align}
+
+    Specifically, the resources are defined as two ``RY``, two ``Hadamard`` and one ``CNOT`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.Hadamard` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CY`
+
+```python
+class CY(ResourceOperator)
+```
+
+Resource class for the CY gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Y} = \hat{S} \cdot \hat{X} \cdot \hat{S}^{\dagger}.
+
+    By replacing the ``X`` gate with a ``CNOT`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``CNOT`` gate conjugated by a pair of
+    ``S`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CY`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CY.resource_decomp()
+[(1 x CNOT), (1 x S), (1 x Adjoint(S))]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Y} = \hat{S} \cdot \hat{X} \cdot \hat{S}^{\dagger}.
+
+    By replacing the ``X`` gate with a ``CNOT`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``CNOT`` gate conjugated by a pair of
+    ``S`` gates.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.Y` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CZ`
+
+```python
+class CZ(ResourceOperator)
+```
+
+Resource class for the CZ gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Z} = \hat{H} \cdot \hat{X} \cdot \hat{H}.
+
+    By replacing the ``X`` gate with a ``CNOT`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``CNOT`` gate conjugated by a pair of
+    ``Hadamard`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CZ`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CZ.resource_decomp()
+[(1 x CNOT), (2 x Hadamard)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Z} = \hat{H} \cdot \hat{X} \cdot \hat{H}.
+
+    By replacing the ``X`` gate with a ``CNOT`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``CNOT`` gate conjugated by a pair of
+    ``Hadamard`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the original operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.Z` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CSWAP`
+
+```python
+class CSWAP(ResourceOperator)
+```
+
+Resource class for the CSWAP gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+Resources:
+    The resources are taken from Figure 1d of `arXiv:2305.18128 <https://arxiv.org/abs/2305.18128>`_.
+
+    The circuit which applies the SWAP operation on wires (1, 2) and controlled on wire (0) is
+    defined as:
+
+    .. code-block:: bash
+
+        0: ────╭●────┤
+        1: ─╭X─├●─╭X─┤
+        2: ─╰●─╰X─╰●─┤
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CSWAP`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CSWAP.resource_decomp()
+[(1 x Toffoli), (2 x CNOT)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The resources are taken from Figure 1d of `arXiv:2305.18128 <https://arxiv.org/abs/2305.18128>`_.
+
+    The circuit which applies the SWAP operation on wires (1, 2) and controlled on wire (0) is
+    defined as:
+
+    .. code-block:: bash
+
+        0: ────╭●────┤
+        1: ─╭X─├●─╭X─┤
+        2: ─╰●─╰X─╰●─┤
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.SWAP` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CCZ`
+
+```python
+class CCZ(ResourceOperator)
+```
+
+Resource class for the CCZ gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Z} = \hat{H} \cdot \hat{X} \cdot \hat{H}.
+
+    By replacing the ``X`` gate with a ``Toffoli`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``Toffoli`` gate conjugated by a pair of
+    ``Hadamard`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CCZ`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CCZ.resource_decomp()
+[(1 x Toffoli), (2 x Hadamard)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The resources are derived from the following identity:
+
+    .. math:: \hat{Z} = \hat{H} \cdot \hat{X} \cdot \hat{H}.
+
+    By replacing the ``X`` gate with a ``Toffoli`` we obtain the controlled decomposition.
+    Specifically, the resources are defined as a ``Toffoli`` gate conjugated by a pair of
+    ``Hadamard`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.Z` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CNOT`
+
+```python
+class CNOT(ResourceOperator)
+```
+
+Resource class for the CNOT gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+Resources:
+    The CNOT gate is treated as a fundamental gate and thus it cannot be decomposed further.
+    Requesting the resources of this gate raises a :class:`~.pennylane.exceptions.ResourcesUndefinedError` error.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CNOT`.
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The CNOT gate is treated as a fundamental gate and thus it cannot be decomposed
+    further. Requesting the resources of this gate raises a :class:`~.pennylane.exceptions.ResourcesUndefinedError` error.
+
+Raises:
+    ResourcesUndefinedError: This gate is fundamental, no further decomposition defined.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed as one general :class:`~.pennylane.estimator.ops.MultiControlledX` gate.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `TemporaryAND`
+
+```python
+class TemporaryAND(ResourceOperator)
+```
+
+Resource class representing a `TemporaryAND` gate.
+
+Args:
+    wires (Sequence[int] | None): the wires the operation acts on
+
+This gate was introduced in Fig 4 of `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_ along
+with its adjoint.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.TemporaryAND`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.TemporaryAND.resource_decomp()
+[(1 x Toffoli)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: Empty dictionary. The resources of this operation don't depend on any additional parameters.
+
+### `resource_rep`
+
+```python
+def resource_rep(cls) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    The resources are obtained from Figure 4 of `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are obtained from Figure 4 of `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict | None): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed as one general :class:`~.pennylane.estimator.ops.MultiControlledX` gate.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `Toffoli`
+
+```python
+class Toffoli(ResourceOperator)
+```
+
+Resource class for the Toffoli gate.
+
+Args:
+    wires (Sequence[int] | None): the subsystem the gate acts on
+    elbow (str | None): String identifier to determine if this is a special type of
+        Toffoli gate. Available options are `left`, `right`, and `None`.
+
+Resources:
+    If `elbow` is provided, resources are obtained from Figure 4 of
+    `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_.
+
+    If `elbow` is `None`, the resources are obtained from Figure 1 of
+    `Jones (2012) <https://arxiv.org/pdf/1212.5069>`_.
+
+    The circuit which applies the Toffoli gate on target wire 'target' with control wires
+    ('c1', 'c2') is defined as:
+
+    .. code-block:: bash
+
+            c1: ─╭●────╭X──T†────────╭X────╭●───────────────╭●─┤
+            c2: ─│──╭X─│──╭●───T†─╭●─│──╭X─│────────────────╰Z─┤
+          aux1: ─╰X─│──│──╰X───T──╰X─│──│──╰X────────────────║─┤
+          aux2: ──H─╰●─╰●──T─────────╰●─╰●──H──S─╭●──H──┤↗├──║─┤
+        target: ─────────────────────────────────╰X──────║───║─┤
+                                                         ╚═══╝
+
+    Specifically, the resources are defined as nine ``CNOT`` gates, three ``Hadamard`` gates,
+    one ``CZ`` gate, one ``S`` gate, two ``T`` gates and two adjoint ``T`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.Toffoli`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.Toffoli.resource_decomp()
+[Allocate(2), (9 x CNOT), (3 x Hadamard), (1 x S), (1 x CZ), (2 x T), (2 x Adjoint(T)), Deallocate(2)]
+
+### `elbow_decomp`
+
+```python
+def elbow_decomp(elbow: Literal['left', 'right'] | None='left')
+```
+
+A function that prepares the resource decomposition obtained from Figure 4 of
+`Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_.
+
+Args:
+    elbow (str | None): One of "left" or "right". Defaults to "left".
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: The resources of decomposing the elbow gates.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, elbow: Literal['left', 'right'] | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Resources:
+    If `elbow` is provided, resources are obtained from Figure 4 of
+    `arXiv:1805.03662 <https://arxiv.org/pdf/1805.03662>`_.
+
+    If `elbow` is `None`, the resources are obtained from Figure 1 of
+    `Jones (2012) <https://arxiv.org/pdf/1212.5069>`_.
+
+    The circuit which applies the Toffoli gate on target wire 'target' with control wires
+    ('c1', 'c2') is defined as:
+
+    .. code-block:: bash
+
+          c1: ─╭●────╭X──T†────────╭X────╭●───────────────╭●─┤
+          c2: ─│──╭X─│──╭●───T†─╭●─│──╭X─│────────────────╰Z─┤
+        aux1: ─╰X─│──│──╰X───T──╰X─│──│──╰X────────────────║─┤
+        aux2: ──H─╰●─╰●──T─────────╰●─╰●──H──S─╭●──H──┤↗├──║─┤
+      target: ─────────────────────────────────╰X──────║───║─┤
+                                                       ╚═══╝
+
+    Specifically, the resources are defined as nine ``CNOT`` gates, three ``Hadamard`` gates,
+    one ``CZ`` gate, one ``S`` gate, two ``T`` gates and two adjoint ``T`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `textbook_resource_decomp`
+
+```python
+def textbook_resource_decomp(cls, elbow: Literal['left', 'right'] | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    elbow (str | None): String identifier to determine if this is a special type of
+        Toffoli gate (left or right elbow). Default value is `None`.
+
+Resources:
+    If `elbow` is provided, resources are obtained from Figure 4 of
+    `arXiv:1805.03662 <https://arxiv.org/pdf/1805.03662>`_.
+
+    If `elbow` is `None`, the resources are taken from Figure 4.9 of `Nielsen, M. A., & Chuang, I. L. (2010)
+    <https://www.cambridge.org/highereducation/books/quantum-computation-and-quantum-information/01E10196D0A682A6AEFFEA52D53BE9AE#overview>`_.
+
+    The circuit is defined as:
+
+    .. code-block:: bash
+
+        0: ───────────╭●───────────╭●────╭●──T──╭●─┤
+        1: ────╭●─────│─────╭●─────│───T─╰X──T†─╰X─┤
+        2: ──H─╰X──T†─╰X──T─╰X──T†─╰X──T──H────────┤
+
+    Specifically, the resources are defined as six :class:`~.CNOT` gates, two
+    :class:`~.Hadamard` gates, four :class:`~.T` gates and three adjoint
+    :class:`~.T` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    A dictionary containing the resource parameters:
+        * elbow (str | None): String identifier to determine if this is a special type of Toffoli gate (left or right elbow).
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, elbow: Literal['left', 'right'] | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    elbow (str | None): String identifier to determine if this is a special type of Toffoli gate (left or right elbow).
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    The resources are expressed as one general :class:`~.pennylane.estimator.ops.MultiControlledX` gate.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `MultiControlledX`
+
+```python
+class MultiControlledX(ResourceOperator)
+```
+
+Resource class for the MultiControlledX gate.
+
+Args:
+    num_ctrl_wires (int | None): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    wires (Sequence[int] | None): the wires this operation acts on
+
+Resources:
+    The resources are obtained based on the unary iteration technique described in
+    `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_. Specifically, the
+    resources are defined as the following rules:
+
+    * If there are no control qubits, treat the operation as a :class:`~.pennylane.estimator.ops.X` gate.
+
+    * If there is only one control qubit, treat the resources as a :class:`~.pennylane.estimator.ops.CNOT` gate.
+
+    * If there are two control qubits, treat the resources as a :class:`~.pennylane.estimator.ops.Toffoli` gate.
+
+    * If there are three or more control qubits (:math:`n`), the resources obtained based on the unary iteration technique described in `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_. Specifically, it requires :math:`n - 2` clean qubits, and produces :math:`n - 2` elbow gates and a single :class:`~.pennylane.estimator.ops.Toffoli`.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.MultiControlledX`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.MultiControlledX.resource_decomp(num_ctrl_wires=5, num_zero_ctrl=2)
+[(4 x X), Allocate(3), (3 x TemporaryAND), (3 x Adjoint(TemporaryAND)), (1 x Toffoli), Deallocate(3)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * num_ctrl_wires (int): the number of qubits the operation is controlled on
+        * num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, num_ctrl_wires: int, num_zero_ctrl: int) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: the operator in a compressed representation
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+
+Resources:
+    The resources are obtained based on the unary iteration technique described in
+    `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_. Specifically, the
+    resources are defined as the following rules:
+
+    * If there are no control qubits, treat the operation as a :class:`~.pennylane.estimator.ops.X` gate.
+
+    * If there is only one control qubit, treat the resources as a :class:`~.pennylane.estimator.ops.CNOT` gate.
+
+    * If there are two control qubits, treat the resources as a :class:`~.pennylane.estimator.ops.Toffoli` gate.
+
+    * If there are three or more control qubits (:math:`n`), the resources obtained based on the unary iteration technique described in `Babbush et al. (2018) <https://arxiv.org/pdf/1805.03662>`_. Specifically, it requires :math:`n - 2` clean qubits, and produces :math:`n - 2` elbow gates and a single :class:`~.pennylane.estimator.ops.Toffoli`.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    This operation is self-adjoint, so the resources of the adjoint operation results
+    are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of control qubits of the operation
+    num_zero_ctrl (int): The subset of control qubits of the operation, that are controlled
+        when in the :math:`|0\rangle` state.
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    The resources are derived by combining the control qubits, control-values and
+    into a single instance of ``MultiControlledX`` gate, controlled
+    on the whole set of control-qubits.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    This operation is self-inverse, thus when raised to even integer powers acts like
+    the identity operator and raised to odd powers it produces itself.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CRX`
+
+```python
+class CRX(ResourceOperator)
+```
+
+Resource class for the CRX gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the precision stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RX} = \hat{H} \cdot \hat{RZ}  \cdot \hat{H},
+
+    we can express the ``CRX`` gate as a ``CRZ`` gate conjugated by ``Hadamard``
+    gates. The expression for controlled-RZ gates is used as defined in the reference above.
+    Specifically, the resources are defined as two ``CNOT`` gates, two ``Hadamard`` gates
+    and two ``RZ`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CRX`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CRX.resource_decomp()
+[(2 x CNOT), (2 x RZ), (2 x Hadamard)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * precision (float | None): the number of qubits the operation is controlled on
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, precision: float | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    precision (float | None): The error threshold for the Clifford + T decomposition of this operation.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, precision: float | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RX} = \hat{H} \cdot \hat{RZ}  \cdot \hat{H},
+
+    we can express the ``CRX`` gate as a ``CRZ`` gate conjugated by ``Hadamard``
+    gates. The expression for controlled-RZ gates is used as defined in the reference above.
+    Specifically, the resources are defined as two ``CNOT`` gates, two ``Hadamard`` gates and
+    two ``RZ`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    The adjoint of a single qubit rotation changes the sign of the rotation angle,
+    thus the resources of the adjoint operation result are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.RX` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    Taking arbitrary powers of a single qubit rotation produces a sum of rotations.
+    The resources simplify to just one total single qubit rotation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CRY`
+
+```python
+class CRY(ResourceOperator)
+```
+
+Resource class for the CRY gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RY}(\theta) = \hat{X} \cdot \hat{RY}(- \theta) \cdot \hat{X}.
+
+    By replacing the ``X`` gates with ``CNOT`` gates, we obtain a
+    controlled-version of this identity. Thus we are able to constructively or destructively
+    interfere the gates based on the value of the control qubit. Specifically, the resources are
+    defined as two ``CNOT`` gates and two ``RY`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.CRY`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CRY.resource_decomp()
+[(2 x CNOT), (2 x RY)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * precision (float | None): the number of qubits the operation is controlled on
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, precision: float | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    precision (float | None): The error threshold for the Clifford + T decomposition of this operation.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, precision: float | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RY}(\theta) = \hat{X} \cdot \hat{RY}(- \theta) \cdot \hat{X}.
+
+    By replacing the ``X`` gates with ``CNOT`` gates, we obtain a controlled-version of this
+    identity. Thus we are able to constructively or destructively interfere the gates based on the value
+    of the control qubit. Specifically, the resources are defined as two ``CNOT`` gates
+    and two ``RY`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters of the target operator.
+
+Resources:
+    The adjoint of a single qubit rotation changes the sign of the rotation angle,
+    thus the resources of the adjoint operation result are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.RY` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    Taking arbitrary powers of a single qubit rotation produces a sum of rotations.
+    The resources simplify to just one total single qubit rotation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CRZ`
+
+```python
+class CRZ(ResourceOperator)
+```
+
+Resource class for the CRZ gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RZ}(\theta) = \hat{X} \cdot \hat{RZ}(- \theta) \cdot \hat{X}.
+
+    By replacing the ``X`` gates with ``CNOT`` gates, we obtain a controlled-version of this
+    identity. Thus we are able to constructively or destructively interfere the gates based on the value
+    of the control qubit. Specifically, the resources are defined as two ``CNOT`` gates
+    and two ``RZ`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.CRZ`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CRZ.resource_decomp()
+[(2 x CNOT), (2 x RZ)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * precision (float | None): the number of qubits the operation is controlled on
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, precision: float | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    precision (float | None): The error threshold for the Clifford + T decomposition of this operation.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, precision: float | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math:: \hat{RZ}(\theta) = \hat{X} \cdot \hat{RZ}(- \theta) \cdot \hat{X}.
+
+    By replacing the ``X`` gates with ``CNOT`` gates, we obtain a controlled-version of this
+    identity. Thus we are able to constructively or destructively interfere the gates based on the value
+    of the control qubit. Specifically, the resources are defined as two ``CNOT`` gates
+    and two ``RZ`` gates.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The adjoint of a single qubit rotation changes the sign of the rotation angle,
+    thus the resources of the adjoint operation result are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.RZ` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    Taking arbitrary powers of a single qubit rotation produces a sum of rotations.
+    The resources simplify to just one total single qubit rotation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `CRot`
+
+```python
+class CRot(ResourceOperator)
+```
+
+Resource class for the CRot gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+    precision (float | None): The error threshold for Clifford + T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math::
+
+        \begin{align}
+            \hat{RZ}(\theta) = \hat{X} \cdot \hat{RZ}(- \theta) \cdot \hat{X}, \\
+            \hat{RY}(\theta) = \hat{X} \cdot \hat{RY}(- \theta) \cdot \hat{X}.
+        \end{align}
+
+    This identity is applied along with some clever choices for the angle values to combine rotation;
+    the final circuit takes the form:
+
+    .. code-block:: bash
+
+        ctrl: ─────╭●─────────╭●─────────┤
+        trgt: ──RZ─╰X──RZ──RY─╰X──RY──RZ─┤
+
+.. seealso:: The corresponding PennyLane operation :class:`~.CRot`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.CRot.resource_decomp()
+[(2 x CNOT), (3 x RZ), (2 x RY)]
+
+### `resource_params`
+
+```python
+def resource_params(self) -> dict
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * precision (float | None): the number of qubits the operation is controlled on
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, precision: float | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    precision (float | None): The error threshold for the Clifford + T decomposition of this operation.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, precision: float | None=None) -> list[GateCount]
+```
+
+Returns a list representing the resources of the operator.
+
+Args:
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are taken from Figure 1b of `arXiv:2110.10292
+    <https://arxiv.org/abs/2110.10292>`_. In combination with the following identity:
+
+    .. math::
+
+        \begin{align}
+            \hat{RZ}(\theta) = \hat{X} \cdot \hat{RZ}(- \theta) \cdot \hat{X}, \\
+            \hat{RY}(\theta) = \hat{X} \cdot \hat{RY}(- \theta) \cdot \hat{X}.
+        \end{align}
+
+    This identity is applied along with some clever choices for the angle values to combine rotation;
+    the final circuit takes the form:
+
+    .. code-block:: bash
+
+        ctrl: ─────╭●─────────╭●─────────┤
+        trgt: ──RZ─╰X──RZ──RY─╰X──RY──RZ─┤
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The adjoint of a general rotation flips the sign of the rotation angle,
+    thus the resources of the adjoint operation result are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.Rot` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    Taking arbitrary powers of a general single qubit rotation produces a sum of rotations.
+    The resources simplify to just one total single qubit rotation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+## `ControlledPhaseShift`
+
+```python
+class ControlledPhaseShift(ResourceOperator)
+```
+
+Resource class for the ControlledPhaseShift gate.
+
+Args:
+    wires (Sequence[int] | None): the wire the operation acts on
+    precision (float | None): The error threshold for Clifford + T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are derived using the fact that a ``PhaseShift`` gate is
+    identical to the ``RZ`` gate up to some global phase. Furthermore, a controlled
+    global phase simplifies to a ``PhaseShift`` gate. This gives rise to the
+    following identity:
+
+    .. math:: CR_\phi(\phi) = (R_\phi(\phi/2) \otimes I) \cdot CNOT \cdot (I \otimes R_\phi(-\phi/2)) \cdot CNOT \cdot (I \otimes R_\phi(\phi/2))
+
+    Specifically, the resources are defined as two ``CNOT`` gates and three ``RZ`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.ControlledPhaseShift`.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.ControlledPhaseShift.resource_decomp()
+[(2 x CNOT), (3 x RZ)]
+
+### `resource_params`
+
+```python
+def resource_params(self)
+```
+
+Returns a dictionary containing the minimal information needed to compute the resources.
+
+Returns:
+    dict: A dictionary containing the resource parameters:
+        * precision (float | None): the number of qubits the operation is controlled on
+
+### `resource_rep`
+
+```python
+def resource_rep(cls, precision: float | None=None) -> CompressedResourceOp
+```
+
+Returns a compressed representation containing only the parameters of
+the operator that are needed to compute the resources.
+
+Args:
+    precision (float | None): The error threshold for the Clifford + T decomposition of this operation.
+
+Returns:
+    :class:`~.pennylane.estimator.resource_operator.CompressedResourceOp`: A compressed representation of the operator.
+
+### `resource_decomp`
+
+```python
+def resource_decomp(cls, precision: float | None=None) -> list[GateCount]
+```
+
+Returns a list of GateCount objects representing the resources of the operator.
+
+Args:
+    precision (float | None): The error threshold for clifford plus T decomposition of the rotation gate.
+        The default value is `None` which corresponds to using the epsilon stated in the config.
+
+Resources:
+    The resources are derived using the fact that a ``PhaseShift`` gate is
+    identical to the ``RZ`` gate up to some global phase. Furthermore, a controlled
+    global phase simplifies to a ``PhaseShift`` gate. This gives rise to the
+    following identity:
+
+    .. math:: CR_\phi(\phi) = (R_\phi(\phi/2) \otimes I) \cdot CNOT \cdot (I \otimes R_\phi(-\phi/2)) \cdot CNOT \cdot (I \otimes R_\phi(\phi/2))
+
+    Specifically, the resources are defined as two ``CNOT`` gates and three ``RZ`` gates.
+
+.. seealso:: The corresponding PennyLane operation :class:`~.pennylane.ControlledPhaseShift`.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+**Example**
+
+The resources for this operation are computed using:
+
+>>> qp.estimator.ControlledPhaseShift.resource_decomp()
+[(2 x CNOT), (3 x RZ)]
+
+### `adjoint_resource_decomp`
+
+```python
+def adjoint_resource_decomp(cls, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for the adjoint of the operator.
+
+Args:
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The adjoint of a phase shift just flips the sign of the phase angle,
+    thus the resources of the adjoint operation result are same as the originial operation.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `controlled_resource_decomp`
+
+```python
+def controlled_resource_decomp(cls, num_ctrl_wires: int, num_zero_ctrl: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for a controlled version of the operator.
+
+Args:
+    num_ctrl_wires (int): the number of qubits the operation is controlled on
+    num_zero_ctrl (int): the number of control qubits, that are controlled when in the :math:`|0\rangle` state
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    The resources are expressed using the symbolic :class:`~.pennylane.estimator.ops.Controlled`. The resources
+    are computed according to the :code:`controlled_resource_decomp()` of the base
+    :class:`~.pennylane.estimator.ops.PhaseShift` class.
+
+Returns:
+    list[:class:`~.pennylane.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects, where each object
+    represents a specific quantum gate and the number of times it appears
+    in the decomposition.
+
+### `pow_resource_decomp`
+
+```python
+def pow_resource_decomp(cls, pow_z: int, target_resource_params: dict) -> list[GateCount]
+```
+
+Returns a list representing the resources for an operator raised to a power.
+
+Args:
+    pow_z (int): the power that the operator is being raised to
+    target_resource_params (dict): A dictionary containing the resource parameters
+        of the target operator.
+
+Resources:
+    Taking arbitrary powers of a phase shift produces a sum of shifts.
+    The resources simplify to just one total phase shift operator.
+
+Returns:
+    list[:class:`~.estimator.resource_operator.GateCount`]: A list of ``GateCount`` objects,
+    where each object represents a specific quantum gate and the number of times it appears
+    in the decomposition.

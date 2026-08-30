@@ -1,0 +1,19 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: concept
+source_path: learning/courses/basics-of-quantum-information/single-systems/introduction.ipynb
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/learning/courses/basics-of-quantum-information/single-systems/introduction.ipynb
+license: CC-BY-SA-4.0
+---
+
+# Introduction
+
+In the following video, John Watrous steps you through the content in this lesson on single systems. Alternatively, you can open the [YouTube video](https://youtu.be/3-c4xJa7Flk?list=PLOFEBzvs-VvqKKMXX4vbi4EB1uaErFMSO) for this lesson in a separate window. [Download the slides](https://ibm.box.com/public/static/95va6f5vqru3mpsv9p5ivwcyxino4rk7.pdf) for this lesson.
+
+<IBMVideo id="134056207" title="In this video, John Watrous describes classical and quantum state vectors. He introduces some critical notation for quantum states and operators, including unitary matrices for operations on qubit systems."/>
+
+This lesson introduces the basic framework of <DefinitionTooltip definition="Quantum information is both a concept and a framework for modeling and describing information in quantum systems. While it is based on and motivated by quantum physics, the physical details can largely be abstracted away, leaving a mathematical framework that is applicable to a variety of specific physical systems.">quantum information</DefinitionTooltip>, including the description of quantum states as vectors with complex number entries, measurements that allow classical information to be extracted from quantum states, and operations on quantum states that are described by unitary matrices.
+
+We will restrict our attention in this lesson to the comparatively simple setting in which a *single system* is considered in isolation.
+In the next lesson, we'll expand our view to *multiple systems,* which can interact with one another and be correlated.

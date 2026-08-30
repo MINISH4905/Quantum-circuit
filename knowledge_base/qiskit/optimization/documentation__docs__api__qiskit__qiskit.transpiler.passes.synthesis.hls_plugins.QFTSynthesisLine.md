@@ -1,0 +1,43 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: optimization
+source_path: docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.QFTSynthesisLine.mdx
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.QFTSynthesisLine.mdx
+license: CC-BY-SA-4.0
+---
+
+# QFTSynthesisLine
+
+<Class id="qiskit.transpiler.passes.synthesis.hls_plugins.QFTSynthesisLine" isDedicatedPage={true} github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L939-L987" signature="qiskit.transpiler.passes.synthesis.hls_plugins.QFTSynthesisLine" modifiers="class">
+  Bases: [`HighLevelSynthesisPlugin`](qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin "qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin")
+
+  Synthesis plugin for QFT gates using linear connectivity.
+
+  This plugin name is :`qft.line` which can be used as the key on an [`HLSConfig`](qiskit.transpiler.passes.HLSConfig "qiskit.transpiler.passes.HLSConfig") object to use this method with [`HighLevelSynthesis`](qiskit.transpiler.passes.HighLevelSynthesis "qiskit.transpiler.passes.HighLevelSynthesis").
+
+  Note that the plugin mechanism is not applied if the gate is called `qft` but is not an instance of `QFTGate`. This allows users to create custom gates with name `qft`.
+
+  The plugin supports the following additional options:
+
+  *   **reverse\_qubits (bool): Whether to synthesize the “QFT” operation (if `False`,**
+
+      which is the default) or the “QFT-with-reversal” operation (if `True`). Some implementation of the `QFTGate` include a layer of swap gates at the end of the synthesized circuit, which can in principle be dropped if the `QFTGate` itself is the last gate in the circuit.
+
+  *   **approximation\_degree (int): the degree of approximation (0 for no approximation).**
+
+      It is possible to implement the QFT approximately by ignoring controlled-phase rotations with the angle beneath a threshold. This is discussed in more detail in \[1] or \[2].
+
+  **References**
+
+  1.  Adriano Barenco, Artur Ekert, Kalle-Antti Suominen, and Päivi Törmä, *Approximate Quantum Fourier Transform and Decoherence*, Physical Review A (1996). [arXiv:quant-ph/9601018 \[quant-ph\]](https://arxiv.org/abs/quant-ph/9601018)
+  2.  Donny Cheung, *Improved Bounds for the Approximate QFT* (2004), [arXiv:quant-ph/0403071 \[quant-ph\]](https://arxiv.org/abs/quant-ph/0403071)
+
+  ## Methods
+
+  ### run
+
+  <Function id="qiskit.transpiler.passes.synthesis.hls_plugins.QFTSynthesisLine.run" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L971-L987" signature="run(high_level_object, coupling_map=None, target=None, qubits=None, **options)">
+    Run synthesis for the given QFTGate.
+  </Function>
+</Class>

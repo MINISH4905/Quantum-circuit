@@ -1,0 +1,42 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: optimization
+source_path: docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.PMHSynthesisLinearFunction.mdx
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.PMHSynthesisLinearFunction.mdx
+license: CC-BY-SA-4.0
+---
+
+# PMHSynthesisLinearFunction
+
+<Class id="qiskit.transpiler.passes.synthesis.hls_plugins.PMHSynthesisLinearFunction" isDedicatedPage={true} github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L782-L828" signature="qiskit.transpiler.passes.synthesis.hls_plugins.PMHSynthesisLinearFunction" modifiers="class">
+  Bases: [`HighLevelSynthesisPlugin`](qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin "qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin")
+
+  Linear function synthesis plugin based on the Patel-Markov-Hayes method.
+
+  This plugin name is :`linear_function.pmh` which can be used as the key on an [`HLSConfig`](qiskit.transpiler.passes.HLSConfig "qiskit.transpiler.passes.HLSConfig") object to use this method with [`HighLevelSynthesis`](qiskit.transpiler.passes.HighLevelSynthesis "qiskit.transpiler.passes.HighLevelSynthesis").
+
+  The plugin supports the following plugin-specific options:
+
+  *   section size: The size of each section used in the Patel–Markov–Hayes algorithm \[1].
+
+  *   **use\_inverted: Indicates whether to run the algorithm on the inverse matrix**
+
+      and to invert the synthesized circuit. In certain cases this provides a better decomposition than the direct approach.
+
+  *   **use\_transposed: Indicates whether to run the algorithm on the transposed matrix**
+
+      and to invert the order of CX gates in the synthesized circuit. In certain cases this provides a better decomposition than the direct approach.
+
+  **References**
+
+  1.  Patel, Ketan N., Igor L. Markov, and John P. Hayes, *Optimal synthesis of linear reversible circuits*, Quantum Information & Computation 8.3 (2008): 282-294. [arXiv:quant-ph/0302002 \[quant-ph\]](https://arxiv.org/abs/quant-ph/0302002)
+
+  ## Methods
+
+  ### run
+
+  <Function id="qiskit.transpiler.passes.synthesis.hls_plugins.PMHSynthesisLinearFunction.run" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L805-L828" signature="run(high_level_object, coupling_map=None, target=None, qubits=None, **options)">
+    Run synthesis for the given LinearFunction.
+  </Function>
+</Class>
