@@ -14,7 +14,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoleGate } from "./components/auth/RoleGate";
 import { LearningCenter } from "./pages/LearningCenter";
 import { LearnerModule } from "./pages/LearnerModule";
-import { FloatingChat } from "./components/chat/FloatingChat";
+
 import "./AppRoot.css";
 
 // LearningCenter/LearnerModule take onHome/onOpenEditor callback props
@@ -48,8 +48,6 @@ function AppRoot() {
   }
 
   return (
-    <>
-    <FloatingChat />
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
@@ -87,7 +85,6 @@ function AppRoot() {
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-    </>
   );
 }
 
