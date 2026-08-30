@@ -7,7 +7,7 @@
       "modules": [
         {
           "id": "courses-basics-of-quantum-information",
-          "title": "Overview",
+          "title": "Basics of Quantum Information",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
           "order": null,
@@ -106,7 +106,7 @@
         },
         {
           "id": "courses-use-a-qc-today",
-          "title": "Overview",
+          "title": "Use a QC Today",
           "difficulty": "beginner",
           "estimatedTime": "5 hr",
           "order": null,
@@ -152,7 +152,7 @@
       "modules": [
         {
           "id": "courses-fundamentals-of-quantum-algorithms",
-          "title": "Overview",
+          "title": "Fundamentals of Quantum Algorithms",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
           "order": null,
@@ -261,7 +261,7 @@
         },
         {
           "id": "courses-quantum-diagonalization-algorithms",
-          "title": "Overview",
+          "title": "Quantum Diagonalization Algorithms",
           "difficulty": "beginner",
           "estimatedTime": "10 hr",
           "order": null,
@@ -305,7 +305,7 @@
         },
         {
           "id": "courses-utility-scale-quantum-computing",
-          "title": "Overview",
+          "title": "Utility Scale Quantum Computing",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
           "order": null,
@@ -384,7 +384,7 @@
         },
         {
           "id": "courses-variational-algorithm-design",
-          "title": "Overview",
+          "title": "Variational Algorithm Design",
           "difficulty": "beginner",
           "estimatedTime": "8 hr",
           "order": null,
@@ -440,7 +440,7 @@
       "modules": [
         {
           "id": "courses-foundations-of-quantum-error-correction",
-          "title": "Overview",
+          "title": "Foundations of Quantum Error Correction",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
           "order": null,
@@ -541,7 +541,7 @@
       "modules": [
         {
           "id": "courses-designing-and-leading-quantum-projects",
-          "title": "Overview",
+          "title": "Designing and Leading Quantum Projects",
           "difficulty": "beginner",
           "estimatedTime": "4 hr",
           "order": null,
@@ -570,7 +570,7 @@
         },
         {
           "id": "courses-general-formulation-of-quantum-information",
-          "title": "Overview",
+          "title": "General Formulation of Quantum Information",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
           "order": null,
@@ -664,7 +664,7 @@
         },
         {
           "id": "courses-integrating-quantum-and-high-performance-computing",
-          "title": "Overview",
+          "title": "Integrating Quantum and High Performance Computing",
           "difficulty": "beginner",
           "estimatedTime": "6 hr",
           "order": null,
@@ -703,7 +703,7 @@
         },
         {
           "id": "courses-quantum-business-foundations",
-          "title": "Overview",
+          "title": "Quantum Business Foundations",
           "difficulty": "beginner",
           "estimatedTime": "3 hr",
           "order": null,
@@ -747,7 +747,7 @@
         },
         {
           "id": "courses-quantum-chem-with-vqe",
-          "title": "Overview",
+          "title": "Quantum Chem with VQE",
           "difficulty": "beginner",
           "estimatedTime": "5 hr",
           "order": null,
@@ -791,7 +791,7 @@
         },
         {
           "id": "courses-quantum-computing-in-practice",
-          "title": "Overview",
+          "title": "Quantum Computing in Practice",
           "difficulty": "beginner",
           "estimatedTime": "8 hr",
           "order": null,
@@ -835,7 +835,7 @@
         },
         {
           "id": "courses-quantum-machine-learning",
-          "title": "Overview",
+          "title": "Quantum Machine Learning",
           "difficulty": "beginner",
           "estimatedTime": "10 hr",
           "order": null,
@@ -874,7 +874,7 @@
         },
         {
           "id": "modules-computer-science",
-          "title": "Overview",
+          "title": "Computer Science",
           "difficulty": "beginner",
           "estimatedTime": "",
           "order": null,
@@ -918,7 +918,7 @@
         },
         {
           "id": "modules-quantum-mechanics",
-          "title": "Overview",
+          "title": "Quantum Mechanics",
           "difficulty": "beginner",
           "estimatedTime": "",
           "order": null,

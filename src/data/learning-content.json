@@ -8,7 +8,7 @@
       "modules": [
         {
           "id": "courses-basics-of-quantum-information",
-          "title": "Overview",
+          "title": "Basics of Quantum Information",
           "description": "Learn about quantum information, from states and measurements to quantum circuits and entanglement.",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
@@ -182,7 +182,7 @@
         },
         {
           "id": "courses-use-a-qc-today",
-          "title": "Overview",
+          "title": "Use a QC Today",
           "description": "An introduction to the basics of quantum computing, designed to get you started as quickly as possible.",
           "difficulty": "beginner",
           "estimatedTime": "5 hr",
@@ -256,7 +256,7 @@
       "modules": [
         {
           "id": "courses-fundamentals-of-quantum-algorithms",
-          "title": "Overview",
+          "title": "Fundamentals of Quantum Algorithms",
           "description": "Learn how quantum algorithms beat classical algorithms for problems including integer factoring and search.",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
@@ -448,7 +448,7 @@
         },
         {
           "id": "courses-quantum-diagonalization-algorithms",
-          "title": "Overview",
+          "title": "Quantum Diagonalization Algorithms",
           "description": "Explore quantum approaches to matrix diagonalization, including VQE, QKD, SKD and variations of these.",
           "difficulty": "beginner",
           "estimatedTime": "10 hr",
@@ -523,7 +523,7 @@
         },
         {
           "id": "courses-utility-scale-quantum-computing",
-          "title": "Overview",
+          "title": "Utility Scale Quantum Computing",
           "description": "A collection of learning assets from a 14-lesson course on utility-scale quantum computing.",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
@@ -661,7 +661,7 @@
         },
         {
           "id": "courses-variational-algorithm-design",
-          "title": "Overview",
+          "title": "Variational Algorithm Design",
           "description": "An overview of variational algorithms: hybrid classical quantum algorithms.",
           "difficulty": "beginner",
           "estimatedTime": "8 hr",
@@ -753,7 +753,7 @@
       "modules": [
         {
           "id": "courses-foundations-of-quantum-error-correction",
-          "title": "Overview",
+          "title": "Foundations of Quantum Error Correction",
           "description": "Learn how quantum computations can be protected against noise through quantum error correcting codes and fault tolerance.",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
@@ -926,7 +926,7 @@
       "modules": [
         {
           "id": "courses-designing-and-leading-quantum-projects",
-          "title": "Overview",
+          "title": "Designing and Leading Quantum Projects",
           "description": "A guide for teams and organizations in the early stages of quantum initiative development.",
           "difficulty": "beginner",
           "estimatedTime": "4 hr",
@@ -974,7 +974,7 @@
         },
         {
           "id": "courses-general-formulation-of-quantum-information",
-          "title": "Overview",
+          "title": "General Formulation of Quantum Information",
           "description": "Dive deeper into quantum information, including density matrices, channels, and general measurements.",
           "difficulty": "beginner",
           "estimatedTime": "15 hr",
@@ -1139,7 +1139,7 @@
         },
         {
           "id": "courses-integrating-quantum-and-high-performance-computing",
-          "title": "Overview",
+          "title": "Integrating Quantum and High Performance Computing",
           "description": "Discover how quantum and high-performance computing can be combined in a single workflow.",
           "difficulty": "beginner",
           "estimatedTime": "6 hr",
@@ -1205,7 +1205,7 @@
         },
         {
           "id": "courses-quantum-business-foundations",
-          "title": "Overview",
+          "title": "Quantum Business Foundations",
           "description": "Builds foundations of quantum computing, technology, and business applications.",
           "difficulty": "beginner",
           "estimatedTime": "3 hr",
@@ -1280,7 +1280,7 @@
         },
         {
           "id": "courses-quantum-chem-with-vqe",
-          "title": "Overview",
+          "title": "Quantum Chem with VQE",
           "description": "An introduction to VQE covering basic building blocks and applications.",
           "difficulty": "beginner",
           "estimatedTime": "5 hr",
@@ -1355,7 +1355,7 @@
         },
         {
           "id": "courses-quantum-computing-in-practice",
-          "title": "Overview",
+          "title": "Quantum Computing in Practice",
           "description": "Learn potential use cases and best practices for experimenting with quantum processors having 100+ qubits.",
           "difficulty": "beginner",
           "estimatedTime": "8 hr",
@@ -1430,7 +1430,7 @@
         },
         {
           "id": "courses-quantum-machine-learning",
-          "title": "Overview",
+          "title": "Quantum Machine Learning",
           "description": "Learn to leverage the power of quantum computing in machine learning methods.",
           "difficulty": "beginner",
           "estimatedTime": "10 hr",
@@ -1496,7 +1496,7 @@
         },
         {
           "id": "modules-computer-science",
-          "title": "Overview",
+          "title": "Computer Science",
           "description": "This collection of Qiskit modules explores foundational quantum algorithms like teleportation, key distribution, and Deutsch-Jozsa.",
           "difficulty": "beginner",
           "estimatedTime": "",
@@ -1571,7 +1571,7 @@
         },
         {
           "id": "modules-quantum-mechanics",
-          "title": "Overview",
+          "title": "Quantum Mechanics",
           "description": "This is a collection of stand-alone modules designed for an undergraduate quantum mechanics course.",
           "difficulty": "beginner",
           "estimatedTime": "",

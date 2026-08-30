@@ -43,8 +43,15 @@ platform-specific rolldown binary even though it is present in
 npm install @rolldown/binding-darwin-arm64 --no-save
 ```
 
-Substitute your platform's binding if you are not on Apple Silicon
-(`@rolldown/binding-linux-x64-gnu`, `@rolldown/binding-darwin-x64`, etc.) —
+`npm run lint` fails the same way, for the same reason — oxlint ships its
+binary identically:
+
+```bash
+npm install @oxlint/binding-darwin-arm64 --no-save
+```
+
+Substitute your platform's bindings if you are not on Apple Silicon
+(`@rolldown/binding-linux-x64-gnu`, `@oxlint/binding-darwin-x64`, etc.) —
 `node -p "process.platform + process.arch"` will tell you which.
 
 ## 3. Postgres and Redis

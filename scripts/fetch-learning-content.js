@@ -156,6 +156,59 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+// --- Module display titles ---------------------------------------------------
+// A course's real name lives in its directory slug
+// ("basics-of-quantum-information"), but the index.mdx inside it is titled
+// "Overview" — that's the index page's own heading, not the course name. Taking
+// it verbatim rendered every module in the roadmap as "Overview", so titles are
+// derived from the slug and an index heading only wins when it's actually
+// specific.
+
+const TITLE_ACRONYMS = new Map([
+  ["qc", "QC"],
+  ["qpu", "QPU"],
+  ["cpu", "CPU"],
+  ["gpu", "GPU"],
+  ["hpc", "HPC"],
+  ["vqe", "VQE"],
+  ["qaoa", "QAOA"],
+  ["qml", "QML"],
+  ["ai", "AI"],
+  ["ml", "ML"],
+  ["ibm", "IBM"],
+  ["api", "API"],
+]);
+
+// Lowercased mid-title, per standard title case. Never applied to the first
+// word, so "A Tour of ..." keeps its capital.
+const TITLE_MINOR_WORDS = new Set([
+  "a", "an", "and", "as", "at", "but", "by", "for", "from",
+  "in", "of", "on", "or", "the", "to", "via", "with",
+]);
+
+function humanizeSlug(slug) {
+  const words = String(slug).split(/[-_]+/).filter(Boolean);
+  if (words.length === 0) return String(slug);
+  return words
+    .map((word, i) => {
+      const lower = word.toLowerCase();
+      const acronym = TITLE_ACRONYMS.get(lower);
+      if (acronym) return acronym;
+      if (i > 0 && TITLE_MINOR_WORDS.has(lower)) return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
+// Index-page headings that describe the page rather than the module.
+const GENERIC_INDEX_TITLES = new Set([
+  "overview", "index", "introduction", "intro", "home", "about", "contents", "readme",
+]);
+
+function isGenericTitle(title) {
+  return !title || GENERIC_INDEX_TITLES.has(String(title).trim().toLowerCase());
+}
+
 // --- Fetch phase ---------------------------------------------------------------
 
 async function fetchAllContent(entries, cache) {
@@ -204,7 +257,7 @@ function buildRoadmap(entries, cache) {
 
   const makePlaceholderModule = (modId, slug, filePath) => ({
     id: slugify(modId),
-    title: slug,
+    title: humanizeSlug(slug),
     description: "",
     difficulty: "beginner",
     estimatedTime: "",
@@ -228,7 +281,8 @@ function buildRoadmap(entries, cache) {
     const mod = modulesById.get(modId) || makePlaceholderModule(modId, slug, entry.path);
 
     if (isIndex) {
-      mod.title = fm.title || cached.title || mod.title;
+      const indexTitle = fm.title || cached.title;
+      if (!isGenericTitle(indexTitle)) mod.title = indexTitle;
       mod.description = fm.description || mod.description;
       mod.difficulty = fm.difficulty || mod.difficulty;
       mod.estimatedTime = fm.estimatedTime || fm.duration || (fm.hours ? `${fm.hours} hr` : mod.estimatedTime);
