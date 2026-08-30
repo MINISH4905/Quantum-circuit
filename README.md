@@ -510,15 +510,20 @@ If unset, falls back to `http://localhost:8000`.
 
 ### Backend → Render
 
-A `render.yaml` blueprint at the repo root automates deployment. Environment variables:
+A `render.yaml` blueprint at the repo root automates deployment (Postgres + Redis + the backend web service, built from `backend/Dockerfile` with the repo root as Docker build context — `knowledge_base/` has to be baked into the image for RAG, since Render has no equivalent of docker-compose's host bind mount). Environment variables to set (marked `sync: false` in the blueprint, so Render prompts for them):
 
 | Variable | Required | Purpose |
 |---|---|---|
 | `ALLOWED_ORIGINS` | Yes | Comma-separated allowed CORS origins (your Vercel URL) |
-| `OLLAMA_BASE_URL` | No | Ollama server URL (AI tutor degrades gracefully without it) |
-| `OLLAMA_MODEL` | No | Ollama model name (default: `llama3`) |
+| `GROQ_API_KEY` | Yes | AI tutor chat + per-concept circuit generation. Without it, both degrade to blank/deterministic fallbacks rather than failing outright |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Yes | Google SSO — login is required to reach `/dashboard` |
+| `FRONTEND_URL` | Yes | Your Vercel URL — used for post-login redirects |
 
-**Deploy order:** backend first (to get its URL) → set `VITE_BACKEND_URL` on Vercel → set `ALLOWED_ORIGINS` on Render to the Vercel URL → redeploy backend.
+`DATABASE_URL`, `REDIS_URL`, and `SESSION_SECRET` are wired automatically by the blueprint (from the Postgres/Redis services and a generated value, respectively).
+
+**Plan:** the backend service is on `starter`, not `free` — the RAG pipeline (sentence-transformers + chromadb) needs more than 512MB RAM, and its persistent disk (`/rag_data`, so the embedded knowledge base survives restarts instead of re-embedding ~2600 documents from scratch every deploy, which takes several minutes on CPU) requires a paid plan.
+
+**Deploy order:** backend first (to get its URL) → set `VITE_BACKEND_URL` on Vercel → set `ALLOWED_ORIGINS`/`FRONTEND_URL` on Render to the Vercel URL → redeploy backend.
 
 ---
 
