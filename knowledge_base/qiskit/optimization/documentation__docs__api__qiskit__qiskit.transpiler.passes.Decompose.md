@@ -1,0 +1,108 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: optimization
+source_path: docs/api/qiskit/qiskit.transpiler.passes.Decompose.mdx
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/docs/api/qiskit/qiskit.transpiler.passes.Decompose.mdx
+license: CC-BY-SA-4.0
+---
+
+# Decompose
+
+<Class id="qiskit.transpiler.passes.Decompose" isDedicatedPage={true} github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/basis/decompose.py#L30-L126" signature="qiskit.transpiler.passes.Decompose(*args, **kwargs)" modifiers="class">
+  Bases: [`TransformationPass`](qiskit.transpiler.TransformationPass "qiskit.transpiler.basepasses.TransformationPass")
+
+  Expand a gate in a circuit using its decomposition rules.
+
+  **Parameters**
+
+  *   **gates\_to\_decompose** – optional subset of gates to be decomposed, identified by gate label, name or type. Defaults to all gates.
+  *   **apply\_synthesis** – If `True`, run [`HighLevelSynthesis`](qiskit.transpiler.passes.HighLevelSynthesis "qiskit.transpiler.passes.HighLevelSynthesis") to synthesize operations that do not have a definition attached.
+
+  ## Attributes
+
+  ### is\_analysis\_pass
+
+  <Attribute id="qiskit.transpiler.passes.Decompose.is_analysis_pass">
+    Check if the pass is an analysis pass.
+
+    If the pass is an AnalysisPass, that means that the pass can analyze the DAG and write the results of that analysis in the property set. Modifications on the DAG are not allowed by this kind of pass.
+  </Attribute>
+
+  ### is\_transformation\_pass
+
+  <Attribute id="qiskit.transpiler.passes.Decompose.is_transformation_pass">
+    Check if the pass is a transformation pass.
+
+    If the pass is a TransformationPass, that means that the pass can manipulate the DAG, but cannot modify the property set (but it can be read).
+  </Attribute>
+
+  ## Methods
+
+  ### execute
+
+  <Function id="qiskit.transpiler.passes.Decompose.execute" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/basepasses.py#L162-L181" signature="execute(passmanager_ir, state, callback=None)">
+    Execute optimization task for input Qiskit IR.
+
+    **Parameters**
+
+    *   **passmanager\_ir** ([*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit")) – Qiskit IR to optimize.
+    *   **state** ([*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit")) – State associated with workflow execution by the pass manager itself.
+    *   **callback** ([*Callable*](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)*\[\[*[*Task*](qiskit.passmanager.Task "qiskit.passmanager.base_tasks.Task")*,* [*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit")*,* [*PropertySet*](qiskit.passmanager.PropertySet "qiskit.passmanager.compilation_status.PropertySet")*,* [*float*](https://docs.python.org/3/library/functions.html#float)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*], None] | None*) – A callback function which is called per execution of optimization task.
+
+    **Returns**
+
+    Optimized Qiskit IR and state of the workflow.
+
+    **Return type**
+
+    [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)\[[*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit"), [*PassManagerState*](qiskit.passmanager.PassManagerState "qiskit.passmanager.compilation_status.PassManagerState")]
+  </Function>
+
+  ### name
+
+  <Function id="qiskit.transpiler.passes.Decompose.name" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/passmanager/base_tasks.py#L72-L74" signature="name()">
+    Name of the pass.
+
+    **Return type**
+
+    [str](https://docs.python.org/3/library/stdtypes.html#str)
+  </Function>
+
+  ### run
+
+  <Function id="qiskit.transpiler.passes.Decompose.run" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/basis/decompose.py#L51-L96" signature="run(dag)">
+    Run the Decompose pass on dag.
+
+    **Parameters**
+
+    **dag** ([*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit")) – input dag.
+
+    **Returns**
+
+    output dag where `gate` was expanded.
+
+    **Return type**
+
+    [*DAGCircuit*](qiskit.dagcircuit.DAGCircuit "qiskit._accelerate.circuit.DAGCircuit")
+  </Function>
+
+  ### update\_status
+
+  <Function id="qiskit.transpiler.passes.Decompose.update_status" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/basepasses.py#L183-L191" signature="update_status(state, run_state)">
+    Update workflow status.
+
+    **Parameters**
+
+    *   **state** ([*PassManagerState*](qiskit.passmanager.PassManagerState "qiskit.passmanager.compilation_status.PassManagerState")) – Pass manager state to update.
+    *   **run\_state** (*RunState*) – Completion status of current task.
+
+    **Returns**
+
+    Updated pass manager state.
+
+    **Return type**
+
+    [*PassManagerState*](qiskit.passmanager.PassManagerState "qiskit.passmanager.compilation_status.PassManagerState")
+  </Function>
+</Class>

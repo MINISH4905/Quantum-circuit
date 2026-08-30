@@ -1,0 +1,32 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: optimization
+source_path: docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.MCXSynthesisDefault.mdx
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/docs/api/qiskit/qiskit.transpiler.passes.synthesis.hls_plugins.MCXSynthesisDefault.mdx
+license: CC-BY-SA-4.0
+---
+
+# MCXSynthesisDefault
+
+<Class id="qiskit.transpiler.passes.synthesis.hls_plugins.MCXSynthesisDefault" isDedicatedPage={true} github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L1485-L1556" signature="qiskit.transpiler.passes.synthesis.hls_plugins.MCXSynthesisDefault" modifiers="class">
+  Bases: [`HighLevelSynthesisPlugin`](qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin "qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin")
+
+  The default synthesis plugin for a multi-controlled X gate.
+
+  This plugin name is :`mcx.default` which can be used as the key on an [`HLSConfig`](qiskit.transpiler.passes.HLSConfig "qiskit.transpiler.passes.HLSConfig") object to use this method with [`HighLevelSynthesis`](qiskit.transpiler.passes.HighLevelSynthesis "qiskit.transpiler.passes.HighLevelSynthesis").
+
+  The plugin supports the following plugin-specific options:
+
+  *   `optimization_metric`: The optimization metric, indicating the property of the output circuit (e.g., the 2-qubit gate count or the T-count) that should be minimized. See [`OptimizationMetric`](qiskit.transpiler.OptimizationMetric "qiskit.transpiler.OptimizationMetric").
+  *   `num_clean_ancillas`: The number of clean ancillary qubits available.
+  *   `num_dirty_ancillas`: The number of dirty ancillary qubits available.
+
+  ## Methods
+
+  ### run
+
+  <Function id="qiskit.transpiler.passes.synthesis.hls_plugins.MCXSynthesisDefault.run" github="https://github.com/Qiskit/qiskit/tree/stable/2.5/qiskit/transpiler/passes/synthesis/hls_plugins.py#L1502-L1556" signature="run(high_level_object, coupling_map=None, target=None, qubits=None, **options)">
+    Run synthesis for the given MCX gate.
+  </Function>
+</Class>

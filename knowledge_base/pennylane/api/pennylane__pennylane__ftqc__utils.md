@@ -1,0 +1,193 @@
+---
+framework: pennylane
+api_version: v0.45.1
+doc_type: api
+source_path: pennylane/ftqc/utils.py
+source_url: https://github.com/PennyLaneAI/pennylane/blob/5f61ce25df3cc28a1ac785d20e47d70761202ed2/pennylane/ftqc/utils.py
+license: Apache-2.0
+---
+
+## Module `pennylane/ftqc/utils.py`
+
+This module contains utility data-structures and algorithms supporting functionality in the
+ftqc module.
+
+## `parity`
+
+```python
+def parity(*args)
+```
+
+Get the parity of the arguments
+
+## `QubitMgr`
+
+```python
+class QubitMgr
+```
+
+The ``QubitMgr`` object maintains a list of active and inactive qubit wire indices used and for use
+during execution of a workload. Its purpose is to allow tracking of free qubit indices that
+are in the :math:`\vert 0 \rangle` state to participate in MCM-based workloads, under the assumption of reset
+upon measurement. Qubit wires indices will be tracked with a monotonically increasing set
+of values, starting from the initial input ``start_idx``.
+
+Args:
+    num_qubits (int): Total number of wire indices to track.
+    start_idx (int): Starting index of wires to track. Defaults to 0.
+
+**Example:**
+    The following MBQC example workload uses the ``QubitMgr`` to assist with recycling of indices
+    between iterations
+
+    .. code-block:: python
+
+        from pennylane.ftqc import QubitGraph, diagonalize_mcms, generate_lattice, measure_x, measure_y
+        dev = qp.device('null.qubit')
+
+        @qp.qnode(dev, mcm_method="one-shot")
+        def circuit_mbqc(start_state, angles):
+            q_mgr = QubitMgr(num_qubits=5, start_idx=0)
+            input_idx = q_mgr.acquire_qubit()
+
+            # prep input node
+            qp.StatePrep(start_state, wires=[input_idx])
+
+            # prep and consume graph state iteratively
+            for i in range(num_iter):
+                # Acquire 4 free qubit indices
+                graph_wires = q_mgr.acquire_qubits(4)
+
+                # Denote the index for the final output state
+                output_idx = graph_wires[-1]
+
+                # Prepare the state
+                qp.ftqc.GraphStatePrep(lattice.graph, wires=graph_wires)
+
+                # entangle input and graph using first qubit
+                qp.CZ([input_idx, graph_wires[0]])
+
+                # MBQC Z rotation: X, X, +/- angle, X
+                # Reset operations allow qubits to be returned to the pool
+                m0 = measure_x(input_idx, reset=True)
+                m1 = measure_x(graph_wires[0], reset=True)
+                m2 = cond_measure(m1, partial(measure, angle=angle, reset=True), partial(measure, angle=-angle, reset=True))(plane="XY", wires=graph_wires[1])
+                m3 = measure_x(graph_wires[2], reset=True)
+
+                # corrections based on measurement outcomes
+                qp.cond((m0+m2)%2, qp.Z)(graph_wires[3])
+                qp.cond((m1+m3)%2, qp.X)(graph_wires[3])
+
+                # The input qubit can be freed and the output qubit becomes the next iteration's input
+                q_mgr.release_qubit(input_idx)
+                input_idx = output_idx
+
+                # We can now free all but the last qubit, which has become the new input_idx
+                q_mgr.release_qubits(graph_wires[0:-1])
+
+            # Perform the measurements on the output qubit from the last iteration
+            return qp.expval(X(output_idx)), qp.expval(Y(output_idx)), qp.expval(Z(output_idx))
+
+    For each loop iteration, the measured and reset wire labels are returned to the ``QubitMgr`` instance, which are then reallocated
+    on the next step, which when combined with the MCM resets allows for qubit index recycling.
+
+### `num_qubits`
+
+```python
+def num_qubits(self) -> int
+```
+
+Defines the total number of wire indices tracked by the manager.
+
+Returns:
+    int: total number of qubit wire indices
+
+### `active`
+
+```python
+def active(self) -> set
+```
+
+Defines the active wire indices. Any wire index in this set is unavailable for use, as it may
+be participating in existing algorithms and/or not be in a reset state.
+
+Returns:
+    set[int]: active wire indices
+
+### `inactive`
+
+```python
+def inactive(self) -> set
+```
+
+Defines the inactive wire indices. Any wire index in this set is available for use, and is
+assumed to be in a reset (:math:`\vert 0 \rangle`) state.
+
+Returns:
+    set[int]: inactive wire indices
+
+### `all_qubits`
+
+```python
+def all_qubits(self) -> set
+```
+
+Defines all active and inactive wire indices.
+
+Returns:
+    set[int]: union of active and inactive wire indices
+
+### `acquire_qubit`
+
+```python
+def acquire_qubit(self) -> int
+```
+
+Acquires an available qubit wire index from the inactive pool, and makes it active.
+If there are no inactive qubits available a RuntimeError will be raised.
+
+Returns:
+    int: newly activated qubit wire index
+
+### `acquire_qubits`
+
+```python
+def acquire_qubits(self, num_qubits: int) -> list[int]
+```
+
+Acquires num_qubits qubit wire indices from the inactive pool, and makes them active.
+If there are no inactive qubits available a RuntimeError will be raised.
+
+.. seealso:: :meth:`~.QubitMgr.acquire_qubit`.
+
+Returns:
+    list[int]: newly activated qubit wire indices
+
+### `release_qubit`
+
+```python
+def release_qubit(self, idx: int) -> None
+```
+
+Release an active qubit wire index, idx, from the active pool, and makes it inactive.
+If idx is not in the active pool a RuntimeError will be raised.
+
+### `release_qubits`
+
+```python
+def release_qubits(self, indices: list[int]) -> None
+```
+
+Release the list of active qubit wire indices, indices, from the active pool, and makes them inactive.
+If any of the given indices are not in the active pool a RuntimeError will be raised.
+
+.. seealso:: :meth:`~.QubitMgr.release_qubit`.
+
+### `reserve_qubit`
+
+```python
+def reserve_qubit(self, idx: int) -> None
+```
+
+Explicitly reserve the qubit wire index, idx, to be active.
+If given index is not in the active pool a RuntimeError will be raised.

@@ -1,0 +1,20 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: concept
+source_path: learning/courses/basics-of-quantum-information/quantum-circuits/introduction.ipynb
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/learning/courses/basics-of-quantum-information/quantum-circuits/introduction.ipynb
+license: CC-BY-SA-4.0
+---
+
+# Introduction
+
+
+In the following video, John Watrous steps you through the content in this lesson on quantum circuits. Alternatively, you can open the [YouTube video](https://youtu.be/30U2DTfIrOU?list=PLOFEBzvs-VvqKKMXX4vbi4EB1uaErFMSO) for this lesson in a separate window. [Download the slides](https://ibm.box.com/public/static/zsd4694uko51kzcohdvbp6ncgl9u9ys3.pdf) for this lesson.
+
+<IBMVideo id="134056224" title="In this video, John Watrous describes introduces quantum circuits. He demonstrates how circuits represent quantum operations and builds the connection with matrix operations."/>
+
+This lesson introduces the *quantum circuit* model of computation, which provides a standard way to describe quantum computations.
+
+The lesson also introduces a few important mathematical concepts, including *inner products* between vectors, the notions of *orthogonality* and *orthonormality*, and *projections* and *projective measurements*, which generalize standard basis measurements.
+Through these concepts, we'll derive fundamental limitations on quantum information, including the *no-cloning theorem* and the impossibility to perfectly discriminate non-orthogonal quantum states.

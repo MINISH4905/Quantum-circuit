@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-08-30T06:52:41.365725+00:00",
+  "frameworks": {
+    "qiskit": {
+      "repos": [
+        {
+          "repo": "qiskit/documentation",
+          "url": "https://github.com/Qiskit/documentation",
+          "ref": "1a3b8eb3e102668f9612ac64c80f384b28683681",
+          "ref_kind": "commit",
+          "commit": "1a3b8eb3e102668f9612ac64c80f384b28683681",
+          "license": "CC-BY-SA-4.0",
+          "sparse_paths": [
+            "learning/courses/basics-of-quantum-information",
+            "learning/courses/fundamentals-of-quantum-algorithms",
+            "learning/courses/general-formulation-of-quantum-information",
+            "docs/api/qiskit"
+          ]
+        },
+        {
+          "repo": "Qiskit/qiskit",
+          "url": "https://github.com/Qiskit/qiskit",
+          "ref": "2.5.2",
+          "ref_kind": "tag",
+          "commit": "c1c01ada399af13e495c27b9b22b4ff942bbad7e",
+          "license": "Apache-2.0",
+          "sparse_paths": [
+            "qiskit"
+          ]
+        }
+      ],
+      "file_counts": {
+        "concept": 58,
+        "api": 534,
+        "error": 39,
+        "optimization": 334
+      },
+      "total_files": 965,
+      "collected_at": "2026-08-30T06:50:31.220327+00:00"
+    },
+    "cirq": {
+      "repos": [
+        {
+          "repo": "quantumlib/Cirq",
+          "url": "https://github.com/quantumlib/Cirq",
+          "ref": "v1.7.0",
+          "ref_kind": "tag",
+          "commit": "de651a7886d1a1383d595f95f36b93ed3ea91685",
+          "license": "Apache-2.0",
+          "sparse_paths": [
+            "docs",
+            "cirq-core/cirq"
+          ]
+        }
+      ],
+      "file_counts": {
+        "concept": 88,
+        "api": 366,
+        "error": 19,
+        "optimization": 77
+      },
+      "total_files": 550,
+      "collected_at": "2026-08-30T06:50:34.832037+00:00"
+    },
+    "pennylane": {
+      "repos": [
+        {
+          "repo": "PennyLaneAI/pennylane",
+          "url": "https://github.com/PennyLaneAI/pennylane",
+          "ref": "v0.45.1",
+          "ref_kind": "tag",
+          "commit": "5f61ce25df3cc28a1ac785d20e47d70761202ed2",
+          "license": "Apache-2.0",
+          "sparse_paths": [
+            "doc",
+            "pennylane"
+          ]
+        },
+        {
+          "repo": "PennyLaneAI/qml",
+          "url": "https://github.com/PennyLaneAI/qml",
+          "ref": "cf4629f869bf4dbc8ce0f9a5a3256eda138c7bbb",
+          "ref_kind": "commit",
+          "commit": "cf4629f869bf4dbc8ce0f9a5a3256eda138c7bbb",
+          "license": "Apache-2.0",
+          "sparse_paths": [
+            "demonstrations_v2"
+          ]
+        }
+      ],
+      "file_counts": {
+        "concept": 375,
+        "api": 602,
+        "error": 37,
+        "optimization": 59
+      },
+      "total_files": 1073,
+      "collected_at": "2026-08-30T06:52:41.365924+00:00"
+    }
+  }
+}

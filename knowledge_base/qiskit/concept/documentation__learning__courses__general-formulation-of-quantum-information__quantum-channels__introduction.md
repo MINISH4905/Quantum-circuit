@@ -1,0 +1,31 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: concept
+source_path: learning/courses/general-formulation-of-quantum-information/quantum-channels/introduction.ipynb
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/learning/courses/general-formulation-of-quantum-information/quantum-channels/introduction.ipynb
+license: CC-BY-SA-4.0
+---
+
+# Introduction
+
+In the general formulation of quantum information, operations on quantum states are represented by a special class of mappings called *channels*.
+This includes useful operations, such as ones corresponding to unitary gates and circuits, as well as operations we deem as noise and would prefer to avoid.
+We can also describe measurements as channels, which we'll do in the next lesson.
+In short, any <DefinitionTooltip definition="A discrete-time change refers to one occurring between two distinct moments in time, as opposed to a continuous process that can be described over infinitesimally small time periods.">discrete-time</DefinitionTooltip> change in states that is physically realizable (in an idealized sense) can be described by a channel.
+
+The term *channel* comes to us from information theory, which (among other things) studies the information-carrying capacities of noisy *communication channels*.
+In this context, a quantum channel could specify the quantum state that's received when a given quantum state is sent, perhaps through a quantum network of some sort.
+It should be understood, however, that the terminology merely reflects this historical motivation and is used in a more general way.
+Indeed, we can describe a wide variety of things (such as complicated quantum computations) as channels, even though they have nothing to do with communication and would be unlikely to arise naturally in such a setting.
+
+
+We'll begin the lesson with a discussion of some basic aspects of channels, along with a small selection of examples.
+Then we'll move on to three different ways to represent channels in mathematical terms later in the lesson.
+We'll see that, although these representations are different, they all offer equivalent mathematical characterizations of channels.
+
+## Lesson video
+
+In the following video, John Watrous steps you through the content in this lesson on quantum channels. Alternatively, you can open the [YouTube video](https://www.youtube.com/watch?v=cMl-xIDSmXI&list=PLOFEBzvs-VvqKKMXX4vbi4EB1uaErFMSO&index=12) for this lesson in a separate window. [Download the slides](https://ibm.box.com/public/static/35dvc00e41kmqmy17cpgmli8zrh04v8k.pdf) for this lesson.
+
+<IBMVideo id="134063422" title="In this video, John Watrous discusses the basics of quantum channels. He reviews various representations of quantum channels and discusses the equivalence of these representations."/>

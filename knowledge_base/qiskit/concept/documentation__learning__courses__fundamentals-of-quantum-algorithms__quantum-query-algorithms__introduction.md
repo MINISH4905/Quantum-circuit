@@ -1,0 +1,27 @@
+---
+framework: qiskit
+api_version: 1a3b8eb3e102
+doc_type: concept
+source_path: learning/courses/fundamentals-of-quantum-algorithms/quantum-query-algorithms/introduction.ipynb
+source_url: https://github.com/Qiskit/documentation/blob/1a3b8eb3e102668f9612ac64c80f384b28683681/learning/courses/fundamentals-of-quantum-algorithms/quantum-query-algorithms/introduction.ipynb
+license: CC-BY-SA-4.0
+---
+
+# Introduction
+
+In this first lesson of the course, we'll formulate a simple algorithmic framework — known as the *query model* — and explore the advantages that quantum computers offer within this framework.
+
+The query model of computation is like a petri dish for quantum algorithmic ideas.
+It's rigid and unnatural in the sense that it doesn't accurately represent the sorts of computational problems we generally care about in practice, but it has nevertheless proved to be incredibly useful as a tool for developing quantum algorithmic techniques.
+This includes the ones that power the most well-known quantum algorithms, such as Shor's algorithm for integer factorization.
+The query model also happens to be a very useful framework for *explaining* quantum algorithmic techniques.
+
+After introducing the query model itself, we'll discuss the very first quantum algorithm that was discovered, which is *Deutsch's algorithm,* along with an extension of Deutsch's algorithm known as the *Deutsch-Jozsa algorithm*.
+These algorithms demonstrate quantifiable advantages of quantum over classical computers within the context of the query model.
+We'll then discuss a quantum algorithm known as *Simon's algorithm,* which offers a more robust and satisfying advantage of quantum over classical computations, for reasons that will be explained when we get to it.
+
+## Lesson video
+
+In the following video, John Watrous steps you through the content in this lesson on quantum query algorithms. Alternatively, you can open the [YouTube video](https://youtu.be/2wticzHE1vs?list=PLOFEBzvs-VvqKKMXX4vbi4EB1uaErFMSO) for this lesson in a separate window. [Download the slides](https://ibm.box.com/public/static/keh3p0vnrptftpk6o5kabvjewj8psube.pdf) for this lesson.
+
+<IBMVideo id="134056235" title="In this video, John Watrous discusses the query model of computation and steps through some canonical examples from quantum computing. These include the Deutsch-Jozsa algorithm and Simon's algorithm."/>
