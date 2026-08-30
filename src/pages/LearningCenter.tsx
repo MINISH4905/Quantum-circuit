@@ -90,6 +90,7 @@ export function LearningCenter({ onHome, onOpenEditor }: LearningCenterProps) {
       expandModuleFor(sourceFile);
       setView({ page: "concept", conceptSourceFile: sourceFile });
       window.history.replaceState(null, "", `${HASH_PREFIX}${encodeURIComponent(sourceFile)}`);
+      window.scrollTo(0, 0);
     },
     [expandModuleFor]
   );
